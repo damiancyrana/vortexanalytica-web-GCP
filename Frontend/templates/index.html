@@ -6,7 +6,6 @@
   <title>Vortex Analytica</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/static/css/index.css" />
-
 </head>
 <body>
   <header>
@@ -14,6 +13,14 @@
       <div class="logo">
         <div class="logo-text">Vortex Analytica</div>
       </div>
+      
+      <nav id="mainNav">
+        <ul class="nav__list">
+          <li class="active"><a href="#"><i class="fas fa-satellite-dish"></i> Feed Live</a></li>
+          <li><a href="#"><i class="fas fa-chart-line"></i> Market Overview</a></li>
+        </ul>
+      </nav>
+      
       <div class="theme-toggle">
         <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle light/dark theme">
           <i class="fas fa-moon"></i>
@@ -21,26 +28,6 @@
       </div>
     </div>
   </header>
-
-  <!-- Side Menu -->
-  <div class="side-menu" id="sideMenu">
-    <div class="side-menu-header">
-      <h3></h3>
-      <button class="toggle-btn" id="toggleMenu">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-    </div>
-    <div class="menu-items">
-      <div class="menu-item active">
-        <i class="fas fa-satellite-dish"></i>
-        <span class="menu-label">Feed Live</span>
-      </div>
-      <div class="menu-item">
-        <i class="fas fa-chart-line"></i>
-        <span class="menu-label">Market Overview</span>
-      </div>
-    </div>
-  </div>
 
   <!-- Main Content Area -->
   <div class="main-content" id="mainContent">
