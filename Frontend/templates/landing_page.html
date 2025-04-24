@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <title>Vortex Analytica — See the Unseen. Act Faster.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+        content="Vortex Analytica: AI-driven market intelligence layer delivering narrative insights and black-swan detection in milliseconds" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <!-- Główny arkusz stylów landing page -->
+  <link rel="stylesheet" href="/static/css/landing_page.css" />
+
+  <!-- Three.js (CDN) – potrzebny do animowanego tła -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<!-- animowane tło -->
+<canvas id="quantum-field"></canvas>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+
+    <div class="logo-text">Vortex Analytica</div>
+  </div>
+
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <nav id="mainNav">
+    <ul class="nav__list">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#solution">Solution</a></li>
+      <li><a href="#capabilities">Capabilities</a></li>
+      <li><a href="#advantage">Advantage</a></li>
+      <li><a href="#about">About&nbsp;Us</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#mvp">Get&nbsp;Started</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ===== PAGE BODY ===== -->
+<div class="main-container">
+
+  <!-- HERO -------------------------------------------------------- -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <h1>Navigate Market Chaos. Anticipate the Unseen</h1>
+      <p class="subtitle">
+        Vortex Analytica transforms noisy market data into your decisive edge,
+        delivering actionable narrative intelligence in milliseconds.
+      </p>
+
+      <div class="login-buttons">
+        <a href="{{ auth_url }}" class="login-button microsoft">
+          <i class="fab fa-microsoft"></i> Log&nbsp;in&nbsp;or&nbsp;Sign&nbsp;up
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM ------------------------------------------------------ -->
+  <section id="problem">
+    <h2 class="section-title">The Market Never Sleeps. Neither Should Your Intelligence.</h2>
+    <p class="section-subtitle">
+      Traditional analytics lag. By the time you see the pattern, the opportunity is gone.
+      Information overload obscures the real signals, leaving you reacting—not anticipating.
+    </p>
+
+    <div class="problem-container">
+      <div class="info-card problem-card">
+        <i class="fas fa-tachometer-alt problem-icon"></i>
+        <h3>Latency Kills Alpha</h3>
+        <p>Slow data feeds and processing mean missed entries and exits. Milliseconds matter.</p>
+      </div>
+
+      <div class="info-card problem-card">
+        <i class="fas fa-newspaper problem-icon"></i>
+        <h3>Narrative Blind Spots</h3>
+        <p>Price action is only half the story. Hidden narratives drive major market shifts.</p>
+      </div>
+
+      <div class="info-card problem-card">
+        <i class="fas fa-filter problem-icon"></i>
+        <h3>Signal Drowned&nbsp;in Noise</h3>
+        <p>Finding the critical insight within terabytes of data is a monumental challenge.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION ----------------------------------------------------- -->
+  <section id="solution">
+    <i class="fas fa-brain solution-icon"></i>
+    <h2 class="section-title">Vortex Analytica: Your Market Nervous System</h2>
+    <p class="section-subtitle">
+      We are the Market Intelligence Layer delivered via Edge-as-a-Service (EaaS).
+      Vortex ingests the chaos—tick data, global news, sentiment—and translates it
+      into clear, actionable intelligence in under 100 milliseconds.
+    </p>
+  </section>
+
+  <!-- ENGINES ------------------------------------------------------ -->
+  <section id="engines">
+    <h2 class="section-title">Powered by Predictive Engines</h2>
+    <p class="section-subtitle">Two core engines work in synergy to give you unparalleled foresight.</p>
+
+    <div class="grid-container grid-2-cols">
+      <div class="info-card engine-card">
+        <i class="fas fa-eye engine-icon"></i>
+        <h3>Black Swan Hunter</h3>
+        <p>Our multi-agent bot network constantly scans the horizon, detecting high-impact, unexpected
+           events <em>before</em> they become market-moving narratives.</p>
+      </div>
+
+      <div class="info-card engine-card">
+        <i class="fas fa-bolt engine-icon"></i>
+        <h3>Chrono Engine</h3>
+        <p>Fueled by Apache Flink, Nvidia TensorRT, and kernel-bypassing tech, it processes
+           real-time tick-data and news below the 100 ms threshold.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPABILITIES ------------------------------------------------- -->
+  <section id="capabilities">
+    <h2 class="section-title">Unlock Deeper Market Understanding</h2>
+    <p class="section-subtitle">
+      Go beyond price. Understand the forces shaping the market with our specialized intelligence modules.
+    </p>
+
+    <div class="grid-container grid-3-cols">
+      <div class="info-card capability-card">
+        <i class="fas fa-chart-area capability-icon"></i>
+        <h3>Narrative Heatmap</h3>
+        <p>Visualize market semantics and emotions in real-time.</p>
+      </div>
+
+      <div class="info-card capability-card">
+        <i class="fas fa-exchange-alt capability-icon"></i>
+        <h3>Capital Rotation &amp; Liquidity Detector</h3>
+        <p>Receive immediate alerts on sudden capital flows between sectors or assets.</p>
+      </div>
+
+      <div class="info-card capability-card">
+        <i class="fas fa-broadcast-tower capability-icon"></i>
+        <h3>Narrative Prediction API</h3>
+        <p>Anticipate dominant market narratives 3 h, 24 h, or 72 h ahead.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANTAGE ---------------------------------------------------- -->
+  <section id="advantage">
+    <h2 class="section-title">The Vortex Edge</h2>
+    <p class="section-subtitle">Why leading funds and traders choose Vortex Analytica.</p>
+
+    <div class="grid-container grid-2-cols">
+      <div class="usp-item">
+        <i class="fas fa-fighter-jet usp-icon"></i>
+        <div class="usp-text">
+          <h4>Latency Edge (&lt; 100 ms)</h4>
+          <p>Get critical signals faster than most HFT-grade analytical tools.</p>
+        </div>
+      </div>
+
+      <div class="usp-item">
+        <i class="fas fa-comments usp-icon"></i>
+        <div class="usp-text">
+          <h4>Narrative-Driven AI</h4>
+          <p>We fuse NLP with macro data to decode the market's “story”, not just its price moves.</p>
+        </div>
+      </div>
+
+      <div class="usp-item">
+        <i class="fas fa-cogs usp-icon"></i>
+        <div class="usp-text">
+          <h4>Per-Instrument LLM</h4>
+          <p>Scalable personalization with dedicated, fine-tuned models per instrument.</p>
+        </div>
+      </div>
+
+      <div class="usp-item">
+        <i class="fas fa-user-check usp-icon"></i>
+        <div class="usp-text">
+          <h4>Human-in-the-Loop Symbiosis</h4>
+          <p>You retain full control and auditability (MiFID II / DORA ready).</p>
+        </div>
+      </div>
+
+      <div class="usp-item">
+        <i class="fas fa-shield-alt usp-icon"></i>
+        <div class="usp-text">
+          <h4>Edge-Secure Delivery</h4>
+          <p>mTLS, tokenization, watermarking protect your edge and proprietary insights.</p>
+        </div>
+      </div>
+
+      <div class="usp-item">
+        <i class="fas fa-sync-alt usp-icon"></i>
+        <div class="usp-text">
+          <h4>Continuous Adaptation</h4>
+          <p>Models constantly learn and adapt to evolving market dynamics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -------------------------------------------------------- -->
+  <section id="about">
+    <h2 class="section-title">Meet the Leadership</h2>
+    <p class="section-subtitle">Driving the future of financial intelligence with expertise and vision.</p>
+
+    <div class="grid-container grid-2-cols">
+      <div class="info-card team-card">
+        <div class="team-photo-placeholder"><i class="fas fa-user-tie"></i></div>
+        <h3>Damian Cyrana</h3>
+        <p class="title">Founder, CEO &amp; CTO</p>
+        <a href="https://www.linkedin.com/in/damiancyrana/" target="_blank" class="linkedin-link">
+          <i class="fab fa-linkedin"></i> Connect
+        </a>
+      </div>
+
+      <div class="info-card team-card">
+        <div class="team-photo-placeholder"><i class="fas fa-user-cog"></i></div>
+        <h3>Antoni Moskwa</h3>
+        <p class="title">Founder &amp; CEO</p>
+        <a href="https://www.linkedin.com/in/antoni-moskwa/" target="_blank" class="linkedin-link">
+          <i class="fab fa-linkedin"></i> Connect
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUDIENCE ----------------------------------------------------- -->
+  <section id="audience">
+    <h2 class="section-title">Built for Market Professionals</h2>
+    <p class="section-subtitle">Providing an informational edge to those who demand the best.</p>
+
+    <ul class="audience-list">
+      <li>Hedge Funds (HFT &amp; Global Macro)</li>
+      <li>Investment Banks &amp; SIBs</li>
+      <li>Proprietary Trading Desks</li>
+      <li>Institutional Traders</li>
+      <li>Family Offices &amp; VCs</li>
+      <li>Fintechs Building Robo-Strategies</li>
+    </ul>
+  </section>
+
+  <!-- MVP ---------------------------------------------------------- -->
+  <section id="mvp">
+    <h2 class="section-title">Your Edge, Available Today</h2>
+    <p class="section-subtitle">
+      The core Black Swan Hunter engine is live, already outperforming typical AI-trading tools:
+    </p>
+
+    <ul class="mvp-features">
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">Real-Time Headline Interpretation &amp; Second-Order Effects</span></li>
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">Market-Focused Sentiment (Beyond Media Hype)</span></li>
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">Prop-Desk Style Positioning Awareness</span></li>
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">Risk-On / Risk-Off Trigger Detection</span></li>
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">Narrative Impact Assessment</span></li>
+      <li><i class="fas fa-check-circle mvp-icon"></i> <span class="mvp-text">System-Ready Full JSON Output</span></li>
+    </ul>
+
+    <div class="text-center mt-2">
+      <a href="{{ auth_url }}" class="login-button microsoft">
+        <i class="fab fa-microsoft"></i> Access Your Insight Feed
+      </a>
+    </div>
+  </section>
+
+  <!-- CONTACT ------------------------------------------------------ -->
+  <section id="contact">
+    <h2 class="section-title">Get In Touch</h2>
+    <p class="section-subtitle">
+      Have questions or want to discuss how Vortex Analytica can empower your decisions? Reach out to us.
+    </p>
+
+    <div class="contact-container">
+      <form id="contact-form" method="post">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <input id="name" name="name" type="text" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input id="email" name="email" type="email" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label for="subject" class="form-label">Subject</label>
+          <input id="subject" name="subject" type="text" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label for="message" class="form-label">Message</label>
+          <textarea id="message" name="message" class="form-textarea" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-button">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </button>
+
+        <div id="form-status"></div>
+      </form>
+    </div>
+  </section>
+
+</div> <!-- /main-container -->
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-links">
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#contact">Contact Us</a>
+  </div>
+  <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script type="module" src="/static/js/quantum_bg.js"></script>
+<script type="module" src="/static/js/contact_form.js"></script>
+</body>
+</html>

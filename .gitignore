@@ -1,0 +1,82 @@
+#Folders
+Frontend/static/Images
+
+# 🐍 Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.p~ # backup files
+*.log
+*.db
+*.sqlite3
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+*.egg
+*.egg-info/
+dist/
+build/
+*.manifest
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+*.mo
+*.pot
+instance/
+*.pem
+
+# 🌐 FastAPI (Swagger docs, static files, etc.)
+staticfiles/
+static/
+media/
+*.spec
+uvicorn.log
+
+# 🧪 Testy
+test-results/
+tests/__pycache__/
+
+# 📦 VS Code
+.vscode/
+.history/
+
+# 📦 PyCharm
+.idea/
+
+# 🔗 Node.js (jeśli frontend korzysta z npm/yarn)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# 🌍 Frontend
+*.html~
+*.css~
+*.js~
+*.map
+.DS_Store
+
+# 🔄 Pliki systemowe / backupy
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

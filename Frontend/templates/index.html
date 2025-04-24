@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vortex Analytica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+  /* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* CSS Reset */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Main colors */
+  --primary-color: #2c7be5;
+  --primary-light: #4a8cec;
+  --primary-dark: #1a68d4;
+  --secondary-color: #6c757d;
+  --success-color: #00d27a;
+  --danger-color: #e63757;
+  --warning-color: #f6c343;
+  --info-color: #27bcfd;
+  
+  /* Light Theme (default) */
+  --bg-primary: #f9fbfd;
+  --bg-secondary: #edf2f9;
+  --bg-card: #ffffff;
+  --bg-dark: #12263f;
+  
+  --text-primary: #344050;
+  --text-secondary: #95aac9;
+  --text-muted: #b6c1d2;
+  --text-light: #ffffff;
+  
+  --border-color: #edf2f9;
+  --border-dark: #dde2e9;
+  
+  /* Shadow colors change based on theme */
+  --shadow-color: rgba(18, 38, 63, 0.15);
+  
+  /* Border radius */
+  --border-radius-sm: 0.25rem;
+  --border-radius: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 0.125rem 0.25rem rgba(18, 38, 63, 0.075);
+  --shadow: 0 0.5rem 1rem rgba(18, 38, 63, 0.15);
+  --shadow-lg: 0 1rem 2rem rgba(18, 38, 63, 0.175);
+  
+  /* Transitions */
+  --transition-base: all 0.2s ease-in-out;
+  --transition-fade: opacity 0.15s linear;
+  --transition-collapse: height 0.35s ease;
+  --transition-theme: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  
+  /* Fonts */
+  --font-family-sans-serif: 'Open Sans', sans-serif;
+  --font-family-heading: 'Poppins', sans-serif;
+  
+  /* Spacing */
+  --spacer: 1rem;
+  
+  /* Side menu */
+  --side-menu-width: 240px;
+  --side-menu-width-collapsed: 70px;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] {
+  --bg-primary: #0b1727;
+  --bg-secondary: #152e4d;
+  --bg-card: #1e3a5f;
+  --bg-dark: #0a1421;
+  
+  --text-primary: #e6e8ea;
+  --text-secondary: #abbcd5;
+  --text-muted: #8a9cb0;
+  
+  --border-color: #2d4a77;
+  --border-dark: #395d8f;
+  
+  --shadow-color: rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
+  --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.4);
+}
+
+body {
+  font-family: var(--font-family-sans-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  display: grid;
+  grid-template-areas: 
+    "header header"
+    "sidemenu content"
+    "footer footer";
+  grid-template-columns: var(--side-menu-width) 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  position: relative;
+  transition: var(--transition-theme);
+}
+
+body.menu-collapsed {
+  grid-template-columns: var(--side-menu-width-collapsed) 1fr;
+}
+
+/* Header Styles */
+header {
+  grid-area: header;
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 100;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-left: 0.5rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: var(--transition-base);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+/* Side Menu Styles */
+.side-menu {
+  grid-area: sidemenu;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+  transition: var(--transition-theme), width var(--transition-base);
+  width: var(--side-menu-width);
+  overflow: hidden;
+  z-index: 99;
+}
+
+.menu-collapsed .side-menu {
+  width: var(--side-menu-width-collapsed);
+}
+
+.side-menu-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: var(--transition-base);
+}
+
+.toggle-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+.menu-collapsed .toggle-btn i {
+  transform: rotate(180deg);
+}
+
+.menu-items {
+  padding: 1rem 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-base);
+  margin-bottom: 0.25rem;
+}
+
+.menu-item:hover, .menu-item.active {
+  color: var(--primary-color);
+  background-color: var(--bg-secondary);
+}
+
+.menu-item.active {
+  border-left: 3px solid var(--primary-color);
+}
+
+.menu-item i {
+  font-size: 1rem;
+  width: 24px;
+  margin-right: 1rem;
+  text-align: center;
+}
+
+.menu-label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.menu-collapsed .menu-label {
+  display: none;
+}
+
+.menu-collapsed .menu-item {
+  padding: 0.75rem;
+  justify-content: center;
+}
+
+.menu-collapsed .menu-item i {
+  margin-right: 0;
+}
+
+/* Main Content Styles */
+.main-content {
+  grid-area: content;
+  padding: 1.5rem;
+  overflow-y: auto;
+  transition: var(--transition-theme);
+}
+
+main {
+  height: 100%;
+}
+
+.messaging {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.messages-container, .narrative-clusters-container {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: var(--transition-theme);
+}
+
+.messages-header {
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
+}
+
+.messages-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.messages-title i {
+  margin-right: 0.75rem;
+  color: var(--primary-color);
+}
+
+.messages-controls {
+  display: flex;
+  align-items: center;
+}
+
+.message-filter {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-right: 0.5rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-theme);
+}
+
+.message-filter:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 0.2rem rgba(44, 123, 229, 0.25);
+}
+
+.message-action {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.message-action:hover {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Message items styling */
+.message-item {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 3px solid var(--primary-color);
+  background-color: var(--bg-primary);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  transition: var(--transition-base);
+}
+
+.message-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.message-item.equities {
+  border-left-color: var(--success-color);
+}
+
+.message-item.crypto {
+  border-left-color: var(--warning-color);
+}
+
+.message-item.forex {
+  border-left-color: var(--info-color);
+}
+
+.message-item.commodities {
+  border-left-color: var(--danger-color);
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.message-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition-theme);
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: var(--transition-theme);
+}
+
+.message-content {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  transition: var(--transition-theme);
+}
+
+.message-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.message-category {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  background-color: var(--bg-secondary);
+  color: var(--secondary-color);
+  transition: var(--transition-theme);
+}
+
+.message-category.equities {
+  background-color: rgba(0, 210, 122, 0.1);
+  color: var(--success-color);
+}
+
+.message-category.crypto {
+  background-color: rgba(246, 195, 67, 0.1);
+  color: var(--warning-color);
+}
+
+.message-category.forex {
+  background-color: rgba(39, 188, 253, 0.1);
+  color: var(--info-color);
+}
+
+.message-category.commodities {
+  background-color: rgba(230, 55, 87, 0.1);
+  color: var(--danger-color);
+}
+
+/* Narrative clusters specific styles */
+.narrative-strength {
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.strength-bar-container {
+  height: 4px;
+  background-color: var(--bg-secondary);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+  transition: var(--transition-theme);
+}
+
+.strength-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Footer Styles */
+footer {
+  grid-area: footer;
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  transition: var(--transition-theme);
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.copyright {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  transition: var(--transition-theme);
+}
+
+.footer-links {
+  display: flex;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: uppercase;
+  margin-left: 1.5rem;
+  transition: var(--transition-base);
+  letter-spacing: 0.5px;
+}
+
+.footer-link:hover {
+  color: var(--primary-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  body {
+    grid-template-areas: 
+      "header header"
+      "content content"
+      "footer footer";
+    grid-template-columns: 1fr;
+  }
+  
+  .side-menu {
+    position: fixed;
+    left: 0;
+    top: 56px; /* Header height */
+    bottom: 0;
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+  
+  .side-menu.active {
+    transform: translateX(0);
+  }
+  
+  .messaging {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .messaging {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-container, .footer-container {
+    flex-direction: column;
+  }
+  
+  .footer-links {
+    margin-top: 0.5rem;
+  }
+  
+  .footer-link {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+  
+  .messages-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .messages-controls {
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  
+  .message-filter {
+    flex: 1;
+  }
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <div class="logo-text">Vortex Analytica</div>
+      </div>
+      <div class="theme-toggle">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle light/dark theme">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Side Menu -->
+  <div class="side-menu" id="sideMenu">
+    <div class="side-menu-header">
+      <h3></h3>
+      <button class="toggle-btn" id="toggleMenu">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    </div>
+    <div class="menu-items">
+      <div class="menu-item active">
+        <i class="fas fa-satellite-dish"></i>
+        <span class="menu-label">Feed Live</span>
+      </div>
+      <div class="menu-item">
+        <i class="fas fa-chart-line"></i>
+        <span class="menu-label">Market Overview</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content" id="mainContent">
+    <main>
+      <div class="messaging">
+        <div class="messages-container">
+          <div class="messages-header">
+            <div class="messages-title">
+              <i class="fas fa-satellite-dish"></i>
+              <span>Market real-time news</span>
+            </div>
+            <div class="messages-controls">
+              <select class="message-filter" id="message-filter">
+                <option value="all">Wszystkie dane</option>
+                <option value="equities">Akcje</option>
+                <option value="crypto">Krypto</option>
+                <option value="forex">Forex</option>
+                <option value="commodities">Surowce</option>
+              </select>
+              <button class="message-action" id="refresh-btn" title="Odśwież">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <button class="message-action" id="clear-btn" title="Wyczyść">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="message-list" id="messages">
+            <!-- Sample messages for demo -->
+            <div class="message-item equities fade-in">
+              <div class="message-header">
+                <div class="message-title">S&P 500 reaches new all-time high</div>
+                <div class="message-time">10:32 AM</div>
+              </div>
+              <div class="message-content">The S&P 500 index reached a new all-time high today, rising 1.2% on strong technology sector performance.</div>
+              <div class="message-footer">
+                <div class="message-category equities">EQUITIES</div>
+              </div>
+            </div>
+            
+            <div class="message-item crypto fade-in">
+              <div class="message-header">
+                <div class="message-title">Bitcoin breaks $75,000 resistance level</div>
+                <div class="message-time">09:45 AM</div>
+              </div>
+              <div class="message-content">Bitcoin surged past $75,000 for the first time, gaining over 5% in the last 24 hours as institutional adoption continues to grow.</div>
+              <div class="message-footer">
+                <div class="message-category crypto">CRYPTO</div>
+              </div>
+            </div>
+            
+            <div class="message-item forex fade-in">
+              <div class="message-header">
+                <div class="message-title">EUR/USD hits yearly low on ECB comments</div>
+                <div class="message-time">11:17 AM</div>
+              </div>
+              <div class="message-content">The EUR/USD pair dropped to its lowest level this year following dovish comments from ECB officials regarding interest rate outlook.</div>
+              <div class="message-footer">
+                <div class="message-category forex">FOREX</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="narrative-clusters-container">
+          <div class="messages-header">
+            <div class="messages-title">
+              <i class="fas fa-satellite-dish"></i>
+              <span>Narrative Clusters</span>
+            </div>
+            <div class="messages-controls">
+              <!-- Controls for narrative clusters if needed -->
+            </div>
+          </div>
+          <div class="message-list">
+            <!-- Sample narrative clusters -->
+            <div class="message-item fade-in">
+              <div class="message-header">
+                <div class="message-title">AI Impact on Tech Sector</div>
+                <div class="narrative-strength">Strength: 85%</div>
+              </div>
+              <div class="message-content">Growing narrative around artificial intelligence driving tech stock valuations and corporate strategies.</div>
+              <div class="strength-bar-container">
+                <div class="strength-bar" style="width: 85%"></div>
+              </div>
+            </div>
+            
+            <div class="message-item fade-in">
+              <div class="message-header">
+                <div class="message-title">Fed Policy Uncertainty</div>
+                <div class="narrative-strength">Strength: 72%</div>
+              </div>
+              <div class="message-content">Market participants increasingly focused on potential Federal Reserve policy shifts in response to inflation data.</div>
+              <div class="strength-bar-container">
+                <div class="strength-bar" style="width: 72%"></div>
+              </div>
+            </div>
+            
+            <div class="message-item fade-in">
+              <div class="message-header">
+                <div class="message-title">Crypto Regulation Concerns</div>
+                <div class="narrative-strength">Strength: 63%</div>
+              </div>
+              <div class="message-content">Emerging narrative about potential cryptocurrency regulations impacting market sentiment.</div>
+              <div class="strength-bar-container">
+                <div class="strength-bar" style="width: 63%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-container">
+      <div class="copyright">© 2025 Vortex Analytica</div>
+      <div class="footer-links">
+        <a href="#" class="footer-link">CONTACT</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Theme Toggle Setup
+      setupThemeToggle();
+      
+      // Toggle side menu
+      const toggleBtn = document.getElementById('toggleMenu');
+      const body = document.body;
+      
+      toggleBtn.addEventListener('click', function() {
+        body.classList.toggle('menu-collapsed');
+      });
+      
+      // Handle menu items
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+          menuItems.forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    });
+    
+    // Theme Toggle Function
+    function setupThemeToggle() {
+      const themeToggleBtn = document.getElementById('theme-toggle-btn');
+      
+      // Check for saved theme preference or respect OS preference
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      const savedTheme = localStorage.getItem('theme');
+      
+      // Apply theme based on saved preference or OS preference
+      if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+      }
+      
+      // Toggle theme on button click
+      themeToggleBtn.addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        
+        if (currentTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+          themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+          themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
