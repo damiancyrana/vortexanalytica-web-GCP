@@ -40,12 +40,6 @@
           </svg>
           <span><i class="fas fa-sign-out-alt"></i> Wyloguj</span>
         </button>
-
-        <div class="theme-toggle">
-          <button id="theme-toggle-btn" class="theme-toggle-btn" title="Zmień motyw jasny/ciemny">
-            <i class="fas fa-moon"></i>
-          </button>
-        </div>
       </div>
     </div>
   </header>
@@ -210,13 +204,20 @@
 
   <footer>
     <div class="footer-container">
-      <div class="copyright">© 2025 Vortex Analytica</div>
+      <div class="footer-left">
+          <div class="theme-toggle">
+            <button id="theme-toggle-btn" class="theme-toggle-btn" title="Zmień motyw jasny/ciemny">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
+          <div class="copyright">© <script>document.write(new Date().getFullYear())</script> Vortex Analytica</div>
+      </div>
       <div class="footer-links">
         <a href="#" class="footer-link">CONTACT</a>
-      </div>
+        </div>
     </div>
   </footer>
-
+  
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
