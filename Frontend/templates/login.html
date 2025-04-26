@@ -7,24 +7,93 @@
   <meta name="description"
         content="Vortex Analytica: Login to access AI-driven market intelligence" />
 
-  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
-  <!-- Stylesheets -->
   <link rel="stylesheet" href="/static/css/landing_page.css" />
   <link rel="stylesheet" href="/static/css/login.css" />
 
-  <!-- Three.js (CDN) – needed for animated background -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* Komunikaty uwierzytelniania */
+    .auth-message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      display: none; /* Ukryte domyślnie */
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .auth-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      color: #b91c1c; /* Ciemniejszy czerwony dla lepszego kontrastu */
+    }
+    [data-theme="dark"] .auth-message.error {
+        background-color: rgba(239, 68, 68, 0.2); /* Czerwony z ciemnego motywu */
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #fca5a5; /* Jaśniejszy czerwony na ciemnym tle */
+    }
+
+
+    .auth-message.success {
+      background-color: rgba(0, 128, 0, 0.1);
+      border: 1px solid rgba(0, 128, 0, 0.3);
+      color: #15803d; /* Ciemniejszy zielony */
+    }
+     [data-theme="dark"] .auth-message.success {
+        background-color: rgba(34, 197, 94, 0.2); /* Zielony z ciemnego motywu */
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #86efac; /* Jaśniejszy zielony na ciemnym tle */
+    }
+
+    /* Indykator siły hasła */
+    .password-strength-meter {
+      height: 4px;
+      background-color: #ddd;
+      margin-top: 5px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .password-strength-meter {
+       background-color: rgba(255, 255, 255, 0.1);
+    }
+
+
+    .strength-bar {
+      height: 100%;
+      width: 0;
+      background-color: #ddd;
+      transition: width 0.3s, background-color 0.3s;
+    }
+
+    /* Styl dla stanu ładowania przycisku społecznościowego */
+    .social-btn.loading {
+      cursor: wait;
+      opacity: 0.7;
+    }
+    .social-btn.loading i:first-child { /* Ukryj oryginalną ikonę */
+      display: none;
+    }
+    .social-btn.loading::before { /* Pokaż spinner */
+      content: "\f110"; /* Ikona spinnera Font Awesome */
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      display: inline-block;
+      animation: fa-spin 1s infinite linear;
+      margin-right: 8px;
+    }
+
+  </style>
 </head>
 <body>
 
-<!-- Animated background -->
 <canvas id="quantum-field"></canvas>
 
-<!-- ===== HEADER ===== -->
 <header>
   <div class="logo">
     <div class="logo-text">Vortex Analytica</div>
@@ -37,7 +106,6 @@
   </nav>
 </header>
 
-<!-- ===== PAGE BODY ===== -->
 <div class="main-container">
   <section class="login-section">
     <div class="login-container">
@@ -51,7 +119,6 @@
         <button class="tab-btn" data-target="register-form">Create Account</button>
       </div>
 
-      <!-- Login Form -->
       <form id="login-form" class="auth-form active">
         <div class="form-group">
           <label for="login-email">Email</label>
@@ -60,7 +127,7 @@
             <input type="email" id="login-email" name="email" required placeholder="Your email address">
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="login-password">Password</label>
           <div class="input-with-icon">
@@ -68,7 +135,7 @@
             <input type="password" id="login-password" name="password" required placeholder="Your password">
           </div>
         </div>
-        
+
         <div class="form-options">
           <label class="checkbox-container">
             <input type="checkbox" name="remember">
@@ -77,15 +144,15 @@
           </label>
           <a href="#" class="forgot-password">Forgot password?</a>
         </div>
-        
+
         <button type="submit" class="auth-button">
           <i class="fas fa-sign-in-alt"></i> Login
         </button>
-        
+
         <div class="separator">
           <span>or continue with</span>
         </div>
-        
+
         <div class="social-login">
           <button type="button" class="social-btn microsoft">
             <i class="fab fa-microsoft"></i> Microsoft
@@ -94,9 +161,9 @@
             <i class="fab fa-google"></i> Google
           </button>
         </div>
+         <div id="login-message-area"></div>
       </form>
 
-      <!-- Registration Form -->
       <form id="register-form" class="auth-form">
         <div class="form-group">
           <label for="reg-name">Full Name</label>
@@ -105,7 +172,7 @@
             <input type="text" id="reg-name" name="name" required placeholder="Your full name">
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="reg-email">Email</label>
           <div class="input-with-icon">
@@ -113,7 +180,7 @@
             <input type="email" id="reg-email" name="email" required placeholder="Your email address">
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="reg-password">Password</label>
           <div class="input-with-icon">
@@ -127,7 +194,7 @@
             <small>Password must contain at least 8 characters, including uppercase, lowercase, numbers and special characters</small>
           </div>
         </div>
-        
+
         <div class="form-group">
           <label for="reg-confirm-password">Confirm Password</label>
           <div class="input-with-icon">
@@ -135,7 +202,7 @@
             <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Confirm your password">
           </div>
         </div>
-        
+
         <div class="form-options">
           <label class="checkbox-container">
             <input type="checkbox" name="terms" required>
@@ -143,29 +210,32 @@
             I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
           </label>
         </div>
-        
+
         <button type="submit" class="auth-button">
           <i class="fas fa-user-plus"></i> Create Account
         </button>
-        
+
         <div class="separator">
           <span>or sign up with</span>
         </div>
-        
+
         <div class="social-login">
-          <button type="button" class="social-btn microsoft">
+           <button type="button" class="social-btn microsoft">
             <i class="fab fa-microsoft"></i> Microsoft
           </button>
           <button type="button" class="social-btn google">
             <i class="fab fa-google"></i> Google
           </button>
+           <button type="button" class="social-btn linkedin" disabled title="LinkedIn login not yet available">
+             <i class="fab fa-linkedin"></i> LinkedIn
+           </button>
         </div>
+         <div id="register-message-area"></div>
       </form>
     </div>
   </section>
 </div>
 
-<!-- ===== FOOTER ===== -->
 <footer>
   <div class="footer-links">
     <a href="#">Terms of Service</a>
@@ -175,27 +245,357 @@
   <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
 </footer>
 
-<!-- ===== SCRIPTS ===== -->
 <script type="module" src="/static/js/quantum_bg.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
 <script>
   // Simple tab switching
   document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const authForms = document.querySelectorAll('.auth-form');
-    
+
     tabButtons.forEach(button => {
       button.addEventListener('click', () => {
-        // Remove active class from all tabs and forms
         tabButtons.forEach(btn => btn.classList.remove('active'));
         authForms.forEach(form => form.classList.remove('active'));
-        
-        // Add active class to clicked tab and corresponding form
         button.classList.add('active');
         const targetForm = document.getElementById(button.dataset.target);
         targetForm.classList.add('active');
+        clearMessages();
       });
     });
+
+    initializeFirebase();
   });
+
+  // Firebase initialization
+  async function initializeFirebase() {
+    try {
+      const response = await fetch('/auth/firebase-config');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Błąd pobierania konfiguracji Firebase');
+      }
+      const config = await response.json();
+      if (!config.apiKey || !config.authDomain) {
+        throw new Error('Niepełne dane konfiguracyjne Firebase');
+      }
+      firebase.initializeApp({
+        apiKey: config.apiKey,
+        authDomain: config.authDomain
+      });
+      console.log("Firebase initialized successfully");
+      firebase.auth().onAuthStateChanged(handleAuthStateChanged);
+      setupAuthForms();
+    } catch (error) {
+      console.error('Error initializing Firebase:', error);
+      showError('Nie udało się zainicjalizować systemu uwierzytelniania: ' + error.message, 'login-message-area');
+      showError('Nie udało się zainicjalizować systemu uwierzytelniania: ' + error.message, 'register-message-area');
+    }
+  }
+
+  // Handle auth state changes
+  function handleAuthStateChanged(user) {
+    if (user) {
+      console.log('User is signed in:', user.email, user.displayName);
+      const isDirectAccess = sessionStorage.getItem('directAccess') !== 'true';
+      sessionStorage.setItem('directAccess', 'true');
+
+      if (isDirectAccess) {
+        window.location.href = '/index';
+      } else {
+         if (sessionStorage.getItem('authActionCompleted') === 'true') {
+            showSuccess('Zalogowano pomyślnie! Przekierowywanie...', getActiveMessageAreaId());
+            sessionStorage.removeItem('authActionCompleted');
+         }
+         setTimeout(() => {
+           window.location.href = '/index';
+         }, 1500);
+      }
+    } else {
+      console.log('Użytkownik niezalogowany');
+      sessionStorage.setItem('directAccess', 'false');
+      clearMessages();
+    }
+  }
+
+  // Setup auth forms
+  function setupAuthForms() {
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', handleLogin);
+
+    const registerForm = document.getElementById('register-form');
+    registerForm.addEventListener('submit', handleRegister);
+
+    const passwordInput = document.getElementById('reg-password');
+    if (passwordInput) {
+      passwordInput.addEventListener('input', updatePasswordStrength);
+    }
+
+    // --- Logowanie przez Google ---
+    document.querySelectorAll('.social-btn.google').forEach(button => {
+      button.addEventListener('click', () => handleOAuthSignIn('google')); // Uogólniona funkcja
+    });
+
+    // --- Logowanie przez Microsoft ---
+    document.querySelectorAll('.social-btn.microsoft').forEach(button => {
+      button.addEventListener('click', () => handleOAuthSignIn('microsoft')); // Uogólniona funkcja
+    });
+
+    // --- Logowanie przez LinkedIn (obecnie niezaimplementowane bezpośrednio) ---
+    document.querySelectorAll('.social-btn.linkedin').forEach(button => {
+      button.addEventListener('click', () => {
+          showError('Logowanie przez LinkedIn wymaga dodatkowej implementacji po stronie serwera.', getActiveMessageAreaId());
+      });
+    });
+
+    const forgotPasswordLink = document.querySelector('.forgot-password');
+    if (forgotPasswordLink) {
+      forgotPasswordLink.addEventListener('click', handleForgotPassword);
+    }
+  }
+
+ // --- NOWA UOGÓLNIONA FUNKCJA: Obsługa logowania przez dostawców OAuth ---
+ async function handleOAuthSignIn(providerName) {
+    let provider;
+    const currentButtonSelector = `.social-btn.${providerName}`; // Selektor dla przycisku
+    const button = document.querySelector(`.auth-form.active ${currentButtonSelector}`); // Znajdź przycisk w aktywnej zakładce
+
+    if (!button) {
+        console.error(`Button for provider ${providerName} not found in active tab.`);
+        return;
+    }
+
+    switch(providerName) {
+        case 'google':
+            provider = new firebase.auth.GoogleAuthProvider();
+            break;
+        case 'microsoft':
+            provider = new firebase.auth.OAuthProvider('microsoft.com');
+            // Opcjonalnie: Dodaj specyficzne parametry lub scope'y dla Microsoft
+            // provider.setCustomParameters({ tenant: 'YOUR_TENANT_ID' });
+            // provider.addScope('mail.read');
+            break;
+        // case 'linkedin': // LinkedIn wymaga innego podejścia (Custom Token)
+        //     showError('LinkedIn login requires server-side implementation.', getActiveMessageAreaId());
+        //     return;
+        default:
+            showError(`Provider ${providerName} is not supported.`, getActiveMessageAreaId());
+            return;
+    }
+
+
+    clearMessages();
+    setButtonLoading(button, true);
+
+    try {
+      const result = await firebase.auth().signInWithPopup(provider);
+      const credential = result.credential; // Może być null dla GoogleAuthProvider
+      const user = result.user;
+
+      console.log(`${providerName} Sign-In successful for:`, user.displayName, user.email);
+       sessionStorage.setItem('authActionCompleted', 'true');
+
+      // Sukces obsłużony przez onAuthStateChanged
+    } catch (error) {
+      console.error(`${providerName} Sign-In Error:`, error);
+      let errorMessage = `Wystąpił błąd podczas logowania przez ${providerName}.`;
+
+      // Typowe błędy OAuth
+      if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMessage = 'Konto z tym adresem email już istnieje, ale jest powiązane z innym sposobem logowania.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = `Proces logowania przez ${providerName} został anulowany.`;
+      } else if (error.code === 'auth/popup-blocked') {
+             errorMessage = `Wyskakujące okienko logowania ${providerName} zostało zablokowane przez przeglądarkę. Odblokuj je i spróbuj ponownie.`;
+      } else if (error.code === 'auth/cancelled-popup-request') {
+             errorMessage = 'Anulowano kolejne żądanie otwarcia wyskakującego okienka.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+            errorMessage = `Logowanie przez ${providerName} nie jest włączone w konfiguracji Firebase.`;
+      } else if (error.code === 'auth/unauthorized-domain') {
+            errorMessage = `Domena (${window.location.hostname}) nie jest autoryzowana do przeprowadzania operacji Firebase. Sprawdź konfigurację "Autoryzowane domeny" w Firebase.`;
+      }
+      else {
+            errorMessage = `Błąd logowania przez ${providerName}: ` + (error.message || error.code);
+      }
+       showError(errorMessage, getActiveMessageAreaId());
+    } finally {
+         setButtonLoading(button, false);
+    }
+  }
+  // --- KONIEC NOWEJ FUNKCJI ---
+
+
+  // Handle login
+  async function handleLogin(event) {
+    // --- Bez zmian ---
+    event.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const messageAreaId = 'login-message-area';
+    clearMessages(messageAreaId);
+    if (!email || !password) {
+      showError('Wprowadź adres email i hasło', messageAreaId); return;
+    }
+    const button = document.querySelector('#login-form button[type="submit"]');
+    const originalButtonText = button.innerHTML;
+    setButtonLoading(button, true, '<i class="fas fa-spinner fa-spin"></i> Logowanie...');
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      sessionStorage.setItem('authActionCompleted', 'true');
+    } catch (error) {
+      console.error('Login error:', error);
+      let errorMessage;
+       switch(error.code) {
+         case 'auth/invalid-email': errorMessage = 'Nieprawidłowy format adresu email.'; break;
+         case 'auth/user-disabled': errorMessage = 'To konto zostało wyłączone.'; break;
+         case 'auth/user-not-found': errorMessage = 'Nie znaleziono użytkownika o podanym adresie email.'; break;
+         case 'auth/wrong-password': errorMessage = 'Nieprawidłowe hasło.'; break;
+          case 'auth/invalid-credential': errorMessage = 'Nieprawidłowe dane logowania.'; break;
+         default: errorMessage = 'Błąd logowania: ' + (error.message || 'Nieznany błąd');
+       }
+      showError(errorMessage, messageAreaId);
+    } finally {
+         setButtonLoading(button, false, originalButtonText);
+    }
+  }
+
+  // Handle register
+  async function handleRegister(event) {
+     // --- Bez zmian ---
+     event.preventDefault();
+     const name = document.getElementById('reg-name').value;
+     const email = document.getElementById('reg-email').value;
+     const password = document.getElementById('reg-password').value;
+     const confirmPassword = document.getElementById('reg-confirm-password').value;
+     const termsAccepted = document.querySelector('#register-form input[name="terms"]').checked;
+     const messageAreaId = 'register-message-area';
+     clearMessages(messageAreaId);
+     if (!name || !email || !password || !confirmPassword) { showError('Wypełnij wszystkie pola', messageAreaId); return; }
+     if (password !== confirmPassword) { showError('Hasła nie są zgodne', messageAreaId); return; }
+     if (!isStrongPassword(password)) { showError('Hasło nie spełnia wymagań bezpieczeństwa', messageAreaId); return; }
+     if (!termsAccepted) { showError('Musisz zaakceptować Regulamin i Politykę Prywatności', messageAreaId); return; }
+     const button = document.querySelector('#register-form button[type="submit"]');
+     const originalButtonText = button.innerHTML;
+     setButtonLoading(button, true, '<i class="fas fa-spinner fa-spin"></i> Tworzenie konta...');
+     try {
+       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+       const user = userCredential.user;
+       await user.updateProfile({ displayName: name });
+        sessionStorage.setItem('authActionCompleted', 'true');
+     } catch (error) {
+       console.error('Registration error:', error);
+       let errorMessage;
+        switch(error.code) {
+         case 'auth/email-already-in-use': errorMessage = 'Ten adres email jest już używany.'; break;
+         case 'auth/invalid-email': errorMessage = 'Nieprawidłowy format adresu email.'; break;
+         case 'auth/operation-not-allowed': errorMessage = 'Rejestracja za pomocą emaila i hasła jest wyłączona.'; break;
+         case 'auth/weak-password': errorMessage = 'Hasło jest zbyt słabe.'; break;
+         default: errorMessage = 'Błąd rejestracji: ' + (error.message || 'Nieznany błąd');
+       }
+       showError(errorMessage, messageAreaId);
+     } finally {
+          setButtonLoading(button, false, originalButtonText);
+     }
+  }
+
+  // Handle forgot password
+  function handleForgotPassword(event) {
+     // --- Bez zmian ---
+    event.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const messageAreaId = 'login-message-area';
+    clearMessages(messageAreaId);
+    if (!email) { showError('Wprowadź adres email, aby zresetować hasło', messageAreaId); return; }
+    firebase.auth().sendPasswordResetEmail(email)
+      .then(() => { showSuccess('Instrukcja resetowania hasła została wysłana na podany adres email', messageAreaId); })
+      .catch((error) => {
+        console.error('Reset password error:', error);
+         let errMsg = 'Nie udało się wysłać instrukcji resetowania hasła.';
+          if (error.code === 'auth/user-not-found') { errMsg += ' Sprawdź, czy adres email jest poprawny.'; }
+         showError(errMsg, messageAreaId);
+      });
+  }
+
+  // Password strength checker
+  function isStrongPassword(password) {
+      // --- Bez zmian ---
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`])[A-Za-z\d@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`]{8,}$/;
+    return strongPasswordRegex.test(password);
+  }
+
+  // Update password strength meter
+  function updatePasswordStrength(event) {
+      // --- Bez zmian ---
+    const password = event.target.value;
+    const strengthBar = document.querySelector('#register-form .strength-bar');
+    if (!strengthBar) return;
+    if (!password) { strengthBar.style.width = '0%'; strengthBar.style.backgroundColor = '#ddd'; return; }
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[a-z]/.test(password)) strength += 25;
+    if (/\d/.test(password)) strength += 15;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+     strength = Math.min(strength, 100);
+    strengthBar.style.width = `${strength}%`;
+    if (strength < 40) { strengthBar.style.backgroundColor = '#FF4B4B'; }
+    else if (strength < 70) { strengthBar.style.backgroundColor = '#FFA500'; }
+    else { strengthBar.style.backgroundColor = '#4CAF50'; }
+  }
+
+ // --- Funkcje pomocnicze (bez zmian od ostatniej wersji) ---
+  function getActiveMessageAreaId() {
+      const activeForm = document.querySelector('.auth-form.active');
+      return activeForm ? activeForm.id.replace('-form', '-message-area') : 'login-message-area';
+  }
+  function setButtonLoading(button, isLoading, loadingText = '') {
+      if (!button) return; // Dodatkowe zabezpieczenie
+      if (isLoading) {
+          button.disabled = true;
+          button.classList.add('loading');
+          if (loadingText && button.tagName === 'BUTTON' && !button.classList.contains('social-btn')) {
+               button.innerHTML = loadingText;
+          }
+      } else {
+          button.disabled = false;
+          button.classList.remove('loading');
+          if (loadingText && button.tagName === 'BUTTON' && !button.classList.contains('social-btn')) {
+               button.innerHTML = loadingText;
+          }
+      }
+  }
+  function showMessage(message, type, areaId = null) {
+      const targetAreaId = areaId || getActiveMessageAreaId();
+      const messageElement = document.getElementById(targetAreaId);
+      if (!messageElement) { console.warn(`Message area with ID "${targetAreaId}" not found.`); return; }
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `auth-message ${type}`;
+      messageDiv.textContent = message;
+      messageDiv.style.display = 'block';
+      messageElement.innerHTML = '';
+      messageElement.appendChild(messageDiv);
+      if (type === 'error') {
+        setTimeout(() => {
+          if (messageDiv.parentNode === messageElement) { messageDiv.style.display = 'none'; }
+        }, 7000);
+      }
+  }
+  function showError(message, areaId = null) { showMessage(message, 'error', areaId); }
+  function showSuccess(message, areaId = null) { showMessage(message, 'success', areaId); }
+  function clearMessages(areaId = null) {
+      const targetAreaId = areaId || getActiveMessageAreaId();
+      const messageElement = document.getElementById(targetAreaId);
+      if (messageElement) { messageElement.innerHTML = ''; }
+      if (!areaId) {
+          const otherAreaId = (targetAreaId === 'login-message-area') ? 'register-message-area' : 'login-message-area';
+           const otherMessageElement = document.getElementById(otherAreaId);
+           if (otherMessageElement) { otherMessageElement.innerHTML = ''; }
+      }
+  }
+
 </script>
 </body>
 </html>

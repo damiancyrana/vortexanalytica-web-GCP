@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
-from typing import Dict, Any, Optional, Final, ClassVar
+from typing import Dict, Any, Optional, Final
 
 # Zmodyfikowane importy dla zgodności z Pydantic v2
 from pydantic import field_validator, AnyHttpUrl
@@ -31,12 +31,14 @@ class Settings(BaseSettings):
     # Ścieżki do katalogów
     base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     
-    # Cache konfiguracji
-    _client: ClassVar[Optional[SecretManagerServiceClient]] = None
+    # Cache dla serwisów
+    _secret_manager: Optional[SecretManagerServiceClient] = None
     
     # Zmienne uwierzytelniane (cache z Secret Managera)
     smtp_user: Optional[str] = None
     smtp_pass: Optional[str] = None
+    firebase_api_key: Optional[str] = None
+    firebase_auth_domain: Optional[str] = None
     
     # Domyślne ustawienia odpowiedzi HTTP
     default_response_class: Any = None  # Będzie ustawione podczas inicjalizacji
@@ -78,10 +80,15 @@ class Settings(BaseSettings):
     
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
-        """Zwraca klienta Secret Managera (tworzy go tylko raz)"""
-        if self._client is None:
-            self._client = SecretManagerServiceClient()
-        return self._client
+        """
+        Zwraca klienta Secret Managera (tworzy go tylko raz)
+        W Pydantic v2 nie możemy używać _client jako ClassVar,
+        więc używamy zmiennej instancji
+        """
+        if not hasattr(self, '_secret_manager') or self._secret_manager is None:
+            # Używamy innej nazwy, aby uniknąć konfliktu
+            self._secret_manager = SecretManagerServiceClient()
+        return self._secret_manager
     
     def get_secret(self, secret_id: str) -> str:
         """
@@ -94,10 +101,34 @@ class Settings(BaseSettings):
     
     def load_secrets(self) -> None:
         """Ładuje sekrety z Secret Managera do pamięci, jeśli nie są ustawione"""
+        # Ładujemy tylko te sekrety, które nie są jeszcze ustawione
         if self.smtp_user is None:
-            self.smtp_user = self.get_secret("smtp-user")
+            try:
+                self.smtp_user = self.get_secret("smtp-user")
+            except Exception as e:
+                import logging
+                logging.error(f"Błąd pobierania sekretu smtp-user: {e}")
+                
         if self.smtp_pass is None:
-            self.smtp_pass = self.get_secret("smtp-pass")
+            try:
+                self.smtp_pass = self.get_secret("smtp-pass")
+            except Exception as e:
+                import logging
+                logging.error(f"Błąd pobierania sekretu smtp-pass: {e}")
+                
+        if self.firebase_api_key is None:
+            try:
+                self.firebase_api_key = self.get_secret("Identity-Platform-apiKey")
+            except Exception as e:
+                import logging
+                logging.error(f"Błąd pobierania sekretu Identity-Platform-apiKey: {e}")
+                
+        if self.firebase_auth_domain is None:
+            try:
+                self.firebase_auth_domain = self.get_secret("Identity-Platform-authDomain")
+            except Exception as e:
+                import logging
+                logging.error(f"Błąd pobierania sekretu Identity-Platform-authDomain: {e}")
 
 
 @lru_cache

@@ -142,6 +142,49 @@ class VortexApplication:
                 {"request": request}
             )
         
+        @self._app.get("/auth/firebase-config", response_class=JSONResponse)
+        async def firebase_config() -> JSONResponse:
+            """Zwraca konfigurację Firebase z sekretów"""
+            settings = get_settings()
+            
+            # Ustawiamy przykładowe dane w trybie deweloperskim, jeśli nie ma prawdziwych
+            try:
+                # Staraj się najpierw załadować sekrety (tylko te, które są potrzebne)
+                if settings.firebase_api_key is None:
+                    try:
+                        settings.firebase_api_key = settings.get_secret("Identity-Platform-apiKey")
+                    except Exception as e:
+                        if settings.is_development:
+                            # W trybie dev, użyj przykładowych danych
+                            settings.firebase_api_key = "sample-api-key-for-dev-only"
+                        else:
+                            raise e
+                            
+                if settings.firebase_auth_domain is None:
+                    try:
+                        settings.firebase_auth_domain = settings.get_secret("Identity-Platform-authDomain")
+                    except Exception as e:
+                        if settings.is_development:
+                            # W trybie dev, użyj przykładowych danych
+                            settings.firebase_auth_domain = "vortexanalytica.firebaseapp.com"
+                        else:
+                            raise e
+                
+                # Zwróć konfigurację
+                return JSONResponse(content={
+                    "apiKey": settings.firebase_api_key,
+                    "authDomain": settings.firebase_auth_domain
+                })
+            except Exception as e:
+                # Logujemy błąd
+                logger.error(f"Błąd podczas pobierania konfiguracji Firebase: {e}")
+                
+                # Zwróć błąd 500
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "Nie udało się pobrać konfiguracji Firebase. Spróbuj ponownie później."}
+                )
+        
         @self._app.post("/contact", response_class=JSONResponse,
                   status_code=status.HTTP_202_ACCEPTED)
         async def contact(
