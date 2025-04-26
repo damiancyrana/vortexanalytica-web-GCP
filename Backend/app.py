@@ -1,19 +1,11 @@
 from __future__ import annotations
 
-import os
+import os, uvicorn
 from email.message import EmailMessage
 from functools import lru_cache
 from smtplib import SMTP_SSL
 from typing import Final
-
-import uvicorn
-from fastapi import (
-    FastAPI,
-    Request,
-    BackgroundTasks,
-    Form,
-    status,
-)
+from fastapi import FastAPI, Request, BackgroundTasks, Form, status
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -62,6 +54,13 @@ def create_app() -> FastAPI:
     async def index_page(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(
             "index.html",
+            {"request": request}
+        )
+    
+    @app.get("/login", response_class=HTMLResponse)
+    async def login_page(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            "login.html",
             {"request": request}
         )
     
