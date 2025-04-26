@@ -1,31 +1,361 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vortex Analytica</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/static/css/index.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
+  <style>
+    /* Główne zmienne CSS */
+    :root {
+      --accent-color: #16A085;
+      --accent-color-hover: #1ABC9C;
+      --header-height: 60px;
+      --bg-dark: #1a1f2e;
+      --text-color: #e2e8f0;
+      --border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Rozciągnięcie nagłówka od krawędzi do krawędzi */
+    header {
+      width: 100%;
+      background-color: var(--bg-dark);
+      border-bottom: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    /* Zachowanie oryginalnego stylu Vortex Analytica */
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: var(--header-height);
+      padding: 0 20px;
+    }
+
+    /* Przywrócenie oryginalnego wyglądu logo */
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-text {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #16A085, #89ffed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 10px rgba(22, 160, 133, 0.3);
+    }
+
+    /* Dostosowanie odległości głównej zawartości od góry */
+    .main-content {
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height) - 50px); /* Odjęcie wysokości headera i footera */
+      background-color: #111827;
+    }
+
+    /* Footer również rozciągnięty */
+    footer {
+      width: 100%;
+      background-color: var(--bg-dark);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .footer-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+    }
+
+    /* Przyciski nawigacyjne na środku */
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Styl przycisków nawigacyjnych */
+    .nav-btn {
+      position: relative;
+      width: 160px;
+      height: 50px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-color);
+      font-size: 0.95rem;
+      font-weight: 300;
+      font-family: 'Exo 2', sans-serif;
+      transition: color 0.3s ease;
+      padding: 0;
+    }
+
+    .nav-btn span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .nav-btn svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      fill: none;
+      stroke: var(--border-color);
+      stroke-width: 1;
+    }
+
+    .nav-btn svg .bg-line {
+      stroke: var(--border-color);
+      stroke-width: 1;
+    }
+
+    .nav-btn svg .hl-line {
+      stroke: var(--accent-color);
+      stroke-width: 2;
+      stroke-dasharray: 150 480;
+      stroke-dashoffset: 150;
+      transition: 0.6s ease-in-out;
+    }
+
+    .nav-btn:hover {
+      color: var(--accent-color);
+    }
+
+    .nav-btn:hover svg .hl-line {
+      stroke-dashoffset: -480;
+    }
+
+    /* Aktywny przycisk nawigacyjny */
+    .nav-btn.active {
+      color: var(--accent-color);
+    }
+
+    .nav-btn.active svg .bg-line {
+      stroke: var(--accent-color);
+      opacity: 0.3;
+    }
+
+    .nav-btn.active svg .hl-line {
+      stroke-dashoffset: 0;
+      stroke-dasharray: 480;
+    }
+
+    /* Przyciski użytkownika po prawej */
+    .user-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Informacje o użytkowniku */
+    .user-info {
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    #user-display-name {
+      font-weight: 600;
+      color: var(--accent-color);
+    }
+
+    /* Przycisk wylogowania */
+    .logout-btn {
+      position: relative;
+      width: 120px;
+      height: 40px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-color);
+      font-size: 0.85rem;
+      font-weight: 300;
+      font-family: 'Exo 2', sans-serif;
+      transition: color 0.3s ease;
+      padding: 0;
+    }
+
+    .logout-btn span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .logout-btn svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      fill: none;
+      stroke: var(--border-color);
+      stroke-width: 1;
+    }
+
+    .logout-btn svg .bg-line {
+      stroke: var(--border-color);
+      stroke-width: 1;
+    }
+
+    .logout-btn svg .hl-line {
+      stroke: rgba(255, 80, 80, 0.8);
+      stroke-width: 2;
+      stroke-dasharray: 120 360;
+      stroke-dashoffset: 120;
+      transition: 0.6s ease-in-out;
+    }
+
+    .logout-btn:hover {
+      color: rgba(255, 80, 80, 0.9);
+    }
+
+    .logout-btn:hover svg .hl-line {
+      stroke-dashoffset: -360;
+    }
+
+    /* Przycisk zmiany motywu */
+    .theme-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--accent-color);
+    }
+
+    /* Responsywność */
+    @media (max-width: 900px) {
+      .nav-btn {
+        width: 130px;
+      }
+      
+      .logout-btn {
+        width: 100px;
+      }
+      
+      .nav-btn span, .logout-btn span {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-btn span i, .logout-btn span i {
+        margin-right: 0;
+      }
+      
+      .user-welcome {
+        display: none;
+      }
+      
+      .nav-buttons {
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-btn {
+        width: 50px;
+      }
+      
+      .nav-btn span {
+        font-size: 0;
+      }
+      
+      .nav-btn span i {
+        font-size: 1rem;
+        margin-right: 0;
+      }
+      
+      .logout-btn span {
+        font-size: 0;
+      }
+      
+      .logout-btn span i {
+        font-size: 1rem;
+        margin-right: 0;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <div class="header-container">
+      <!-- Logo po lewej stronie -->
       <div class="logo">
         <div class="logo-text">Vortex Analytica</div>
       </div>
       
-      <nav id="mainNav">
-        <ul class="nav__list">
-          <li class="active"><a href="#"><i class="fas fa-satellite-dish"></i> Feed Live</a></li>
-          <li><a href="#"><i class="fas fa-chart-line"></i> Market Overview</a></li>
-        </ul>
-      </nav>
-      
-      <div class="theme-toggle">
-        <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle light/dark theme">
-          <i class="fas fa-moon"></i>
+      <!-- Przyciski nawigacyjne na środku -->
+      <div class="nav-buttons">
+        <button class="nav-btn active">
+          <svg width="160px" height="50px" viewBox="0 0 160 50" class="border">
+            <polyline points="159,1 159,49 1,49 1,1 159,1" class="bg-line" />
+            <polyline points="159,1 159,49 1,49 1,1 159,1" class="hl-line" />
+          </svg>
+          <span><i class="fas fa-satellite-dish"></i> Feed Live</span>
         </button>
+        
+        <button class="nav-btn">
+          <svg width="160px" height="50px" viewBox="0 0 160 50" class="border">
+            <polyline points="159,1 159,49 1,49 1,1 159,1" class="bg-line" />
+            <polyline points="159,1 159,49 1,49 1,1 159,1" class="hl-line" />
+          </svg>
+          <span><i class="fas fa-chart-line"></i> Market Overview</span>
+        </button>
+      </div>
+      
+      <!-- Przyciski użytkownika po prawej -->
+      <div class="user-controls">
+        <!-- Informacje o użytkowniku -->
+        <div class="user-info">
+          <span class="user-welcome">Witaj, <span id="user-display-name">...</span></span>
+        </div>
+        
+        <!-- Przycisk wylogowania z animacją -->
+        <button id="logout-btn" class="logout-btn">
+          <svg width="120px" height="40px" viewBox="0 0 120 40" class="border">
+            <polyline points="119,1 119,39 1,39 1,1 119,1" class="bg-line" />
+            <polyline points="119,1 119,39 1,39 1,1 119,1" class="hl-line" />
+          </svg>
+          <span><i class="fas fa-sign-out-alt"></i> Wyloguj</span>
+        </button>
+        
+        <!-- Przycisk zmiany motywu -->
+        <div class="theme-toggle">
+          <button id="theme-toggle-btn" class="theme-toggle-btn" title="Zmień motyw jasny/ciemny">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -152,6 +482,174 @@
     </div>
   </footer>
 
-<script type="module" src="/static/js/index.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+  <!-- Skrypt obsługi przycisków nawigacyjnych i Firebase -->
+  <script>
+    // Obsługa przycisków nawigacyjnych i stanu aplikacji
+    document.addEventListener('DOMContentLoaded', () => {
+      // Referencje do elementów
+      const navButtons = document.querySelectorAll('.nav-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const userDisplayName = document.getElementById('user-display-name');
+      const themeToggleBtn = document.getElementById('theme-toggle-btn');
+      
+      // Obsługa przycisków nawigacyjnych
+      navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Usuń klasę active ze wszystkich przycisków
+          navButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Dodaj klasę active do klikniętego przycisku
+          button.classList.add('active');
+          
+          // Tutaj możesz dodać logikę zmiany widoku w zależności od klikniętego przycisku
+          const buttonText = button.querySelector('span').textContent.trim();
+          
+          if (buttonText.includes('Feed Live')) {
+            console.log('Przełączanie na widok Feed Live');
+            // Tutaj kod zmiany widoku
+          } else if (buttonText.includes('Market Overview')) {
+            console.log('Przełączanie na widok Market Overview');
+            // Tutaj kod zmiany widoku
+          }
+        });
+      });
+      
+      // Inicjalizacja Firebase i obsługa danych użytkownika
+      initializeFirebase()
+        .then(() => {
+          console.log('Firebase zainicjalizowany pomyślnie');
+          
+          // Nasłuchuj na zmiany stanu uwierzytelniania
+          firebase.auth().onAuthStateChanged(handleAuthStateChanged);
+          
+          // Obsługa przycisku wylogowania
+          if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+          }
+        })
+        .catch(error => {
+          console.error('Błąd inicjalizacji Firebase:', error);
+        });
+      
+      // Funkcja inicjalizująca Firebase
+      async function initializeFirebase() {
+        try {
+          // Sprawdź, czy Firebase jest już zainicjalizowany
+          if (firebase.apps && firebase.apps.length > 0) {
+            return;
+          }
+          
+          const response = await fetch('/auth/firebase-config');
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Błąd pobierania konfiguracji Firebase');
+          }
+          
+          const config = await response.json();
+          if (!config.apiKey || !config.authDomain) {
+            throw new Error('Niepełne dane konfiguracyjne Firebase');
+          }
+          
+          firebase.initializeApp({
+            apiKey: config.apiKey,
+            authDomain: config.authDomain
+          });
+        } catch (error) {
+          console.error('Błąd inicjalizacji Firebase:', error);
+          
+          // W przypadku błędu inicjalizacji, przekieruj do strony logowania
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+          
+          throw error;
+        }
+      }
+      
+      // Obsługa zmian stanu uwierzytelniania
+      function handleAuthStateChanged(user) {
+        if (user) {
+          // Użytkownik jest zalogowany
+          console.log('Zalogowany użytkownik:', user.displayName || user.email);
+          
+          // Wyświetl nazwę użytkownika (lub email, jeśli nazwa nie jest dostępna)
+          if (userDisplayName) {
+            // Preferuj displayName, ale użyj części adresu email jeśli displayName nie jest dostępny
+            const displayName = user.displayName || user.email.split('@')[0];
+            userDisplayName.textContent = displayName;
+          }
+        } else {
+          // Użytkownik nie jest zalogowany - przekieruj do strony logowania
+          console.log('Brak zalogowanego użytkownika - przekierowanie do strony logowania');
+          window.location.href = '/login';
+        }
+      }
+      
+      // Obsługa wylogowania
+      async function handleLogout() {
+        try {
+          // Animacja przycisku podczas wylogowywania
+          const originalContent = logoutBtn.innerHTML;
+          const loadingIcon = document.createElement('i');
+          loadingIcon.className = 'fas fa-spinner fa-spin';
+          logoutBtn.querySelector('span').innerHTML = '';
+          logoutBtn.querySelector('span').appendChild(loadingIcon);
+          logoutBtn.disabled = true;
+          
+          // Wyloguj z Firebase
+          await firebase.auth().signOut();
+          
+          // Przekieruj do strony logowania (onAuthStateChanged zajmie się tym)
+          console.log('Wylogowano pomyślnie');
+        } catch (error) {
+          console.error('Błąd podczas wylogowywania:', error);
+          
+          // Przywróć oryginalny stan przycisku
+          logoutBtn.innerHTML = originalContent;
+          logoutBtn.disabled = false;
+          
+          // Pokaż alert o błędzie
+          alert('Wystąpił błąd podczas wylogowywania: ' + error.message);
+        }
+      }
+      
+      // Obsługa zmiany motywu
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          const isDarkTheme = document.body.classList.contains('dark-theme');
+          document.body.classList.toggle('dark-theme');
+          
+          // Aktualizuj ikonę
+          const themeIcon = themeToggleBtn.querySelector('i');
+          if (isDarkTheme) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+          } else {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+          }
+          
+          // Zapisz preferencję
+          localStorage.setItem('vortexDarkTheme', !isDarkTheme);
+        });
+        
+        // Ustaw początkowy stan ikony na podstawie motywu
+        const isDarkTheme = localStorage.getItem('vortexDarkTheme') === 'true';
+        if (isDarkTheme) {
+          document.body.classList.add('dark-theme');
+          const themeIcon = themeToggleBtn.querySelector('i');
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      }
+    });
+  </script>
+
+  <!-- Oryginalny skrypt aplikacji -->
+  <script type="module" src="/static/js/index.js"></script>
 </body>
 </html>
