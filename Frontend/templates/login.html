@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Vortex Analytica — Login & Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+        content="Vortex Analytica: Login to access AI-driven market intelligence" />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/static/css/landing_page.css" />
+  <link rel="stylesheet" href="/static/css/login.css" />
+
+  <!-- Three.js (CDN) – needed for animated background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<!-- Animated background -->
+<canvas id="quantum-field"></canvas>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+    <div class="logo-text">Vortex Analytica</div>
+  </div>
+
+  <nav id="mainNav">
+    <ul class="nav__list">
+      <li><a href="/">Home</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ===== PAGE BODY ===== -->
+<div class="main-container">
+  <section class="login-section">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>Welcome to Vortex Analytica</h1>
+        <p>Access your market intelligence dashboard</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="tab-btn active" data-target="login-form">Login</button>
+        <button class="tab-btn" data-target="register-form">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <div class="input-with-icon">
+            <i class="fa fa-envelope"></i>
+            <input type="email" id="login-email" name="email" required placeholder="Your email address">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-with-icon">
+            <i class="fa fa-lock"></i>
+            <input type="password" id="login-password" name="password" required placeholder="Your password">
+          </div>
+        </div>
+        
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" name="remember">
+            <span class="checkmark"></span>
+            Remember me
+          </label>
+          <a href="#" class="forgot-password">Forgot password?</a>
+        </div>
+        
+        <button type="submit" class="auth-button">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        
+        <div class="separator">
+          <span>or continue with</span>
+        </div>
+        
+        <div class="social-login">
+          <button type="button" class="social-btn microsoft">
+            <i class="fab fa-microsoft"></i> Microsoft
+          </button>
+          <button type="button" class="social-btn google">
+            <i class="fab fa-google"></i> Google
+          </button>
+        </div>
+      </form>
+
+      <!-- Registration Form -->
+      <form id="register-form" class="auth-form">
+        <div class="form-group">
+          <label for="reg-name">Full Name</label>
+          <div class="input-with-icon">
+            <i class="fa fa-user"></i>
+            <input type="text" id="reg-name" name="name" required placeholder="Your full name">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="reg-email">Email</label>
+          <div class="input-with-icon">
+            <i class="fa fa-envelope"></i>
+            <input type="email" id="reg-email" name="email" required placeholder="Your email address">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <div class="input-with-icon">
+            <i class="fa fa-lock"></i>
+            <input type="password" id="reg-password" name="password" required placeholder="Create a password">
+            <div class="password-strength-meter">
+              <div class="strength-bar"></div>
+            </div>
+          </div>
+          <div class="password-hints">
+            <small>Password must contain at least 8 characters, including uppercase, lowercase, numbers and special characters</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="reg-confirm-password">Confirm Password</label>
+          <div class="input-with-icon">
+            <i class="fa fa-lock"></i>
+            <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Confirm your password">
+          </div>
+        </div>
+        
+        <div class="form-options">
+          <label class="checkbox-container">
+            <input type="checkbox" name="terms" required>
+            <span class="checkmark"></span>
+            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+        
+        <button type="submit" class="auth-button">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+        
+        <div class="separator">
+          <span>or sign up with</span>
+        </div>
+        
+        <div class="social-login">
+          <button type="button" class="social-btn microsoft">
+            <i class="fab fa-microsoft"></i> Microsoft
+          </button>
+          <button type="button" class="social-btn google">
+            <i class="fab fa-google"></i> Google
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-links">
+    <a href="#">Terms of Service</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Contact Us</a>
+  </div>
+  <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script type="module" src="/static/js/quantum_bg.js"></script>
+<script>
+  // Simple tab switching
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const authForms = document.querySelectorAll('.auth-form');
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all tabs and forms
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        authForms.forEach(form => form.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding form
+        button.classList.add('active');
+        const targetForm = document.getElementById(button.dataset.target);
+        targetForm.classList.add('active');
+      });
+    });
+  });
+</script>
+</body>
+</html>
