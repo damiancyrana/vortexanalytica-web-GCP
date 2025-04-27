@@ -30,7 +30,10 @@
 
           <div class="user-controls">
             <div class="user-info">
-              <span class="user-welcome">Hello, <span id="user-display-name">...</span></span>
+              <span class="user-welcome">Hello,
+                {# Zaktualizowano: Usunięto renderowanie Jinja2, wstawiono placeholder #}
+                <span id="user-display-name">...</span>
+              </span>
             </div>
             <button id="logout-btn" class="logoutButton logoutButton--dark">
                 <svg class="doorway" viewBox="0 0 100 100"><path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" /><path class="bang" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z" /></svg>
@@ -39,7 +42,9 @@
                 <span class="button-text">Log out</span>
             </button>
           </div>
-      </div> </div> </header>
+      </div>
+     </div>
+  </header>
 
   <div class="main-content" id="contentWrapper">
       <main>
@@ -66,7 +71,7 @@
               <div class="narrative-clusters-container">
                  <div class="messages-header"><div class="messages-title"><i class="fas fa-project-diagram"></i> <span>Narrative Clusters</span></div><div class="messages-controls"></div></div>
                  <div class="message-list">
-                    <div class="message-item fade-in"><div class="message-header"><div class="message-title">AI Impact on Tech Sector</div><div class="narrative-strength">Strength: 85%</div></div><div class="message-content">Growing narrative around artificial intelligence driving tech stock valuations and corporate strategies.</div><div class="strength-bar-container"><div class="strength-bar" style="width: 85%"></div></div></div>
+                     <div class="message-item fade-in"><div class="message-header"><div class="message-title">AI Impact on Tech Sector</div><div class="narrative-strength">Strength: 85%</div></div><div class="message-content">Growing narrative around artificial intelligence driving tech stock valuations and corporate strategies.</div><div class="strength-bar-container"><div class="strength-bar" style="width: 85%"></div></div></div>
                     <div class="message-item fade-in"><div class="message-header"><div class="message-title">Fed Policy Uncertainty</div><div class="narrative-strength">Strength: 72%</div></div><div class="message-content">Market participants increasingly focused on potential Federal Reserve policy shifts in response to inflation data.</div><div class="strength-bar-container"><div class="strength-bar" style="width: 72%"></div></div></div>
                     <div class="message-item fade-in"><div class="message-header"><div class="message-title">Crypto Regulation Concerns</div><div class="narrative-strength">Strength: 63%</div></div><div class="message-content">Emerging narrative about potential cryptocurrency regulations impacting market sentiment.</div><div class="strength-bar-container"><div class="strength-bar" style="width: 63%"></div></div></div>
                     <div class="message-item fade-in"><div class="message-header"><div class="message-title">Renewable Energy Transition</div><div class="narrative-strength">Strength: 78%</div></div><div class="message-content">Focus shifts towards renewable energy investments and policies driving the transition away from fossil fuels.</div><div class="strength-bar-container"><div class="strength-bar" style="width: 78%"></div></div></div>
@@ -76,7 +81,11 @@
           </div>
 
           <div class="view-section" id="overview-view" style="display: none; padding: 20px; flex-direction: column;">
-               </div>
+               <h2>Market Overview</h2>
+               <p>This section will provide a broader view of the market trends.</p>
+               <div id="user-specific-content" style="margin-top: 20px; color: var(--current-text-muted);">
+                  </div>
+          </div>
       </main>
   </div>
 
