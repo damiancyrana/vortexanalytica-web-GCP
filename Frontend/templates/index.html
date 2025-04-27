@@ -19,187 +19,210 @@
       </div>
 
       <div class="nav-buttons">
-        <button class="nav-btn active">
+         <button class="nav-btn active" data-view="feed">
           <span>Feed Live</span>
         </button>
 
-        <button class="nav-btn">
+        <button class="nav-btn" data-view="overview">
           <span>Market Overview</span>
         </button>
       </div>
 
       <div class="user-controls">
         <div class="user-info">
-          <span class="user-welcome">Witaj, <span id="user-display-name">...</span></span>
+          <span class="user-welcome">Hello, <span id="user-display-name">...</span></span>
         </div>
 
-        <button id="logout-btn" class="logout-btn">
-          <svg width="120px" height="40px" viewBox="0 0 120 40" class="border">
-            <polyline points="119,1 119,39 1,39 1,1 119,1" class="bg-line" />
-            <polyline points="119,1 119,39 1,39 1,1 119,1" class="hl-line" />
-          </svg>
-          <span><i class="fas fa-sign-out-alt"></i> Wyloguj</span>
+        <button id="logout-btn" class="logoutButton logoutButton--dark">
+            <svg class="doorway" viewBox="0 0 100 100">
+              <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+              <path class="bang" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z" />
+            </svg>
+            <svg class="figure" viewBox="0 0 100 100">
+              <circle cx="52.1" cy="32.4" r="6.4" />
+              <path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z" />
+              <g class="arm1">
+                <path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z" />
+                <path class="wrist1" d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z" />
+              </g>
+              <g class="arm2">
+                <path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z" />
+                <path class="wrist2" d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z" />
+              </g>
+              <g class="leg1">
+                <path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z" />
+                <path class="calf1" d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z" />
+              </g>
+              <g class="leg2">
+                 <path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z" />
+                 <path class="calf2" d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z" />
+               </g>
+            </svg>
+            <svg class="door" viewBox="0 0 100 100">
+              <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+              <circle cx="66" cy="50" r="3.7" />
+            </svg>
+            <span class="button-text">Log out</span>
         </button>
-      </div>
+        </div>
     </div>
   </header>
 
-  <div class="main-content" id="mainContent">
-    <main>
-      <div class="messaging">
-        <div class="messages-container">
-          <div class="messages-header">
-            <div class="messages-title">
-              <i class="fas fa-satellite-dish"></i>
-              <span>Market real-time news</span>
-            </div>
-            <div class="messages-controls">
-              <select class="message-filter" id="message-filter">
-                <option value="all">Wszystkie dane</option>
-                <option value="equities">Akcje</option>
-                <option value="crypto">Krypto</option>
-                <option value="forex">Forex</option>
-                <option value="commodities">Surowce</option>
-              </select>
-              <button class="message-action" id="refresh-btn" title="Odśwież">
-                <i class="fas fa-sync-alt"></i>
-              </button>
-              <button class="message-action" id="clear-btn" title="Wyczyść">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </div>
-          <div class="message-list" id="messages">
-            <div class="message-item equities fade-in">
-              <div class="message-header">
-                <div class="message-title">S&P 500 reaches new all-time high</div>
-                <div class="message-time">10:32 AM</div>
+  <div class="main-content" id="contentWrapper">
+      <main>
+          <div class="messaging view-section active" id="feed-view" style="display: grid;">
+              <div class="messages-container">
+                  <div class="messages-header">
+                      <div class="messages-title">
+                          <i class="fas fa-satellite-dish"></i>
+                          <span>Market real-time news</span>
+                      </div>
+                      <div class="messages-controls">
+                          <select class="message-filter" id="message-filter">
+                              <option value="all">Wszystkie dane</option>
+                              <option value="equities">Akcje</option>
+                              <option value="crypto">Krypto</option>
+                              <option value="forex">Forex</option>
+                              <option value="commodities">Surowce</option>
+                          </select>
+                          <button class="message-action" id="refresh-btn" title="Odśwież">
+                              <i class="fas fa-sync-alt"></i>
+                          </button>
+                          <button class="message-action" id="clear-btn" title="Wyczyść">
+                              <i class="fas fa-trash-alt"></i>
+                          </button>
+                      </div>
+                  </div>
+                  <div class="message-list" id="messages">
+                      <div class="message-item equities fade-in">
+                          <div class="message-header">
+                              <div class="message-title">S&P 500 reaches new all-time high</div>
+                              <div class="message-time">10:32 AM</div>
+                          </div>
+                          <div class="message-content">The S&P 500 index reached a new all-time high today, rising 1.2% on strong technology sector performance.</div>
+                          <div class="message-footer">
+                              <div class="message-category equities">EQUITIES</div>
+                          </div>
+                      </div>
+                      <div class="message-item crypto fade-in">
+                          <div class="message-header">
+                              <div class="message-title">Bitcoin breaks $75,000 resistance level</div>
+                              <div class="message-time">09:45 AM</div>
+                          </div>
+                          <div class="message-content">Bitcoin surged past $75,000 for the first time, gaining over 5% in the last 24 hours as institutional adoption continues to grow.</div>
+                          <div class="message-footer">
+                              <div class="message-category crypto">CRYPTO</div>
+                          </div>
+                      </div>
+                      <div class="message-item forex fade-in">
+                          <div class="message-header">
+                              <div class="message-title">EUR/USD hits yearly low on ECB comments</div>
+                              <div class="message-time">11:17 AM</div>
+                          </div>
+                          <div class="message-content">The EUR/USD pair dropped to its lowest level this year following dovish comments from ECB officials regarding interest rate outlook.</div>
+                          <div class="message-footer">
+                              <div class="message-category forex">FOREX</div>
+                          </div>
+                      </div>
+                      <div class="message-item commodities fade-in">
+                          <div class="message-header">
+                              <div class="message-title">Oil prices surge on supply concerns</div>
+                              <div class="message-time">12:05 PM</div>
+                          </div>
+                          <div class="message-content">Crude oil prices jumped over 3% amid rising geopolitical tensions and potential supply disruptions.</div>
+                          <div class="message-footer">
+                              <div class="message-category commodities">COMMODITIES</div>
+                          </div>
+                      </div>
+                      <div class="message-item equities fade-in">
+                          <div class="message-header">
+                              <div class="message-title">Tech Stocks Lead Market Rally</div>
+                              <div class="message-time">12:15 PM</div>
+                          </div>
+                          <div class="message-content">Major technology stocks continued their upward trend, boosting overall market sentiment despite inflation worries.</div>
+                          <div class="message-footer">
+                              <div class="message-category equities">EQUITIES</div>
+                          </div>
+                      </div>
+                      <div class="message-item crypto fade-in">
+                          <div class="message-header">
+                              <div class="message-title">Ethereum Upgrade Successful</div>
+                              <div class="message-time">12:30 PM</div>
+                          </div>
+                          <div class="message-content">The latest Ethereum network upgrade was completed successfully, potentially improving scalability and reducing transaction fees.</div>
+                          <div class="message-footer">
+                              <div class="message-category crypto">CRYPTO</div>
+                          </div>
+                      </div>
+                  </div>
               </div>
-              <div class="message-content">The S&P 500 index reached a new all-time high today, rising 1.2% on strong technology sector performance.</div>
-              <div class="message-footer">
-                <div class="message-category equities">EQUITIES</div>
-              </div>
-            </div>
-            <div class="message-item crypto fade-in">
-              <div class="message-header">
-                <div class="message-title">Bitcoin breaks $75,000 resistance level</div>
-                <div class="message-time">09:45 AM</div>
-              </div>
-              <div class="message-content">Bitcoin surged past $75,000 for the first time, gaining over 5% in the last 24 hours as institutional adoption continues to grow.</div>
-              <div class="message-footer">
-                <div class="message-category crypto">CRYPTO</div>
-              </div>
-            </div>
-            <div class="message-item forex fade-in">
-              <div class="message-header">
-                <div class="message-title">EUR/USD hits yearly low on ECB comments</div>
-                <div class="message-time">11:17 AM</div>
-              </div>
-              <div class="message-content">The EUR/USD pair dropped to its lowest level this year following dovish comments from ECB officials regarding interest rate outlook.</div>
-              <div class="message-footer">
-                <div class="message-category forex">FOREX</div>
-              </div>
-            </div>
-             <div class="message-item commodities fade-in">
-              <div class="message-header">
-                <div class="message-title">Oil prices surge on supply concerns</div>
-                <div class="message-time">12:05 PM</div>
-              </div>
-              <div class="message-content">Crude oil prices jumped over 3% amid rising geopolitical tensions and potential supply disruptions.</div>
-              <div class="message-footer">
-                <div class="message-category commodities">COMMODITIES</div>
-              </div>
-            </div>
-             <div class="message-item equities fade-in">
-              <div class="message-header">
-                <div class="message-title">Tech Stocks Lead Market Rally</div>
-                <div class="message-time">12:15 PM</div>
-              </div>
-              <div class="message-content">Major technology stocks continued their upward trend, boosting overall market sentiment despite inflation worries.</div>
-              <div class="message-footer">
-                <div class="message-category equities">EQUITIES</div>
-              </div>
-            </div>
-             <div class="message-item crypto fade-in">
-              <div class="message-header">
-                <div class="message-title">Ethereum Upgrade Successful</div>
-                <div class="message-time">12:30 PM</div>
-              </div>
-              <div class="message-content">The latest Ethereum network upgrade was completed successfully, potentially improving scalability and reducing transaction fees.</div>
-              <div class="message-footer">
-                <div class="message-category crypto">CRYPTO</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="narrative-clusters-container">
-          <div class="messages-header">
-            <div class="messages-title">
-              <i class="fas fa-satellite-dish"></i>
-              <span>Narrative Clusters</span>
-            </div>
-            <div class="messages-controls">
+              <div class="narrative-clusters-container">
+                  <div class="messages-header">
+                      <div class="messages-title">
+                          <i class="fas fa-project-diagram"></i> <span>Narrative Clusters</span>
+                      </div>
+                      <div class="messages-controls">
+                           </div>
+                  </div>
+                  <div class="message-list">
+                      <div class="message-item fade-in">
+                        <div class="message-header">
+                          <div class="message-title">AI Impact on Tech Sector</div>
+                          <div class="narrative-strength">Strength: 85%</div>
+                        </div>
+                        <div class="message-content">Growing narrative around artificial intelligence driving tech stock valuations and corporate strategies.</div>
+                        <div class="strength-bar-container">
+                          <div class="strength-bar" style="width: 85%"></div>
+                        </div>
+                      </div>
+                      <div class="message-item fade-in">
+                        <div class="message-header">
+                          <div class="message-title">Fed Policy Uncertainty</div>
+                          <div class="narrative-strength">Strength: 72%</div>
+                        </div>
+                        <div class="message-content">Market participants increasingly focused on potential Federal Reserve policy shifts in response to inflation data.</div>
+                        <div class="strength-bar-container">
+                          <div class="strength-bar" style="width: 72%"></div>
+                        </div>
+                      </div>
+                      <div class="message-item fade-in">
+                        <div class="message-header">
+                          <div class="message-title">Crypto Regulation Concerns</div>
+                          <div class="narrative-strength">Strength: 63%</div>
+                        </div>
+                        <div class="message-content">Emerging narrative about potential cryptocurrency regulations impacting market sentiment.</div>
+                        <div class="strength-bar-container">
+                          <div class="strength-bar" style="width: 63%"></div>
+                        </div>
+                      </div>
+                       <div class="message-item fade-in">
+                        <div class="message-header">
+                          <div class="message-title">Renewable Energy Transition</div>
+                          <div class="narrative-strength">Strength: 78%</div>
+                        </div>
+                        <div class="message-content">Focus shifts towards renewable energy investments and policies driving the transition away from fossil fuels.</div>
+                        <div class="strength-bar-container">
+                          <div class="strength-bar" style="width: 78%"></div>
+                        </div>
+                      </div>
+                      <div class="message-item fade-in">
+                        <div class="message-header">
+                          <div class="message-title">Supply Chain Normalization</div>
+                          <div class="narrative-strength">Strength: 55%</div>
+                        </div>
+                        <div class="message-content">Signs suggest global supply chains are slowly returning to pre-pandemic levels, potentially easing inflationary pressures.</div>
+                        <div class="strength-bar-container">
+                          <div class="strength-bar" style="width: 55%"></div>
+                        </div>
+                      </div>
+                  </div>
               </div>
           </div>
-          <div class="message-list">
-             <div class="message-item fade-in">
-              <div class="message-header">
-                <div class="message-title">AI Impact on Tech Sector</div>
-                <div class="narrative-strength">Strength: 85%</div>
-              </div>
-              <div class="message-content">Growing narrative around artificial intelligence driving tech stock valuations and corporate strategies.</div>
-              <div class="strength-bar-container">
-                <div class="strength-bar" style="width: 85%"></div>
-              </div>
-            </div>
-            <div class="message-item fade-in">
-              <div class="message-header">
-                <div class="message-title">Fed Policy Uncertainty</div>
-                <div class="narrative-strength">Strength: 72%</div>
-              </div>
-              <div class="message-content">Market participants increasingly focused on potential Federal Reserve policy shifts in response to inflation data.</div>
-              <div class="strength-bar-container">
-                <div class="strength-bar" style="width: 72%"></div>
-              </div>
-            </div>
-            <div class="message-item fade-in">
-              <div class="message-header">
-                <div class="message-title">Crypto Regulation Concerns</div>
-                <div class="narrative-strength">Strength: 63%</div>
-              </div>
-              <div class="message-content">Emerging narrative about potential cryptocurrency regulations impacting market sentiment.</div>
-              <div class="strength-bar-container">
-                <div class="strength-bar" style="width: 63%"></div>
-              </div>
-            </div>
-             <div class="message-item fade-in">
-              <div class="message-header">
-                <div class="message-title">Renewable Energy Transition</div>
-                <div class="narrative-strength">Strength: 78%</div>
-              </div>
-              <div class="message-content">Focus shifts towards renewable energy investments and policies driving the transition away from fossil fuels.</div>
-              <div class="strength-bar-container">
-                <div class="strength-bar" style="width: 78%"></div>
-              </div>
-            </div>
-            <div class="message-item fade-in">
-              <div class="message-header">
-                <div class="message-title">Supply Chain Normalization</div>
-                <div class="narrative-strength">Strength: 55%</div>
-              </div>
-              <div class="message-content">Signs suggest global supply chains are slowly returning to pre-pandemic levels, potentially easing inflationary pressures.</div>
-              <div class="strength-bar-container">
-                <div class="strength-bar" style="width: 55%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="market-overview-section" style="display: none; padding: 20px;">
-         <h2>Market Overview</h2><p style="color: #aaa;">(Treść dla Market Overview zostanie zaimplementowana)</p>
-      </div>
-    </main>
+
+          <div class="view-section" id="overview-view" style="display: none; padding: 20px; flex-direction: column;">
+               </div>
+      </main>
   </div>
 
   <footer>
@@ -217,7 +240,7 @@
         </div>
     </div>
   </footer>
-  
+
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
