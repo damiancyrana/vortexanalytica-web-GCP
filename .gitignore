@@ -41,7 +41,6 @@ instance/
 
 # 🌐 FastAPI (Swagger docs, static files, etc.)
 staticfiles/
-static/
 media/
 *.spec
 uvicorn.log
@@ -67,9 +66,7 @@ pnpm-lock.yaml
 yarn.lock
 
 # 🌍 Frontend
-*.html~
-*.css~
-*.js~
+
 *.map
 .DS_Store
 

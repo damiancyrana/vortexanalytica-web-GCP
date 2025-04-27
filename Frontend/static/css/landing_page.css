@@ -1,0 +1,542 @@
+/* =========================================================
+   VORTEX ANALYTICA – Landing Page
+   ========================================================= */
+
+/* ======= DESIGN TOKENS ======= */
+:root{
+  /* Colors used by the subtle background */
+  --blue:#00e5ff;
+  --teal:#3fffa1;
+  /* Other colors */
+  --purple:#b967ff;
+  --pink: #fd1e1e;
+  --gold: #ffcb45;
+
+  --bg-dark:#0a0a10;
+  --bg-medium:#10121f;
+  --bg-light:#1a1d36;
+  --card-bg:rgba(18, 21, 42, 0.75);
+  --card-border:rgba(0, 229, 255, 0.2);
+  --text-main:#f0f0f5;
+  --text-sec:rgba(240, 240, 245, 0.75);
+  --text-dim:rgba(240, 240, 245, 0.5);
+  --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
+  --gradient-border: linear-gradient(90deg, var(--blue), var(--purple));
+  --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  --t-smooth: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --blur: blur(12px);
+  --section-padding: 8rem;
+  --container-width: 1200px;
+}
+
+/* ======= RESET & BASE ======= */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;}
+
+/* Styl body (zgodnie z żądaniem) */
+body
+{
+  margin:0;
+  padding:0;
+  /* Używamy --bg-dark jako domyślnego, zamiast #0c002b */
+  background: var(--bg-dark);
+  font-family:'Exo 2', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+              Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color:var(--text-main);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* ===== TEXT WITH GRADIENT ===== */
+.logo-text,
+.hero h1,
+.solution-icon{
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+/* ===== ANIMATED BACKGROUND CANVAS ===== */
+#quantum-field{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:-1;pointer-events:none;display:block;
+}
+
+/* ===== HEADER / LOGO / NAV ===== */
+header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1000;
+  background: rgba(10, 10, 16, .7);
+  backdrop-filter: var(--blur);
+  padding: 1rem 2rem;
+  border-bottom: 1px solid rgba(0, 229, 255, .1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color var(--t-fast);
+}
+.logo{display:flex;align-items:center;gap:1rem}
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+.quantum-logo{position:relative;width:36px;height:36px}
+.quantum-core{position:absolute;width:16px;height:16px;border-radius:50%;top:50%;left:50%;
+  transform:translate(-50%,-50%);background:var(--blue);box-shadow:0 0 15px var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.6;transform:translate(-50%,-50%) scale(.8)}}
+.quantum-orbit{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(0,229,255,.5)}
+.quantum-particle-logo{position:absolute;width:6px;height:6px;background:var(--blue);border-radius:50%;box-shadow:0 0 8px var(--blue)}
+.particle-1{animation:orbit 4s linear infinite}
+.particle-2{animation:orbit 4s linear infinite 1.3s}
+.particle-3{animation:orbit 4s linear infinite 2.6s}
+@keyframes orbit{to{transform:rotate(360deg) translateX(16px) rotate(-360deg)}}
+
+nav{display:flex}
+.nav__list{display:flex;gap:2.5rem;list-style:none}
+nav a{
+  color:var(--text-sec);font-size:.9rem;text-transform:uppercase;letter-spacing:.03em;
+  text-decoration:none;position:relative;padding-bottom:5px;
+  transition:color var(--t-fast);
+}
+nav a:hover{color:var(--blue)}
+nav a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:2px;
+  background:var(--gradient-text);transition:width var(--t-fast);
+}
+nav a:hover::after{width:100%}
+
+/* Mobile Nav */
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--text-main);font-size:1.8rem;cursor:pointer;}
+@media(max-width:992px){
+  .mobile-menu-btn{display:block}
+  nav{
+      position:fixed;top:0;right:-100%;width:80%;max-width:350px;height:100vh;
+      background:var(--bg-medium);padding-top:6rem;
+      flex-direction:column;justify-content:flex-start;
+      transition:transform var(--t-smooth);transform:translateX(100%);
+      box-shadow:-10px 0 30px rgba(0,0,0,.3);z-index:999;
+  }
+  nav.active{transform:translateX(0)}
+  .nav__list{flex-direction:column;gap:2.5rem;text-align:center;width:100%}
+  nav a{font-size:1.1rem}
+}
+
+/* ===== MAIN LAYOUT & SECTIONS ===== */
+.main-container{max-width:var(--container-width);margin-inline:auto;padding-inline:2rem;margin-top:80px} /* Margin-top to offset fixed header */
+section{
+  padding-block:var(--section-padding);
+  position:relative;
+  overflow:hidden;
+}
+section:not(:first-of-type)::before{
+  content:'';position:absolute;top:0;left:5%;width:90%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--card-border),transparent);
+  opacity:.5;
+}
+.section-title{
+  font-size:clamp(2.2rem,5vw,3.5rem);
+  font-weight:600;line-height:1.2;text-align:center;margin-bottom:1.5rem;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.section-subtitle{
+  font-size:clamp(1.1rem,3vw,1.4rem);
+  color:var(--text-sec);text-align:center;max-width:800px;margin:0 auto 4rem auto;
+  font-weight:300;
+}
+
+/* Generic Card */
+.info-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  padding:2.5rem;
+  transition:transform var(--t-fast),box-shadow var(--t-fast);
+  backdrop-filter:var(--blur);
+  display:flex;flex-direction:column;height:100%;
+}
+.info-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 10px 30px rgba(0,229,255,.1);
+}
+
+/* Grid Helpers */
+.grid-container{display:grid;gap:2.5rem}
+.grid-2-cols{grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr))}
+.grid-3-cols{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:calc(100vh - 80px);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  padding-bottom:5rem;
+}
+.hero-content{max-width:850px}
+.hero h1{
+  font-size:clamp(2.8rem,7vw,5rem);
+  font-weight:700;line-height:1.15;margin-bottom:1.5rem;
+  background:linear-gradient(90deg,#fff,var(--blue),var(--teal));
+  text-shadow:0 0 30px rgba(0,229,255,.2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero p.subtitle{
+  font-size:clamp(1.2rem,4vw,1.6rem);
+  color:var(--text-sec);max-width:700px;margin:0 auto 2.5rem auto;font-weight:300;
+}
+
+/* Kontener dla przycisków w sekcji Hero */
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem; /* Mniejszy odstęp */
+  margin-top: 3rem;
+  flex-wrap: wrap;
+}
+
+/* ===== NOWE STYLE PRZYCISKÓW w sekcji Hero ===== */
+.btn {
+  /* Domyślny kolor - cyan/blue */
+  --hue: 190;
+  position: relative;
+  padding: 1rem 2.5rem; /* Mniejszy padding */
+  font-size: 1rem; /* Standardowy rozmiar fonta */
+  line-height: 1.5;
+  color: white;
+  text-decoration: none;
+  text-transform: uppercase; /* Wielkie litery */
+  letter-spacing: 1px; /* Mniejszy letter-spacing */
+  background-color: hsl(var(--hue), 100%, 41%);
+  border: 1px solid hsl(var(--hue), 100%, 41%);
+  outline: transparent;
+  border-radius: 4px; /* Zaokrąglenie rogów */
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: 0.25s;
+  font-family: inherit; /* Użyj fonta strony */
+}
+
+/* Hover dla podstawowego przycisku (nieużywane w ghost) */
+.btn:hover {
+  background: hsl(var(--hue), 100%, 31%);
+  border-color: hsl(var(--hue), 100%, 31%);
+}
+
+/* Styl "Ghost" */
+.btn-ghost {
+  color: hsl(var(--hue), 100%, 41%);
+  background-color: transparent;
+  border-color: hsl(var(--hue), 100%, 41%);
+}
+
+.btn-ghost:hover {
+  color: white; /* Tekst staje się biały */
+  background-color: hsl(var(--hue), 100%, 41%); /* Tło wypełnia się kolorem */
+}
+
+/* Styl "Shine" (efekt przy najechaniu) */
+.btn-shine {
+  /* Ten styl nie wymaga dodatkowych reguł poza :hover i ::before */
+  color: hsl(var(--hue), 100%, 41%); /* Kolor tekstu dla shine ghost */
+}
+
+.btn-shine::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    hsla(var(--hue), 100%, 41%, 0.5), /* Połprzezroczysty blask */
+    transparent
+  );
+  transform: translateX(-100%); /* Początkowo poza przyciskiem */
+  transition: 0.6s; /* Czas animacji blasku */
+}
+
+.btn-shine:hover {
+  color: white; /* Tekst biały w hover */
+  background: hsl(var(--hue), 100%, 31%); /* Ciemniejsze tło w hover (jak w normalnym btn) */
+  border-color: hsl(var(--hue), 100%, 31%);
+  box-shadow: 0 0 20px 5px hsla(var(--hue), 100%, 41%, 0.4); /* Delikatny cień */
+}
+
+.btn-shine:hover::before {
+  transform: translateX(100%); /* Przesunięcie blasku przez przycisk */
+}
+
+/* Definicje kolorów dla konkretnych przycisków */
+.btn-login {
+  --hue: 190; /* Cyan/Blue */
+}
+
+.btn-coffee {
+  --hue: 0; /* Red */
+}
+
+
+/* ===== PROBLEM ===== */
+#problem{background-color:var(--bg-medium)}
+.problem-container{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:2.5rem;align-items:stretch;
+}
+.problem-card{text-align:center;padding:2rem}
+.problem-icon{font-size:3rem;color:var(--blue);margin-bottom:1rem}
+.problem-card h3{font-size:1.5rem;color:var(--text-main);margin-bottom:.5rem}
+.problem-card p{color:var(--text-sec);font-size:.95rem}
+
+/* ===== SOLUTION ===== */
+.solution-icon{
+  font-size:4rem;margin:0 auto 2rem auto;display:block;text-align:center;
+  background:var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===== ENGINES ===== */
+#engines{background-color:var(--bg-medium)}
+.engine-card{text-align:center}
+.engine-icon{font-size:2.5rem;color:var(--purple);margin-bottom:1rem}
+.engine-card h3{font-size:1.5rem;color:var(--text-main);margin-bottom:.5rem}
+.engine-card p{color:var(--text-sec);font-size:.95rem}
+
+/* ===== CAPABILITIES ===== */
+.capability-card{position:relative;padding-left:3.5rem}
+.capability-icon{
+  position:absolute;left:1.5rem;top:2.2rem;font-size:1.8rem;width:40px;height:40px;
+  line-height:40px;text-align:center;border-radius:50%;background:var(--bg-light);color:var(--teal);
+}
+.capability-card h3{font-size:1.3rem;color:var(--text-main);margin-bottom:.5rem}
+.capability-card p{color:var(--text-sec);font-size:.95rem}
+
+/* ===== ADVANTAGE ===== */
+#advantage{background-color:var(--bg-medium)}
+.usp-item{display:flex;align-items:flex-start;gap:1.5rem;margin-bottom:1.5rem}
+.usp-icon{font-size:1.8rem;color:var(--blue);min-width:30px;text-align:center;margin-top:.2rem}
+.usp-text h4{font-size:1.1rem;color:var(--text-main);margin-bottom:.2rem}
+.usp-text p{color:var(--text-sec);font-size:.95rem}
+
+/* ===== ABOUT ===== */
+.team-card{text-align:center;padding:2.5rem 1.5rem}
+.team-photo-placeholder{
+  width:120px;height:120px;border-radius:50%;background:var(--bg-light);
+  margin:0 auto 1.5rem auto;display:flex;justify-content:center;align-items:center;
+  border:2px solid var(--card-border);
+}
+.team-photo-placeholder i{font-size:3rem;color:var(--text-dim)}
+.team-card h3{font-size:1.5rem;margin-bottom:.5rem;color:var(--text-main)}
+.team-card .title{font-size:1rem;color:var(--purple);margin-bottom:1.5rem;font-weight:600}
+.team-card .linkedin-link{
+  display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-light);
+  padding:.6rem 1.2rem;border:1px solid var(--card-border);border-radius:6px;
+  color:var(--text-main);text-decoration:none;font-size:.9rem;font-weight:500;
+  transition:background var(--t-fast),transform var(--t-fast);margin-top:auto;
+}
+.team-card .linkedin-link:hover{
+  background:var(--bg-medium);transform:translateY(-2px);
+  box-shadow:0 4px 10px rgba(0,229,255,.1);
+}
+.team-card .linkedin-link i{font-size:1.1rem}
+
+/* ===== AUDIENCE ===== */
+#audience{text-align:center}
+.audience-list{
+  list-style:none;padding:0;margin:3rem auto 0 auto;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;max-width:900px;
+}
+.audience-list li{
+  background:var(--bg-light);color:var(--text-sec);
+  padding:.5rem 1.2rem;border-radius:20px;font-size:.9rem;
+  border:1px solid var(--card-border);white-space:nowrap;
+}
+
+/* ===== MVP ===== */
+#mvp{background-color:var(--bg-medium)}
+.mvp-features{
+  list-style:none;padding:0;max-width:700px;margin:2rem auto 0 auto;
+}
+.mvp-features li{
+  display:flex;align-items:center;gap:1rem;padding:1rem 0;
+  border-bottom:1px solid rgba(0,229,255,.1);
+}
+.mvp-features li:last-child{border-bottom:none}
+.mvp-icon{font-size:1.2rem;color:var(--teal);min-width:20px;text-align:center}
+.mvp-text{color:var(--text-sec);font-size:1rem}
+/* Styl przycisku logowania w sekcji MVP (używa .login-button) */
+/* Ta klasa jest zachowana dla przycisku Microsoft w sekcji MVP */
+.login-button{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  padding: .9rem 1.8rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text-main);
+  background: var(--bg-light);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: inherit; /* Użyj fonta strony */
+}
+.login-button i{
+  font-size: 1.2rem;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+.login-button span {
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+#mvp .text-center .login-button.microsoft {
+    margin-top: 2rem;
+}
+.login-button.microsoft:hover { /* Basic hover for MVP button */
+    background: var(--bg-medium);
+    box-shadow: 0 4px 10px rgba(0,229,255,.1);
+    transform: translateY(-2px);
+}
+
+
+/* ===== CONTACT ===== */
+#contact{background-color:var(--bg-medium)}
+.contact-container{
+  max-width:700px;margin:0 auto;background:var(--card-bg);
+  border:1px solid var(--card-border);border-radius:16px;padding:3rem;
+  backdrop-filter:var(--blur);
+}
+.form-group{margin-bottom:1.5rem}
+.form-label{display:block;margin-bottom:.5rem;color:var(--text-sec);font-size:.9rem;font-weight:500}
+.form-input,.form-textarea{
+  width:100%;padding:.9rem 1rem;border-radius:8px;background:var(--bg-light);
+  border:1px solid var(--card-border);color:var(--text-main);font-size:1rem;font-family:inherit;
+  transition:border-color var(--t-fast),box-shadow var(--t-fast);
+}
+.form-input:focus,.form-textarea:focus{
+  outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,229,255,.2);
+}
+.form-textarea{min-height:150px;resize:vertical}
+.submit-button{
+  display:inline-flex;align-items:center;justify-content:center;gap:.8rem;
+  background:var(--gradient-border);color:var(--text-main);padding:.9rem 2rem;
+  border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;
+  transition:transform var(--t-fast),box-shadow var(--t-fast);width:100%;
+  font-family: inherit;
+}
+.submit-button:hover{
+  transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,229,255,.2);
+}
+.submit-button i{font-size:1.1rem}
+#form-status{margin-top:1rem;padding:.8rem;border-radius:6px;text-align:center;font-size:.9rem;display:none}
+#form-status.success{
+  background-color:rgba(63,255,161,.1);border:1px solid var(--teal);color:var(--teal)
+}
+#form-status.error{
+  background-color:rgba(253,30,30,.1);border:1px solid var(--pink);color:var(--pink)
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: rgba(10, 10, 16, .7);
+  backdrop-filter: var(--blur);
+  padding: 3rem 2rem;
+  text-align: center;
+  border-top: 1px solid rgba(0, 229, 255, .1);
+  margin-top: var(--section-padding);
+}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.footer-links a{color:var(--text-sec);text-decoration:none;font-size:.9rem}
+.footer-links a:hover{color:var(--blue)}
+.copy{color:var(--text-dim);font-size:.85rem;margin-top:1rem}
+
+/* ===== UTILITIES ===== */
+.text-center{text-align:center}
+.mb-1{margin-bottom:1rem}
+.mb-2{margin-bottom:2rem}
+.mt-1{margin-top:1rem}
+.mt-2{margin-top:2rem}
+
+
+/* ===== RESPONSIVE STYLES ===== */
+
+@media (max-width: 992px) {
+  /* Już obsłużone w sekcji Mobile Nav */
+}
+
+@media (max-width: 768px) {
+   .hero-buttons .btn { /* Dostosowanie przycisków dla tabletów */
+      padding: 0.8rem 2rem;
+      font-size: 0.9rem;
+   }
+   .hero-buttons {
+      gap: 1rem;
+   }
+}
+
+
+@media (max-width:576px){
+  :root{--section-padding:4rem}
+  header{padding:.7rem 1.2rem}
+  .logo-text{font-size:1rem}
+  .main-container{padding-inline:1rem; margin-top: 60px;}
+  .grid-container{gap:1.5rem}
+  .hero h1{font-size:clamp(2.2rem,9vw,3.2rem)}
+  .hero p.subtitle{font-size:clamp(1rem,4.5vw,1.25rem)}
+
+  .hero-buttons .btn { /* Przyciski w Hero na małych ekranach */
+    padding: 0.7rem 1.5rem;
+    font-size: 0.85rem;
+    width: 70%; /* Zajmują więcej szerokości */
+    max-width: 280px;
+  }
+   .hero-buttons { /* Układ pionowy */
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  /* Oryginalne style dla małych ekranów */
+  .section-title{font-size:clamp(1.8rem,7vw,2.6rem)}
+  .section-subtitle{font-size:clamp(.95rem,3.8vw,1.1rem);margin-bottom:3rem}
+  .problem-container,
+  .grid-2-cols,
+  .grid-3-cols{grid-template-columns:1fr}
+  .info-card{padding:1.8rem}
+  .submit-button{padding:.8rem 1.5rem;font-size:.95rem}
+  footer{padding:2rem 1.2rem}
+  .login-button.microsoft { /* Dostosowanie przycisku MVP */
+      font-size: .9rem;
+      padding: .8rem 1.5rem;
+  }
+}
+
+/* Usunięte style .animated-button */

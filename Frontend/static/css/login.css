@@ -1,0 +1,216 @@
+/* =========================================================
+   VORTEX ANALYTICA – Login Page (single-page, mobile ready)
+   ========================================================= */
+
+/* ---------- brak przewijania ---------- */
+html, body{
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ---------- sekcja wypełnia całe okno ---------- */
+.login-section{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  padding:40px 20px;
+  position:relative;
+  z-index:10;
+}
+
+/* ---------- karta logowania ---------- */
+.login-container {
+  background-color: var(--bg-dark, #1a1f2e);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  width: 80%;
+  max-width: 600px;
+  padding: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* ---------- nagłówek ---------- */
+.login-header{text-align:center;margin-bottom:30px}
+.login-header h1{
+  font-family:'Exo 2',sans-serif;font-weight:600;font-size:28px;
+  color:#fff;margin-bottom:8px;
+}
+.login-header p{color:rgba(255,255,255,.7);font-size:16px}
+
+/* ---------- zakładki ---------- */
+.auth-tabs{
+  display:flex;margin-bottom:30px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.tab-btn{
+  flex:1;background:transparent;border:none;
+  color:rgba(255,255,255,.6);
+  font-family:'Exo 2',sans-serif;font-size:16px;font-weight:500;
+  padding:12px 20px;cursor:pointer;transition:.3s;
+}
+.tab-btn:hover{color:rgba(255,255,255,.9)}
+.tab-btn.active{
+  color:#fff;border-bottom:2px solid #4e8cff;
+}
+
+/* ---------- formularze ---------- */
+.auth-form{display:none}
+.auth-form.active{display:block;animation:fadeIn .5s ease-out}
+
+.form-group{margin-bottom:24px}
+.form-group label{
+  display:block;margin-bottom:8px;font-size:14px;
+  color:rgba(255,255,255,.9);
+}
+
+/* pole z ikoną */
+.input-with-icon{position:relative}
+.input-with-icon i{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  color:rgba(255,255,255,.4);
+}
+.input-with-icon input{
+  width:100%;padding:14px 14px 14px 45px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);color:#fff;
+  font-family:'Exo 2',sans-serif;font-size:15px;transition:.3s;
+}
+.input-with-icon input:focus{
+  outline:none;border-color:#4e8cff;
+  background:rgba(255,255,255,.08);
+  box-shadow:0 0 0 2px rgba(78,140,255,.2);
+}
+.input-with-icon input::placeholder{color:rgba(255,255,255,.3)}
+
+/* siła hasła */
+.password-strength-meter{
+  height:4px;background:rgba(255,255,255,.1);
+  margin-top:8px;border-radius:4px;overflow:hidden;
+}
+.strength-bar{
+  height:100%;width:0;
+  background:linear-gradient(to right,#ff4d4d,#ffcc00,#00cc66);
+  transition:width .3s;
+}
+.password-hints{margin-top:8px;font-size:12px;color:rgba(255,255,255,.5)}
+
+/* ---------- opcje ---------- */
+.form-options{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;font-size:14px;
+}
+
+/* checkbox */
+.checkbox-container{
+  display:flex;align-items:center;cursor:pointer;user-select:none;
+  color:rgba(255,255,255,.7);position:relative;
+}
+.checkbox-container input{position:absolute;opacity:0;cursor:pointer;height:0;width:0}
+.checkmark{
+  height:18px;width:18px;background:rgba(255,255,255,.1);
+  border-radius:4px;margin-right:8px;position:relative;
+}
+.checkbox-container:hover .checkmark{background:rgba(255,255,255,.2)}
+.checkbox-container input:checked~.checkmark{background:#4e8cff}
+.checkmark:after{
+  content:"";position:absolute;display:none;
+}
+.checkbox-container input:checked~.checkmark:after{display:block}
+.checkbox-container .checkmark:after{
+  left:6px;top:3px;width:5px;height:10px;border:solid #fff;
+  border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+
+.forgot-password{
+  color:#4e8cff;text-decoration:none;transition:.3s;
+}
+.forgot-password:hover{color:#79a8ff;text-decoration:underline}
+
+/* ---------- przyciski ---------- */
+.auth-button{
+  width:100%;padding:14px;border:none;border-radius:6px;
+  background:linear-gradient(135deg,#4e8cff,#3366cc);
+  color:#fff;font-family:'Exo 2',sans-serif;font-size:16px;font-weight:600;
+  cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center;
+}
+.auth-button i{margin-right:8px}
+.auth-button:hover{
+  background:linear-gradient(135deg,#5a94ff,#3d70d6);
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(78,140,255,.3);
+}
+.auth-button:active{transform:translateY(0)}
+
+/* separator */
+.separator{
+  display:flex;align-items:center;text-align:center;margin:24px 0;
+}
+.separator::before,
+.separator::after{
+  content:'';flex:1;border-bottom:1px solid rgba(255,255,255,.1);
+}
+.separator span{
+  padding:0 10px;color:rgba(255,255,255,.5);font-size:14px;
+}
+
+/* social login */
+.social-login{display:flex;gap:12px}
+.social-btn{
+  flex:1;padding:12px;border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;background:rgba(255,255,255,.05);color:#fff;
+  font-family:'Exo 2',sans-serif;font-size:14px;cursor:pointer;transition:.3s;
+  display:flex;justify-content:center;align-items:center;
+}
+.social-btn i{margin-right:8px}
+
+.social-btn.microsoft{background:rgba(0,120,215,.2)}
+.social-btn.microsoft:hover{background:rgba(0,120,215,.3)}
+.social-btn.google{background:rgba(219,68,55,.2)}
+.social-btn.google:hover{background:rgba(219,68,55,.3)}
+
+/* ---------- animacja ---------- */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+/* ---------- smartfony ≤ 576 px ---------- */
+@media (max-width:576px){
+  .login-container{
+      padding:30px 20px;
+      max-width:340px;
+  }
+  .login-header h1{font-size:22px}
+  .login-header p{font-size:14px}
+  .tab-btn{padding:10px 8px;font-size:14px}
+  .form-options{
+      flex-direction:column;align-items:flex-start;gap:12px;
+  }
+  .social-login{flex-direction:column}
+  .auth-button{font-size:15px;padding:12px}
+}
+
+/* ---------- tablety ≤ 768 px ---------- */
+@media (min-width:577px) and (max-width:768px){
+  .login-container{max-width:400px;padding:35px}
+  .tab-btn{font-size:15px}
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    width: 95%;
+    padding: 25px;
+  }
+}
