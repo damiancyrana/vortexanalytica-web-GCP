@@ -1,270 +1,175 @@
 """
-Vortex Analytica - Moduł główny aplikacji
-Zoptymalizowana implementacja z wykorzystaniem wzorców projektowych i OOP
-Dostosowana do Pydantic v2.x
+Vortex Analytica - Główny moduł aplikacji (Wersja Produkcyjna - Hybrydowa)
 """
-from __future__ import annotations
-
-import os
 import logging
+import os
 from functools import lru_cache
-from typing import Dict, Any, Optional, Final
+from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
+from starlette.middleware import Middleware # Poprawiony import
+# === WAŻNE: Import dla CSRF Middleware (przykład) ===
+# Należy zainstalować: pip install starlette-csrf
+# from starlette_csrf import CSRFMiddleware
+# ===============================================
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi import BackgroundTasks, Form, status
-from email.message import EmailMessage
-from smtplib import SMTP_SSL
 
-# Logger
-logger = logging.getLogger(__name__)
+# Konfiguracja logowania na początku, przed importami używającymi loggera
+log_level_str = os.getenv("LOG_LEVEL", "INFO").upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s [%(name)s:%(lineno)d] [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__) # Teraz można używać loggera
 
-# Importy wewnętrzne - lazy import aby uniknąć problemów z cyklicznymi importami
-def get_settings():
-    from Backend.core.config import get_settings
-    return get_settings()
+# Importy modułów aplikacji PO konfiguracji logów
+from Backend.core.config import get_settings, Settings
+from Backend.routes import register_routes
+from Backend.services import lifecycle
 
 
 class VortexApplication:
-    """
-    Główna klasa aplikacji implementująca wzorzec Singleton.
-    Odpowiada za inicjalizację i konfigurację FastAPI.
-    """
-    _instance: Optional[VortexApplication] = None
+    """ Główna klasa aplikacji (Singleton). """
+    _instance: Optional["VortexApplication"] = None
     _app: Optional[FastAPI] = None
     _templates: Optional[Jinja2Templates] = None
-    
-    def __new__(cls) -> VortexApplication:
-        """Implementacja wzorca Singleton"""
+    _settings: Optional[Settings] = None
+
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super(VortexApplication, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
-    
+
     def __init__(self) -> None:
-        """Inicjalizacja tylko jeśli nie była wcześniej wykonana"""
-        if getattr(self, '_initialized', False):
-            return
-            
-        self._settings = get_settings()
+        if getattr(self, '_initialized', False): return
+        logger.info("Inicjalizacja instancji VortexApplication...")
+        self._settings = get_settings() # Pobierz ustawienia (ładuje sekrety)
         self._initialize_app()
         self._initialized = True
-    
+        logger.info("Inicjalizacja VortexApplication zakończona.")
+
     def _initialize_app(self) -> None:
-        """Inicjalizacja aplikacji FastAPI z optymalnymi ustawieniami"""
+        """ Inicjalizuje aplikację FastAPI. """
+        logger.info("Inicjalizacja aplikacji FastAPI...")
         self._app = FastAPI(
-            title="Vortex Analytica",
-            docs_url=None,  # Wyłącz dokumentację Swagger
-            redoc_url=None  # Wyłącz dokumentację ReDoc
-        )
-        
-        # Zoptymalizowane middleware
+             title=self._settings.app_name,
+             docs_url=None, # Wyłącz Swagger na produkcji
+             redoc_url=None, # Wyłącz ReDoc na produkcji
+             # Można dodać version="x.y.z"
+         )
+        logger.info("Konfigurowanie middleware...")
         self._configure_middleware()
-        
-        # Szablony
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        templates_dir = os.path.join(base_dir, "Frontend", "templates")
-        static_dir = os.path.join(base_dir, "Frontend", "static")
-        
-        self._templates = Jinja2Templates(directory=templates_dir)
-        
-        # Statyczne pliki z cache-control
-        self._app.mount(
-            "/static", 
-            StaticFiles(directory=static_dir), 
-            name="static"
-        )
-        
-        # Rejestracja tras
-        self._register_routes()
-        
-        # Zdarzenia cyklu życia aplikacji
-        self._app.add_event_handler("startup", self._on_startup)
-        self._app.add_event_handler("shutdown", self._on_shutdown)
-    
-    async def _on_startup(self) -> None:
-        """Funkcja uruchamiana przy starcie aplikacji"""
-        logger.info("Uruchamianie aplikacji Vortex Analytica...")
-        
-        # Ładowanie sekretów w razie potrzeby
-        settings = get_settings()
-        if settings.is_production:
-            settings.load_secrets()
-            
-        logger.info(f"Aplikacja uruchomiona w trybie: {settings.environment}")
-    
-    async def _on_shutdown(self) -> None:
-        """Funkcja uruchamiana przy zatrzymaniu aplikacji"""
-        logger.info("Zamykanie aplikacji...")
-        logger.info("Aplikacja została pomyślnie zamknięta.")
-    
+        logger.info("Konfigurowanie szablonów Jinja2...")
+        self._templates = Jinja2Templates(directory=self._settings.templates_dir)
+        logger.info("Montowanie plików statycznych...")
+        self._app.mount( "/static", StaticFiles(directory=self._settings.static_dir), name="static")
+        logger.info("Rejestrowanie tras...")
+        register_routes(self._app, self._templates, self._settings)
+        logger.info("Dodawanie obsługi zdarzeń startup/shutdown...")
+        self._app.add_event_handler("startup", lifecycle.app_startup)
+        self._app.add_event_handler("shutdown", lifecycle.app_shutdown)
+        logger.info("Inicjalizacja aplikacji FastAPI zakończona.")
+
     def _configure_middleware(self) -> None:
-        """Konfiguracja middleware z optymalnymi ustawieniami wydajności"""
-        # GZip dla kompresji odpowiedzi (oszczędność przepustowości)
-        self._app.add_middleware(
-            GZipMiddleware, 
-            minimum_size=1024,  # Minimalna wielkość do kompresji
-            compresslevel=6     # Balans między wydajnością a stopniem kompresji
-        )
-    
-    def _register_routes(self) -> None:
-        """
-        Rejestracja tras aplikacji
-        
-        W pierwszej iteracji implementujemy je bezpośrednio, aby zapewnić
-        kompatybilność z istniejącym kodem.
-        """
-        @self._app.get("/", response_class=HTMLResponse)
-        async def landing(request: Request) -> HTMLResponse:
-            """Strona główna (landing page)"""
-            return self._templates.TemplateResponse(
-                "landing_page.html",
-                {"request": request, "auth_url": "/login"}
-            )
+        """ Konfiguruje middleware aplikacji. """
+        # ZAWSZE dodawaj middleware w odpowiedniej kolejności (od zewnątrz do wewnątrz)
 
-        @self._app.get("/index", response_class=HTMLResponse)
-        async def index_page(request: Request) -> HTMLResponse:
-            """Strona indeksu"""
-            return self._templates.TemplateResponse(
-                "index.html",
-                {"request": request}
-            )
-        
-        @self._app.get("/login", response_class=HTMLResponse)
-        async def login_page(request: Request) -> HTMLResponse:
-            """Strona logowania"""
-            return self._templates.TemplateResponse(
-                "login.html",
-                {"request": request}
-            )
-        
-        @self._app.get("/auth/firebase-config", response_class=JSONResponse)
-        async def firebase_config() -> JSONResponse:
-            """Zwraca konfigurację Firebase z sekretów"""
-            settings = get_settings()
-            
-            # Ustawiamy przykładowe dane w trybie deweloperskim, jeśli nie ma prawdziwych
-            try:
-                # Staraj się najpierw załadować sekrety (tylko te, które są potrzebne)
-                if settings.firebase_api_key is None:
-                    try:
-                        settings.firebase_api_key = settings.get_secret("Identity-Platform-apiKey")
-                    except Exception as e:
-                        if settings.is_development:
-                            # W trybie dev, użyj przykładowych danych
-                            settings.firebase_api_key = "sample-api-key-for-dev-only"
-                        else:
-                            raise e
-                            
-                if settings.firebase_auth_domain is None:
-                    try:
-                        settings.firebase_auth_domain = settings.get_secret("Identity-Platform-authDomain")
-                    except Exception as e:
-                        if settings.is_development:
-                            # W trybie dev, użyj przykładowych danych
-                            settings.firebase_auth_domain = "vortexanalytica.firebaseapp.com"
-                        else:
-                            raise e
-                
-                # Zwróć konfigurację
-                return JSONResponse(content={
-                    "apiKey": settings.firebase_api_key,
-                    "authDomain": settings.firebase_auth_domain
-                })
-            except Exception as e:
-                # Logujemy błąd
-                logger.error(f"Błąd podczas pobierania konfiguracji Firebase: {e}")
-                
-                # Zwróć błąd 500
-                return JSONResponse(
-                    status_code=500,
-                    content={"error": "Nie udało się pobrać konfiguracji Firebase. Spróbuj ponownie później."}
-                )
-        
-        @self._app.post("/contact", response_class=JSONResponse,
-                  status_code=status.HTTP_202_ACCEPTED)
-        async def contact(
-            background_tasks: BackgroundTasks,
-            name: str = Form(..., max_length=128),
-            email: str = Form(...),
-            subject: str = Form(..., max_length=256),
-            message: str = Form(..., max_length=10_000),
-        ) -> JSONResponse:
-            """Obsługa formularza kontaktowego"""
-            # Funkcja do wysyłania e-maili
-            def send_mail(subject: str, body: str, *, reply_to: str) -> None:
-                """Wysyła wiadomość e-mail"""
-                settings = get_settings()
-                
-                # Upewnij się, że mamy dane do SMTP
-                if settings.smtp_user is None or settings.smtp_pass is None:
-                    settings.load_secrets()
-                
-                msg = EmailMessage()
-                msg["Subject"] = f"[Vortex landing] {subject}"
-                msg["From"] = settings.smtp_user
-                msg["To"] = settings.MAIL_TO
-                msg["Reply-To"] = reply_to
-                msg.set_content(body)
+        # 1. GZip Middleware (kompresja odpowiedzi)
+        self._app.add_middleware( GZipMiddleware, minimum_size=1024, compresslevel=9 ) # Wyższy poziom kompresji dla prod
 
-                with SMTP_SSL("smtp.gmail.com", 465, timeout=15) as smtp:
-                    smtp.login(settings.smtp_user, settings.smtp_pass)
-                    smtp.send_message(msg)
-            
-            body = (
-                "—— Formularz kontaktowy Vortex Analytica ——\n\n"
-                f"Nadawca : {name} <{email}>\n"
-                f"Temat   : {subject}\n\n"
-                f"Wiadomość:\n{message}\n"
-            )
-                
-            background_tasks.add_task(send_mail, subject, body, reply_to=email)
-            return {"ok": True, "msg": "Wiadomość została wysłana."}
-    
+        # 2. Middleware do obsługi błędów / logowania żądań (opcjonalnie)
+        # Np. middleware logujące czas odpowiedzi, statusy itp.
+
+        # 3. === Middleware CSRF (KRYTYCZNE DLA BEZPIECZEŃSTWA!) ===
+        # Musisz zainstalować (np. pip install starlette-csrf) i skonfigurować.
+        # Odkomentuj i dostosuj PONIŻEJ, gdy będziesz gotowy.
+        # --- POCZĄTEK PRZYKŁADU CSRF ---
+        # try:
+        #     from starlette_csrf import CSRFMiddleware
+        #     logger.info("Dodawanie CSRFMiddleware...")
+        #     self._app.add_middleware(
+        #         CSRFMiddleware,
+        #         secret=self._settings.SESSION_SECRET_KEY, # Użyj tego samego sekretu co dla sesji
+        #         cookie_name="csrftoken", # Domyślna nazwa
+        #         cookie_secure=self._settings.SESSION_COOKIE_SECURE,
+        #         cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
+        #         # safe_methods={"GET", "HEAD", "OPTIONS", "TRACE"} # Domyślne bezpieczne metody
+        #         # header_name="X-CSRF-Token" # Jeśli używasz tokenu w nagłówku dla AJAX
+        #     )
+        #     logger.info("CSRFMiddleware dodane pomyślnie.")
+        # except ImportError:
+        #      logger.critical("!!! BIBLIOTEKA starlette-csrf NIE JEST ZAINSTALOWANA !!!")
+        #      logger.critical("!!! OCHRONA CSRF JEST WYMAGANA PRZY UŻYCIU CIASTECZEK - APLIKACJA JEST PODATNA NA ATAKI CSRF !!!")
+        #      # W produkcji można rozważyć zatrzymanie aplikacji:
+        #      # raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
+        # except Exception as e:
+        #      logger.critical(f"!!! Nie można skonfigurować CSRFMiddleware: {e} !!!", exc_info=True)
+        #      # Można rozważyć zatrzymanie aplikacji
+        # --- KONIEC PRZYKŁADU CSRF ---
+        logger.critical("!!! OCHRONA CSRF NIE JEST AKTYWNA W TYM KODZIE. ZAINSTALUJ, SKONFIGURUJ I ODKOMENTUJ ODPOWIEDNIE MIDDLEWARE W _configure_middleware() !!!")
+        # ============================================================
+
+        # Inne middleware (np. CORS, jeśli API ma być dostępne z innych domen)
+        # from fastapi.middleware.cors import CORSMiddleware
+        # self._app.add_middleware(CORSMiddleware, allow_origins=["your_frontend_domain"], ...)
+
+        logger.info("Konfiguracja middleware zakończona.")
+
+
     @property
     def app(self) -> FastAPI:
-        """Zwraca skonfigurowaną instancję aplikacji FastAPI"""
+        """ Zwraca zainicjalizowaną instancję FastAPI. """
         if self._app is None:
-            self._initialize_app()
+             # Sytuacja awaryjna - nie powinna się zdarzyć
+             logger.error("Krytyczny błąd: Próba dostępu do self.app przed pełną inicjalizacją VortexApplication!")
+             raise RuntimeError("FastAPI application instance is not available.")
         return self._app
 
-
-# Funkcja fabryczna zgodna z poprzednim interfejsem
-@lru_cache
+@lru_cache()
 def create_app() -> FastAPI:
-    """
-    Funkcja fabryczna tworząca aplikację FastAPI.
-    
-    Wykorzystuje wzorzec Singleton z cache dla powtórnych wywołań,
-    co zwiększa wydajność przy wielu wywołaniach.
-    
-    Returns:
-        FastAPI: Skonfigurowana instancja aplikacji
-    """
+    """ Funkcja fabryczna tworząca aplikację FastAPI (Singleton). """
+    logger.debug("Wywołanie funkcji fabrycznej create_app...")
     app_instance = VortexApplication()
+    logger.debug("Instancja VortexApplication uzyskana/utworzona w create_app.")
     return app_instance.app
 
-
-# Uruchomienie serwera deweloperskiego
+# Główny punkt wejścia (dla uruchomienia np. przez `python -m Backend.app` lub uvicorn)
 if __name__ == "__main__":
-    # Konfiguracja logów
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[logging.StreamHandler()]
-    )
-    
-    # Parametry uruchomieniowe
-    uvicorn.run(
-        "Backend.app:create_app",
-        host="0.0.0.0",
-        port=8040,
-        factory=True,
-        reload=True,   # tylko w trybie dev
-        workers=4,     # W trybie dev wystarczy jeden worker
-        log_level="info",
-    )
+    logger.info("Uruchamianie aplikacji bezpośrednio (if __name__ == '__main__')...")
+    try:
+        # get_settings() jest już wywoływane w VortexApplication, ale pobierzmy je tu dla uvicorn.run
+        # Upewnij się, że logi są skonfigurowane PRZED pierwszym wywołaniem get_settings
+        settings = get_settings()
+
+        # Parametry dla Uvicorn
+        uvicorn_config = {
+            "host": os.getenv("HOST", "0.0.0.0"),
+            "port": int(os.getenv("PORT", 8040)),
+            "factory": True, # Używamy funkcji fabrycznej
+            "reload": settings.is_development, # Włącz reload tylko w dev
+            "workers": 1 if settings.is_development else int(os.getenv("WEB_CONCURRENCY", 4)),
+            "log_level": settings.log_level.lower(),
+            # Można dodać bardziej zaawansowaną konfigurację logowania uvicorn,
+            # np. używając dictConfig z logging.config
+            # "log_config": None,
+        }
+        logger.info(f"Konfiguracja Uvicorn: {uvicorn_config}")
+
+        # Uruchomienie serwera
+        uvicorn.run( "Backend.app:create_app", **uvicorn_config )
+
+    except SystemExit as e:
+         logger.critical(f"Aplikacja zakończona przez SystemExit podczas startu: {e}")
+         import sys
+         sys.exit(1) # Zwróć kod błędu
+    except Exception as e:
+         logger.critical(f"Nie można uruchomić aplikacji Uvicorn: {e}", exc_info=True)
+         import sys
+         sys.exit(1) # Zwróć kod błędu

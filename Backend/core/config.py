@@ -1,147 +1,181 @@
 """
-Moduł konfiguracji aplikacji Vortex Analytica
+Moduł konfiguracji aplikacji Vortex Analytica (Wersja Produkcyjna - Hybrydowa)
 Dostosowany do Pydantic v2.x
+Klucz Firebase ładowany z Secret Managera.
+Klucz Sesji (SESSION_SECRET_KEY) ładowany WYŁĄCZNIE z Secret Managera.
 """
 from __future__ import annotations
 
 import os
+import logging
 from functools import lru_cache
 from typing import Dict, Any, Optional, Final
 
-# Zmodyfikowane importy dla zgodności z Pydantic v2
-from pydantic import field_validator, AnyHttpUrl
+from pydantic import field_validator, AnyHttpUrl, Field
 from pydantic_settings import BaseSettings
 from google.cloud.secretmanager_v1.services.secret_manager_service import SecretManagerServiceClient
+from google.api_core.exceptions import NotFound, PermissionDenied # Import wyjątków
 
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
-    """
-    Klasa konfiguracji aplikacji bazująca na Pydantic.
-    Automatycznie ładuje zmienne środowiskowe i zapewnia walidację.
-    """
+    """ Klasa konfiguracji aplikacji. """
     # Stałe aplikacji
-    PROJECT_ID: Final[str] = "vortexanalytica"
-    MAIL_TO: Final[str] = "vortexanalytica@gmail.com"
-    
+    PROJECT_ID: Final[str] = os.getenv("GOOGLE_CLOUD_PROJECT", "vortexanalytica") # Pobierz z env, jeśli dostępne
+    MAIL_TO: Final[str] = "vortexanalytica@gmail.com" # Można też wczytać z env/secret
+
     # Podstawowe ustawienia
     app_name: str = "Vortex Analytica"
-    environment: str = os.getenv("ENVIRONMENT", "development")
-    base_url: Optional[AnyHttpUrl] = None
-    
-    # Ścieżki do katalogów
-    base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    
-    # Cache dla serwisów
+    environment: str = os.getenv("ENVIRONMENT", "production") # Domyślnie produkcja
+    log_level: str = os.getenv("LOG_LEVEL", "INFO").upper()
+    base_url: Optional[AnyHttpUrl] = Field(None) # Wczytaj z env, jeśli potrzebne (np. BASE_URL=...)
+
+    # Ścieżki do katalogów (mogą wymagać dostosowania w kontenerze)
+    base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Cache dla serwisów (inicjalizowany w property)
     _secret_manager: Optional[SecretManagerServiceClient] = None
-    
+
     # Zmienne uwierzytelniane (cache z Secret Managera)
-    smtp_user: Optional[str] = None
-    smtp_pass: Optional[str] = None
-    firebase_api_key: Optional[str] = None
-    firebase_auth_domain: Optional[str] = None
-    
+    smtp_user: Optional[str] = Field(None)
+    smtp_pass: Optional[str] = Field(None)
+    firebase_api_key: Optional[str] = Field(None)
+    firebase_auth_domain: Optional[str] = Field(None)
+    firebase_service_account_secret_id: str = "firebase-service-account-key-json"
+
+    # Konfiguracja sesji - klucz ładowany z Secret Managera
+    SESSION_SECRET_KEY: Optional[str] = Field(None) # Ładowany w load_secrets
+    SESSION_SECRET_KEY_NAME: str = "SESSION_SECRET_KEY" # Nazwa sekretu w Secret Manager
+    SESSION_COOKIE_NAME: str = "vortex_session"
+    SESSION_COOKIE_MAX_AGE: int = 14 * 24 * 60 * 60  # 14 dni
+    SESSION_COOKIE_PATH: str = "/"
+    SESSION_COOKIE_DOMAIN: Optional[str] = Field(None) # Ustaw, jeśli potrzebujesz dla subdomen
+    SESSION_COOKIE_SECURE: bool = True # Na produkcji ZAWSZE True
+    SESSION_COOKIE_HTTPONLY: bool = True # ZAWSZE True
+    SESSION_COOKIE_SAMESITE: str = "lax" # "lax" jest dobrym kompromisem, "strict" bezpieczniejszy, ale może psuć niektóre przepływy
+
     # Domyślne ustawienia odpowiedzi HTTP
-    default_response_class: Any = None  # Będzie ustawione podczas inicjalizacji
-    
+    default_response_class: Any = None
+
     model_config = {
-        "env_file": ".env",
+        "env_file": ".env", # Dla lokalnego developmentu
+        "env_file_encoding": "utf-8",
         "case_sensitive": True,
         "extra": "ignore"
     }
-    
+
     def model_post_init(self, __context: Any) -> None:
-        """
-        Metoda wywoływana po inicjalizacji modelu.
-        W Pydantic v2 zastępuje __post_init_post_parse__
-        """
-        # Import lokalny, aby uniknąć cyklicznych zależności
+        """ Ustawienia po inicjalizacji Pydantic. """
         from fastapi.responses import HTMLResponse
         self.default_response_class = HTMLResponse
-    
+        # Wymuś Secure=True na produkcji
+        if self.is_production:
+            self.SESSION_COOKIE_SECURE = True
+        else:
+            # Dostosuj logikę dla dev, jeśli konieczne (np. testy na HTTP)
+            base_url_str = str(self.base_url) if self.base_url else ""
+            if self.environment == "development" and ("http://localhost" in base_url_str or "http://127.0.0.1" in base_url_str):
+                 logger.warning("Uruchomiono w trybie deweloperskim na HTTP, ustawiam SESSION_COOKIE_SECURE=False.")
+                 self.SESSION_COOKIE_SECURE = False
+            else:
+                 # Nawet w dev, jeśli nie jest to localhost http, używaj Secure
+                 self.SESSION_COOKIE_SECURE = True
+
+
     @property
-    def templates_dir(self) -> str:
-        """Zwraca ścieżkę do katalogu z szablonami"""
-        return os.path.join(self.base_dir, "Frontend", "templates")
-    
+    def templates_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "templates")
     @property
-    def static_dir(self) -> str:
-        """Zwraca ścieżkę do katalogu ze statycznymi plikami"""
-        return os.path.join(self.base_dir, "Frontend", "static")
-    
+    def static_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "static")
     @property
-    def is_development(self) -> bool:
-        """Sprawdza czy aplikacja działa w trybie deweloperskim"""
-        return self.environment.lower() == "development"
-    
+    def is_development(self) -> bool: return self.environment.lower() == "development"
     @property
-    def is_production(self) -> bool:
-        """Sprawdza czy aplikacja działa w trybie produkcyjnym"""
-        return self.environment.lower() == "production"
-    
+    def is_production(self) -> bool: return self.environment.lower() == "production"
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
-        """
-        Zwraca klienta Secret Managera (tworzy go tylko raz)
-        W Pydantic v2 nie możemy używać _client jako ClassVar,
-        więc używamy zmiennej instancji
-        """
-        if not hasattr(self, '_secret_manager') or self._secret_manager is None:
-            # Używamy innej nazwy, aby uniknąć konfliktu
-            self._secret_manager = SecretManagerServiceClient()
+        """ Zwraca klienta Secret Managera, inicjalizując go raz. """
+        if getattr(self, '_secret_manager', None) is None:
+            logger.info("Inicjalizacja klienta Google Secret Manager...")
+            try:
+                # Klient użyje domyślnych poświadczeń środowiska (np. konta usługi Cloud Run)
+                self._secret_manager = SecretManagerServiceClient()
+                logger.info("Klient Secret Manager zainicjalizowany.")
+            except Exception as e:
+                 logger.critical(f"Nie można zainicjalizować klienta Secret Manager: {e}", exc_info=True)
+                 raise RuntimeError("Failed to initialize Secret Manager client") from e
         return self._secret_manager
-    
+
     def get_secret(self, secret_id: str) -> str:
-        """
-        Pobiera sekret z GCP Secret Manager.
-        Implementacja z cache dla lepszej wydajności.
-        """
+        """ Pobiera najnowszą wersję sekretu z GCP Secret Manager. """
+        if not secret_id:
+            logger.error("Próba pobrania sekretu bez podania ID.")
+            raise ValueError("Secret ID cannot be empty.")
+        if not self.PROJECT_ID:
+             logger.error("PROJECT_ID nie jest ustawiony w konfiguracji. Nie można pobrać sekretu.")
+             raise ValueError("PROJECT_ID must be set to fetch secrets.")
+
         name = f"projects/{self.PROJECT_ID}/secrets/{secret_id}/versions/latest"
-        response = self.secret_manager_client.access_secret_version(name=name)
-        return response.payload.data.decode()
-    
+        logger.debug(f"Pobieranie sekretu: {name}")
+        try:
+            client = self.secret_manager_client
+            response = client.access_secret_version(name=name)
+            secret_value = response.payload.data.decode("UTF-8")
+            if not secret_value:
+                 logger.error(f"Pobrana wartość sekretu '{secret_id}' jest pusta!")
+                 raise ValueError(f"Secret '{secret_id}' value is empty.")
+            logger.debug(f"Pomyślnie pobrano sekret '{secret_id}'.")
+            return secret_value
+        except (NotFound, PermissionDenied) as e:
+             logger.error(f"Nie można uzyskać dostępu do sekretu '{secret_id}' (NotFound lub PermissionDenied): {e}")
+             raise ValueError(f"Could not access secret '{secret_id}'. Check name and permissions.") from e
+        except Exception as e:
+            logger.error(f"Nieoczekiwany błąd podczas pobierania sekretu '{secret_id}': {e}", exc_info=True)
+            raise RuntimeError(f"Failed to fetch secret '{secret_id}'.") from e
+
     def load_secrets(self) -> None:
-        """Ładuje sekrety z Secret Managera do pamięci, jeśli nie są ustawione"""
-        # Ładujemy tylko te sekrety, które nie są jeszcze ustawione
-        if self.smtp_user is None:
-            try:
-                self.smtp_user = self.get_secret("smtp-user")
-            except Exception as e:
-                import logging
-                logging.error(f"Błąd pobierania sekretu smtp-user: {e}")
-                
-        if self.smtp_pass is None:
-            try:
-                self.smtp_pass = self.get_secret("smtp-pass")
-            except Exception as e:
-                import logging
-                logging.error(f"Błąd pobierania sekretu smtp-pass: {e}")
-                
-        if self.firebase_api_key is None:
-            try:
-                self.firebase_api_key = self.get_secret("Identity-Platform-apiKey")
-            except Exception as e:
-                import logging
-                logging.error(f"Błąd pobierania sekretu Identity-Platform-apiKey: {e}")
-                
-        if self.firebase_auth_domain is None:
-            try:
-                self.firebase_auth_domain = self.get_secret("Identity-Platform-authDomain")
-            except Exception as e:
-                import logging
-                logging.error(f"Błąd pobierania sekretu Identity-Platform-authDomain: {e}")
+        """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety (SMTP, Firebase API, Session Key)."""
+        logger.info("Rozpoczynanie ładowania sekretów...")
+        secrets_to_load = {
+            "SESSION_SECRET_KEY": (self.SESSION_SECRET_KEY_NAME, True), # Wymagany
+            "smtp_user": ("smtp-user", False),
+            "smtp_pass": ("smtp-pass", False),
+            "firebase_api_key": ("Identity-Platform-apiKey", False),
+            "firebase_auth_domain": ("Identity-Platform-authDomain", False),
+        }
+        all_loaded = True
+        for attr_name, (secret_id, is_required) in secrets_to_load.items():
+             current_value = getattr(self, attr_name, None)
+             if current_value is None:
+                try:
+                    secret_value = self.get_secret(secret_id)
+                    setattr(self, attr_name, secret_value)
+                    logger.info(f"Załadowano sekret dla '{attr_name}' z '{secret_id}'.")
+                    if attr_name == "SESSION_SECRET_KEY" and len(secret_value) < 32:
+                        logger.critical(f"Załadowany {secret_id} jest zbyt krótki! Bezpieczeństwo zagrożone.")
+                        raise ValueError(f"Loaded secret '{secret_id}' is too short (minimum 32 bytes).")
+                except Exception as e:
+                     log_level = logging.CRITICAL if is_required else logging.WARNING
+                     log_func = logger.critical if is_required else logger.warning
+                     log_func(f"Nie udało się załadować {'WYMAGANEGO' if is_required else 'opcjonalnego'} sekretu dla '{attr_name}' z '{secret_id}': {e}")
+                     if is_required:
+                         all_loaded = False # Oznacz, że wystąpił błąd krytyczny
+                         # Nie rzucamy tutaj błędu, aby spróbować załadować inne, logujemy na końcu
+        if not all_loaded:
+             logger.critical("Nie udało się załadować wszystkich wymaganych sekretów. Aplikacja nie może bezpiecznie wystartować.")
+             raise ValueError("Failed to load one or more required secrets from Secret Manager.")
+        logger.info("Zakończono ładowanie sekretów.")
 
 
-@lru_cache
+@lru_cache()
 def get_settings() -> Settings:
-    """
-    Tworzy i zwraca obiekt konfiguracji z cache.
-    Wzorzec Singleton zapewnia, że konfiguracja jest tworzona tylko raz.
-    
-    Returns:
-        Settings: Instancja konfiguracji aplikacji
-    """
-    settings = Settings()
-    # Ładujemy sekrety tylko w produkcji lub na żądanie
-    if settings.is_production:
-        settings.load_secrets()
-    return settings
+    """ Tworzy i zwraca obiekt konfiguracji. Ładuje sekrety. """
+    logger.info("Inicjalizacja konfiguracji aplikacji (get_settings)...")
+    try:
+        settings = Settings()
+        settings.load_secrets() # Ładujemy WSZYSTKIE sekrety tutaj
+        if not settings.SESSION_SECRET_KEY: # Ostateczne sprawdzenie
+            raise ValueError("SESSION_SECRET_KEY nie został pomyślnie załadowany z Secret Manager.")
+        logger.info("Konfiguracja aplikacji zainicjalizowana pomyślnie.")
+        return settings
+    except Exception as e:
+        logger.critical(f"Krytyczny błąd podczas inicjalizacji konfiguracji aplikacji: {e}", exc_info=True)
+        raise SystemExit(f"Application cannot start due to configuration/secret error: {e}")
