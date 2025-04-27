@@ -269,6 +269,92 @@
     const forgotPasswordLink = document.querySelector('.forgot-password');
     const strengthBar = document.querySelector('#register-form .strength-bar');
 
+    // Funkcja pomocnicza do pobierania wartości ciasteczka
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    };
+
+    // Funkcja do ekstrakcji tokenu CSRF z ukrytych pól formularza
+    const extractCSRFFromHTML = () => {
+        // Szukaj ukrytych pól z tokenem CSRF w różnych formatach
+        const csrfField = document.querySelector('input[name="csrf_token"], input[name="csrftoken"], input[name="csrf"], input[name="_csrf"], input[name="_csrf_token"]');
+        
+        if (csrfField) {
+            console.log("Znaleziono ukryte pole CSRF w HTML:", csrfField.name);
+            return csrfField.value;
+        }
+        
+        // Szukaj tokenu w metadanych (czasami umieszczany w meta tagach)
+        const csrfMeta = document.querySelector('meta[name="csrf-token"], meta[name="csrf"]');
+        if (csrfMeta) {
+            console.log("Znaleziono token CSRF w meta tagu:", csrfMeta.name);
+            return csrfMeta.getAttribute('content');
+        }
+        
+        console.log("Nie znaleziono tokenu CSRF w HTML");
+        return null;
+    };
+
+    // Funkcja do pobierania tokenu CSRF przed logowaniem
+    const fetchCSRFToken = async () => {
+        try {
+            // Sprawdź, czy token CSRF jest już dostępny w HTML
+            const htmlToken = extractCSRFFromHTML();
+            if (htmlToken) {
+                console.log("Znaleziono token CSRF w HTML:", htmlToken);
+                return htmlToken;
+            }
+            
+            // Sprawdź ciasteczka
+            let csrfToken = getCookie("csrftoken");
+            if (csrfToken) {
+                console.log("Znaleziono token CSRF w ciasteczku:", csrfToken);
+                return csrfToken;
+            }
+            
+            // Wykonaj żądanie GET do strony logowania, aby pobrać token CSRF
+            console.log("Wykonuję żądanie GET do /login aby pobrać token CSRF");
+            const response = await fetch('/login', {
+                method: 'GET',
+                credentials: 'same-origin'
+            });
+            
+            if (response.ok) {
+                console.log("Żądanie GET do /login zakończone sukcesem, sprawdzam ciasteczka");
+                
+                // Po wykonaniu żądania GET, ciasteczko CSRF powinno być ustawione
+                csrfToken = getCookie("csrftoken");
+                
+                if (csrfToken) {
+                    console.log("CSRF Token po żądaniu GET:", csrfToken);
+                    return csrfToken;
+                } else {
+                    // Sprawdź również alternatywne nazwy ciasteczek
+                    const alternativeNames = ["XSRF-TOKEN", "CSRF-TOKEN", "_csrf", "csrf", "CSRF"];
+                    for (const name of alternativeNames) {
+                        const token = getCookie(name);
+                        if (token) {
+                            console.log(`Znaleziono alternatywny token CSRF w ciasteczku ${name}:`, token);
+                            return token;
+                        }
+                    }
+                    
+                    console.warn("Nie znaleziono tokenu CSRF w ciasteczkach po żądaniu GET");
+                    return null;
+                }
+            } else {
+                console.warn("Nie można pobrać strony logowania:", response.status);
+                return null;
+            }
+        } catch (error) {
+            console.error("Błąd podczas pobierania tokenu CSRF:", error);
+            return null;
+        }
+    };
+    
     // Funkcje pomocnicze do wyświetlania komunikatów i obsługi ładowania
     const getActiveMessageAreaId = () => {
       const activeForm = document.querySelector('.auth-form.active');
@@ -361,14 +447,34 @@
         clearMessages(); // Ukryj poprzednie komunikaty
 
         try {
+            // Najpierw pobierz token CSRF
+            const csrfToken = await fetchCSRFToken();
+            
             // Zawsze pobieraj świeży token przed wysłaniem do backendu
             const idToken = await user.getIdToken(true);
             console.log("Got Firebase ID token, sending to backend...");
 
+            // Przygotuj nagłówki z różnymi wariantami tokenu CSRF
+            const headers = { 
+                'Content-Type': 'application/json',
+            };
+            
+            // Dodaj token CSRF w różnych formatach nagłówka, jeśli istnieje
+            if (csrfToken) {
+                // Standardowe i popularne warianty nazwy nagłówka CSRF
+                headers['X-CSRF-Token'] = csrfToken;  // Popularne w wielu frameworkach
+                headers['X-CSRFToken'] = csrfToken;   // Popularne w Django
+                headers['CSRF-Token'] = csrfToken;    // Używane w niektórych implementacjach
+                headers['CSRFToken'] = csrfToken;     // Prosty wariant
+            } else {
+                console.warn("CSRF token not found in cookies or HTML. Request might be rejected.");
+            }
+
             const response = await fetch('/auth/firebase-session-login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ token: idToken }),
+                credentials: 'same-origin' // Ważne: dołącz ciasteczka do żądania
             });
 
             if (response.ok) {
@@ -707,8 +813,8 @@
         if (strength <= 1) strengthBar.style.backgroundColor = '#FF4B4B';      // Bardzo słabe
         else if (strength <= 2) strengthBar.style.backgroundColor = '#FFA500'; // Słabe
         else if (strength <= 3) strengthBar.style.backgroundColor = '#FFD700'; // Średnie
-        else if (strength <= 4) strength_bar.style.backgroundColor = '#90EE90'; // Dobre
-        else strength_bar.style.backgroundColor = '#4CAF50'; // Bardzo dobre
+        else if (strength <= 4) strengthBar.style.backgroundColor = '#90EE90'; // Dobre (poprawiono)
+        else strengthBar.style.backgroundColor = '#4CAF50'; // Bardzo dobre (poprawiono)
     };
 
 
