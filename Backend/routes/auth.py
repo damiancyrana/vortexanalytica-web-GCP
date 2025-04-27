@@ -127,23 +127,20 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
         return JSONResponse(content={"apiKey": api_key, "authDomain": auth_domain})
 
     # Trasa POST do wylogowania (usuwa ciasteczko sesyjne)
+
     @app.post("/logout", status_code=status.HTTP_200_OK, summary="Wylogowuje użytkownika (usuwa ciasteczko sesji)")
+
     async def logout(
-        response: Response, # Obiekt odpowiedzi do usunięcia ciasteczka
-        settings: Settings = Depends(get_settings) # Dostęp do konfiguracji ciasteczka
-        # Można dodać Depends(get_current_active_user), aby upewnić się, że tylko zalogowany użytkownik się wylogowuje,
-        # ale technicznie usunięcie nieistniejącego ciasteczka nic nie psuje.
-        ):
-        """ Usuwa ciasteczko sesyjne, efektywnie wylogowując użytkownika po stronie backendu. """
+        response: Response,
+        settings: Settings = Depends(get_settings)
+    ):
         logger.info(f"Żądanie wylogowania - usuwanie ciasteczka: {settings.SESSION_COOKIE_NAME}")
-        # Usuń ciasteczko, upewniając się, że parametry (path, domain) pasują do tych użytych przy ustawianiu
         response.delete_cookie(
             key=settings.SESSION_COOKIE_NAME,
             path=settings.SESSION_COOKIE_PATH,
             domain=settings.SESSION_COOKIE_DOMAIN,
-            secure=settings.SESSION_COOKIE_SECURE, # Ważne, aby flagi pasowały
+            secure=settings.SESSION_COOKIE_SECURE,
             httponly=settings.SESSION_COOKIE_HTTPONLY,
             samesite=settings.SESSION_COOKIE_SAMESITE
         )
-        # Frontend po tym żądaniu powinien przekierować użytkownika (np. na stronę logowania)
         return {"status": "ok", "message": "Logged out successfully."}

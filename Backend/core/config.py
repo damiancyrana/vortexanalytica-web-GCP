@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import os
 import logging
+import time
 from functools import lru_cache
 from typing import Dict, Any, Optional, Final
 
 from pydantic import field_validator, AnyHttpUrl, Field
 from pydantic_settings import BaseSettings
 from google.cloud.secretmanager_v1.services.secret_manager_service import SecretManagerServiceClient
-from google.api_core.exceptions import NotFound, PermissionDenied # Import wyjątków
+from google.api_core.exceptions import NotFound, PermissionDenied
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,10 @@ class Settings(BaseSettings):
 
     # Cache dla serwisów (inicjalizowany w property)
     _secret_manager: Optional[SecretManagerServiceClient] = None
+    
+    # Cache dla sekretów z TTL
+    _secrets_cache: Dict[str, Dict[str, Any]] = {}
+    _secrets_ttl: int = 3600  # Czas życia cache w sekundach (1h)
 
     # Zmienne uwierzytelniane (cache z Secret Managera)
     smtp_user: Optional[str] = Field(None)
@@ -104,8 +109,17 @@ class Settings(BaseSettings):
                  raise RuntimeError("Failed to initialize Secret Manager client") from e
         return self._secret_manager
 
-    def get_secret(self, secret_id: str) -> str:
-        """ Pobiera najnowszą wersję sekretu z GCP Secret Manager. """
+    def get_secret(self, secret_id: str, force_refresh: bool = False) -> str:
+        """ 
+        Pobiera najnowszą wersję sekretu z GCP Secret Manager z mechanizmem pamięci podręcznej. 
+        
+        Args:
+            secret_id: Identyfikator sekretu w Secret Manager.
+            force_refresh: Wymusza pobranie sekretu z Secret Manager niezależnie od stanu cache.
+            
+        Returns:
+            Wartość sekretu jako ciąg znaków.
+        """
         if not secret_id:
             logger.error("Próba pobrania sekretu bez podania ID.")
             raise ValueError("Secret ID cannot be empty.")
@@ -113,8 +127,20 @@ class Settings(BaseSettings):
              logger.error("PROJECT_ID nie jest ustawiony w konfiguracji. Nie można pobrać sekretu.")
              raise ValueError("PROJECT_ID must be set to fetch secrets.")
 
+        now = time.time()
+        
+        # Sprawdź czy sekret jest w cache i czy nie wygasł
+        if not force_refresh and secret_id in self._secrets_cache:
+            cache_entry = self._secrets_cache[secret_id]
+            if now - cache_entry['timestamp'] < self._secrets_ttl:
+                logger.debug(f"Pobieranie sekretu '{secret_id}' z pamięci podręcznej.")
+                return cache_entry['value']
+            else:
+                logger.debug(f"Sekret '{secret_id}' wygasł w pamięci podręcznej (TTL: {self._secrets_ttl}s).")
+
+        # Pobierz nową wartość z Secret Manager
         name = f"projects/{self.PROJECT_ID}/secrets/{secret_id}/versions/latest"
-        logger.debug(f"Pobieranie sekretu: {name}")
+        logger.debug(f"Pobieranie sekretu z Secret Manager: {name}")
         try:
             client = self.secret_manager_client
             response = client.access_secret_version(name=name)
@@ -122,7 +148,14 @@ class Settings(BaseSettings):
             if not secret_value:
                  logger.error(f"Pobrana wartość sekretu '{secret_id}' jest pusta!")
                  raise ValueError(f"Secret '{secret_id}' value is empty.")
-            logger.debug(f"Pomyślnie pobrano sekret '{secret_id}'.")
+                 
+            # Dodaj do cache
+            self._secrets_cache[secret_id] = {
+                'value': secret_value,
+                'timestamp': now
+            }
+            
+            logger.debug(f"Pomyślnie pobrano sekret '{secret_id}' i dodano do pamięci podręcznej.")
             return secret_value
         except (NotFound, PermissionDenied) as e:
              logger.error(f"Nie można uzyskać dostępu do sekretu '{secret_id}' (NotFound lub PermissionDenied): {e}")
@@ -130,6 +163,21 @@ class Settings(BaseSettings):
         except Exception as e:
             logger.error(f"Nieoczekiwany błąd podczas pobierania sekretu '{secret_id}': {e}", exc_info=True)
             raise RuntimeError(f"Failed to fetch secret '{secret_id}'.") from e
+            
+    def clear_secrets_cache(self, secret_id: Optional[str] = None) -> None:
+        """
+        Czyści pamięć podręczną sekretów.
+        
+        Args:
+            secret_id: Jeśli podano, czyści tylko konkretny sekret. W przeciwnym razie czyści całą pamięć podręczną.
+        """
+        if secret_id:
+            if secret_id in self._secrets_cache:
+                del self._secrets_cache[secret_id]
+                logger.debug(f"Usunięto sekret '{secret_id}' z pamięci podręcznej.")
+        else:
+            self._secrets_cache.clear()
+            logger.debug("Wyczyszczono całą pamięć podręczną sekretów.")
 
     def load_secrets(self) -> None:
         """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety (SMTP, Firebase API, Session Key)."""
@@ -146,6 +194,7 @@ class Settings(BaseSettings):
              current_value = getattr(self, attr_name, None)
              if current_value is None:
                 try:
+                    # Pobierz z sekretu (używa mechanizmu cache)
                     secret_value = self.get_secret(secret_id)
                     setattr(self, attr_name, secret_value)
                     logger.info(f"Załadowano sekret dla '{attr_name}' z '{secret_id}'.")

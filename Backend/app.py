@@ -3,16 +3,18 @@ Vortex Analytica - Główny moduł aplikacji (Wersja Produkcyjna - Hybrydowa)
 """
 import logging
 import os
+import multiprocessing
 from functools import lru_cache
 from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
-from starlette.middleware import Middleware # Poprawiony import
+from starlette.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 # === WAŻNE: Import dla CSRF Middleware (przykład) ===
 # Należy zainstalować: pip install starlette-csrf
-# from starlette_csrf import CSRFMiddleware
+from starlette_csrf import CSRFMiddleware
 # ===============================================
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -77,48 +79,69 @@ class VortexApplication:
         self._app.add_event_handler("shutdown", lifecycle.app_shutdown)
         logger.info("Inicjalizacja aplikacji FastAPI zakończona.")
 
+        # Dodawanie middleware cache dla plików statycznych
+        @self._app.middleware("http")
+        async def add_cache_headers(request, call_next):
+            response = await call_next(request)
+            
+            # Dodaj nagłówki cache dla plików statycznych
+            if request.url.path.startswith("/static/"):
+                if "js" in request.url.path or "css" in request.url.path:
+                    # Javascript i CSS - 7 dni
+                    response.headers["Cache-Control"] = "public, max-age=604800"
+                elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
+                    # Obrazy - 30 dni
+                    response.headers["Cache-Control"] = "public, max-age=2592000"
+            
+            return response
+
     def _configure_middleware(self) -> None:
         """ Konfiguruje middleware aplikacji. """
         # ZAWSZE dodawaj middleware w odpowiedniej kolejności (od zewnątrz do wewnątrz)
 
         # 1. GZip Middleware (kompresja odpowiedzi)
-        self._app.add_middleware( GZipMiddleware, minimum_size=1024, compresslevel=9 ) # Wyższy poziom kompresji dla prod
+        self._app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=9) # Wyższy poziom kompresji dla prod
 
-        # 2. Middleware do obsługi błędów / logowania żądań (opcjonalnie)
-        # Np. middleware logujące czas odpowiedzi, statusy itp.
+        # 2. CORS Middleware - dodane dla obsługi requestów z różnych źródeł
+        allowed_origins = [
+            str(self._settings.base_url) if self._settings.base_url else "https://vortexanalytica.com",
+            "https://www.vortexanalytica.com",
+            # W środowisku deweloperskim dodaj localhost
+            *(["http://localhost:8040", "http://127.0.0.1:8040"] if self._settings.is_development else [])
+        ]
+        self._app.add_middleware(
+            CORSMiddleware,
+            allow_origins=allowed_origins,
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["Content-Type", "X-CSRF-Token"],
+            max_age=600  # 10 minut cache preflight
+        )
+        logger.info(f"Skonfigurowano CORS dla domen: {allowed_origins}")
 
         # 3. === Middleware CSRF (KRYTYCZNE DLA BEZPIECZEŃSTWA!) ===
-        # Musisz zainstalować (np. pip install starlette-csrf) i skonfigurować.
-        # Odkomentuj i dostosuj PONIŻEJ, gdy będziesz gotowy.
-        # --- POCZĄTEK PRZYKŁADU CSRF ---
-        # try:
-        #     from starlette_csrf import CSRFMiddleware
-        #     logger.info("Dodawanie CSRFMiddleware...")
-        #     self._app.add_middleware(
-        #         CSRFMiddleware,
-        #         secret=self._settings.SESSION_SECRET_KEY, # Użyj tego samego sekretu co dla sesji
-        #         cookie_name="csrftoken", # Domyślna nazwa
-        #         cookie_secure=self._settings.SESSION_COOKIE_SECURE,
-        #         cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
-        #         # safe_methods={"GET", "HEAD", "OPTIONS", "TRACE"} # Domyślne bezpieczne metody
-        #         # header_name="X-CSRF-Token" # Jeśli używasz tokenu w nagłówku dla AJAX
-        #     )
-        #     logger.info("CSRFMiddleware dodane pomyślnie.")
-        # except ImportError:
-        #      logger.critical("!!! BIBLIOTEKA starlette-csrf NIE JEST ZAINSTALOWANA !!!")
-        #      logger.critical("!!! OCHRONA CSRF JEST WYMAGANA PRZY UŻYCIU CIASTECZEK - APLIKACJA JEST PODATNA NA ATAKI CSRF !!!")
-        #      # W produkcji można rozważyć zatrzymanie aplikacji:
-        #      # raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
-        # except Exception as e:
-        #      logger.critical(f"!!! Nie można skonfigurować CSRFMiddleware: {e} !!!", exc_info=True)
-        #      # Można rozważyć zatrzymanie aplikacji
-        # --- KONIEC PRZYKŁADU CSRF ---
-        logger.critical("!!! OCHRONA CSRF NIE JEST AKTYWNA W TYM KODZIE. ZAINSTALUJ, SKONFIGURUJ I ODKOMENTUJ ODPOWIEDNIE MIDDLEWARE W _configure_middleware() !!!")
-        # ============================================================
-
-        # Inne middleware (np. CORS, jeśli API ma być dostępne z innych domen)
-        # from fastapi.middleware.cors import CORSMiddleware
-        # self._app.add_middleware(CORSMiddleware, allow_origins=["your_frontend_domain"], ...)
+        try:
+            logger.info("Dodawanie CSRFMiddleware...")
+            self._app.add_middleware(
+                CSRFMiddleware,
+                secret=self._settings.SESSION_SECRET_KEY, # Użyj tego samego sekretu co dla sesji
+                cookie_name="csrftoken", # Domyślna nazwa
+                cookie_secure=self._settings.SESSION_COOKIE_SECURE,
+                cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
+                # safe_methods={"GET", "HEAD", "OPTIONS", "TRACE"} # Domyślne bezpieczne metody
+                # header_name="X-CSRF-Token" # Jeśli używasz tokenu w nagłówku dla AJAX
+            )
+            logger.info("CSRFMiddleware dodane pomyślnie.")
+        except ImportError:
+            logger.critical("!!! BIBLIOTEKA starlette-csrf NIE JEST ZAINSTALOWANA !!!")
+            logger.critical("!!! OCHRONA CSRF JEST WYMAGANA PRZY UŻYCIU CIASTECZEK - APLIKACJA JEST PODATNA NA ATAKI CSRF !!!")
+            # W produkcji zatrzymujemy aplikację:
+            if self._settings.is_production:
+                raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
+        except Exception as e:
+            logger.critical(f"!!! Nie można skonfigurować CSRFMiddleware: {e} !!!", exc_info=True)
+            if self._settings.is_production:
+                raise RuntimeError(f"Failed to configure CSRF protection: {e}")
 
         logger.info("Konfiguracja middleware zakończona.")
 
@@ -140,6 +163,18 @@ def create_app() -> FastAPI:
     logger.debug("Instancja VortexApplication uzyskana/utworzona w create_app.")
     return app_instance.app
 
+def get_optimal_workers():
+    """Oblicza optymalną liczbę workerów na podstawie liczby dostępnych rdzeni CPU."""
+    try:
+        cores = multiprocessing.cpu_count()
+        # Reguła: 2 workery na rdzeń, minimum 2, maksimum 8 (unikamy przeciążenia VM)
+        optimal = max(2, min(cores * 2, 8))
+        logger.info(f"Wykryto {cores} rdzeni CPU, optymalna liczba workerów: {optimal}")
+        return optimal
+    except Exception as e:
+        logger.warning(f"Nie można określić liczby rdzeni CPU: {e}, używam domyślnej wartości 4")
+        return 4
+
 # Główny punkt wejścia (dla uruchomienia np. przez `python -m Backend.app` lub uvicorn)
 if __name__ == "__main__":
     logger.info("Uruchamianie aplikacji bezpośrednio (if __name__ == '__main__')...")
@@ -154,7 +189,7 @@ if __name__ == "__main__":
             "port": int(os.getenv("PORT", 8040)),
             "factory": True, # Używamy funkcji fabrycznej
             "reload": settings.is_development, # Włącz reload tylko w dev
-            "workers": 1 if settings.is_development else int(os.getenv("WEB_CONCURRENCY", 4)),
+            "workers": get_optimal_workers(),
             "log_level": settings.log_level.lower(),
             # Można dodać bardziej zaawansowaną konfigurację logowania uvicorn,
             # np. używając dictConfig z logging.config
