@@ -1,0 +1,19 @@
+{% extends "error_base.html" %}
+
+{% block title %}Nieprawidłowe żądanie{% endblock %}
+
+{% block error_code %}400{% endblock %}
+
+{% block error_icon %}fas fa-exclamation-triangle{% endblock %}
+
+{% block error_title %}Nieprawidłowe żądanie{% endblock %}
+
+{% block error_message %}
+Przepraszamy, ale żądanie, które wysłałeś, zawiera błędy składniowe lub jest inaczej nieprawidłowe.
+Sprawdź poprawność danych i spróbuj ponownie.
+{% endblock %}
+
+{% block error_actions %}
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+<a href="javascript:history.back()" class="error-btn secondary"><i class="fas fa-arrow-left"></i> Wróć do poprzedniej strony</a>
+{% endblock %}

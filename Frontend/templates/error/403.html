@@ -1,0 +1,19 @@
+{% extends "error_base.html" %}
+
+{% block title %}Dostęp zabroniony{% endblock %}
+
+{% block error_code %}403{% endblock %}
+
+{% block error_icon %}fas fa-ban{% endblock %}
+
+{% block error_title %}Dostęp zabroniony{% endblock %}
+
+{% block error_message %}
+Przepraszamy, ale nie masz uprawnień do dostępu do tej strony.
+Jeśli uważasz, że to błąd, prosimy o kontakt z administracją.
+{% endblock %}
+
+{% block error_actions %}
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+<a href="javascript:history.back()" class="error-btn secondary"><i class="fas fa-arrow-left"></i> Wróć do poprzedniej strony</a>
+{% endblock %}

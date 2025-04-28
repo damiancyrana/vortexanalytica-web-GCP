@@ -1,0 +1,20 @@
+{% extends "error_base.html" %}
+
+{% block title %}Błąd serwera{% endblock %}
+
+{% block error_code %}500{% endblock %}
+
+{% block error_icon %}fas fa-exclamation-circle{% endblock %}
+
+{% block error_title %}Błąd serwera{% endblock %}
+
+{% block error_message %}
+Przepraszamy, ale coś poszło nie tak po naszej stronie.
+Nasz zespół techniczny został powiadomiony i pracuje nad rozwiązaniem problemu.
+Prosimy spróbować ponownie za kilka minut.
+{% endblock %}
+
+{% block error_actions %}
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+<a href="javascript:window.location.reload()" class="error-btn secondary"><i class="fas fa-sync-alt"></i> Odśwież stronę</a>
+{% endblock %}

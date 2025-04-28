@@ -1,0 +1,46 @@
+{% extends "error_base.html" %}
+
+{% block title %}Zbyt wiele żądań{% endblock %}
+
+{% block error_code %}429{% endblock %}
+
+{% block error_icon %}fas fa-hourglass-half{% endblock %}
+
+{% block error_title %}Zbyt wiele żądań{% endblock %}
+
+{% block error_message %}
+Wysłano zbyt wiele żądań w krótkim czasie.
+Prosimy odczekać chwilę przed ponowną próbą.
+{% endblock %}
+
+{% block error_actions %}
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+<a id="retry-btn" class="error-btn secondary" style="cursor: not-allowed; opacity: 0.5;"><i class="fas fa-sync-alt"></i> <span id="retry-text">Spróbuj ponownie za <span id="countdown">30</span>s</span></a>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const countdownEl = document.getElementById('countdown');
+    const retryBtn = document.getElementById('retry-btn');
+    const retryText = document.getElementById('retry-text');
+    
+    let seconds = 30; // Czas oczekiwania
+    
+    const countdown = setInterval(() => {
+      seconds--;
+      if (countdownEl) countdownEl.textContent = seconds;
+      
+      if (seconds <= 0) {
+        clearInterval(countdown);
+        if (retryBtn) {
+          retryBtn.style.cursor = 'pointer';
+          retryBtn.style.opacity = '1';
+          retryBtn.href = window.location.href;
+        }
+        if (retryText) retryText.textContent = 'Spróbuj ponownie';
+      }
+    }, 1000);
+  });
+</script>
+{% endblock %}

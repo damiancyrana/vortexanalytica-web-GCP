@@ -10,10 +10,7 @@ from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-# === WAŻNE: Import dla CSRF Middleware (przykład) ===
-# Należy zainstalować: pip install starlette-csrf
 from starlette_csrf import CSRFMiddleware
-# ===============================================
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -37,7 +34,7 @@ logger = setup_logging()
 from Backend.core.config import get_settings, Settings
 from Backend.routes import register_routes
 from Backend.services import lifecycle
-
+from Backend.core.error_handlers import register_error_handlers
 
 class VortexApplication:
     """ Główna klasa aplikacji (Singleton). """
@@ -64,25 +61,20 @@ class VortexApplication:
 
     def _initialize_app(self) -> None:
         """ Inicjalizuje aplikację FastAPI. """
-        logger.info("Inicjalizacja aplikacji FastAPI...")
+
         self._app = FastAPI(
-             title=self._settings.app_name,
-             docs_url=None,  # Wyłącz Swagger na produkcji
-             redoc_url=None,  # Wyłącz ReDoc na produkcji
-         )
-        logger.info("Konfigurowanie middleware...")
+            title=self._settings.app_name,
+            docs_url=None,  # Wyłącz Swagger na produkcji
+            redoc_url=None,  # Wyłącz ReDoc na produkcji
+        )
+
         self._configure_middleware()
-        logger.info("Konfigurowanie szablonów Jinja2...")
         self._templates = Jinja2Templates(directory=self._settings.templates_dir)
-        logger.info("Montowanie plików statycznych...")
         self._app.mount("/static", StaticFiles(directory=self._settings.static_dir), name="static")
-        logger.info("Rejestrowanie tras...")
         register_routes(self._app, self._templates, self._settings)
-        logger.info("Dodawanie obsługi zdarzeń startup/shutdown...")
+        register_error_handlers(self._app, self._templates)
         self._app.add_event_handler("startup", lifecycle.app_startup)
         self._app.add_event_handler("shutdown", lifecycle.app_shutdown)
-        
-        # Dodawanie middleware cache dla plików statycznych
         self._configure_static_cache()
         
         logger.info("Inicjalizacja aplikacji FastAPI zakończona.")

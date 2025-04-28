@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     """ Klasa konfiguracji aplikacji. """
     # Stałe aplikacji
     PROJECT_ID: Final[str] = os.getenv("GOOGLE_CLOUD_PROJECT", "vortexanalytica") # Pobierz z env, jeśli dostępne
-    MAIL_TO: Final[str] = "vortexanalytica@gmail.com" # Można też wczytać z env/secret
+    MAIL_TO: Final[str] = os.getenv("MAIL_TO", "vortexanalytica@gmail.com")
 
     # Podstawowe ustawienia
     app_name: str = "Vortex Analytica"
