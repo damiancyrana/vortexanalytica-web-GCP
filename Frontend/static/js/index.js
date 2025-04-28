@@ -5,13 +5,19 @@
  * Obsługuje nawigację, przełączanie motywu, interakcje z wiadomościami
  * oraz inicjalizację i obsługę uwierzytelniania Firebase, w tym
  * pobieranie i wysyłanie tokenu ID.
- * Nazwa użytkownika pobierana bezpośrednio z Firebase.
+ * Zaimplementowano mechanizm synchronizacji sesji backendu i Firebase.
  */
 document.addEventListener('DOMContentLoaded', function() {
 
+  // Stałe i zmienne globalne
   let firebaseApp = null;
   let firebaseAuth = null;
   const FIREBASE_TOKEN_KEY = 'firebaseIdToken';
+  const AUTH_STATE_KEY = 'vortexAuthState';
+  const TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minut
+  let tokenRefreshTimer = null;
+  let sessionCheckTimer = null;
+  let sessionInitialized = false;
 
   // Funkcja do pobierania wartości ciasteczka dla CSRF
   function getCookie(name) {
@@ -21,58 +27,335 @@ document.addEventListener('DOMContentLoaded', function() {
     return null;
   }
 
+  /**
+   * Implementacja funkcji do sprawdzania statusu sesji backendowej.
+   * Sprawdza czy sesja użytkownika jest aktywna i synchronizuje z Firebase.
+   * @returns {Promise<boolean>} True jeśli sesja jest aktywna, false w przeciwnym przypadku
+   */
+  async function checkBackendSession() {
+    try {
+      console.log("Sprawdzanie statusu sesji backendowej...");
+      const response = await fetch('/api/auth/session-status', {
+        method: 'GET',
+        credentials: 'same-origin', // Dołącz ciasteczka do żądania
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        console.warn(`Błąd sprawdzania sesji: ${response.status}`);
+        return false;
+      }
+      
+      const data = await response.json();
+      console.log("Status sesji backendowej:", data);
+      
+      if (data.authenticated && data.user) {
+        // Aktualizuj UI z danymi użytkownika z backendu
+        updateUserInterface(data.user);
+        
+        // Zapisz informacje o stanie uwierzytelnienia w SessionStorage
+        saveAuthState({
+          authenticated: true,
+          user: data.user,
+          source: 'backend'
+        });
+        
+        // Jeśli Firebase nie jest zainicjowane, nie próbuj synchronizować
+        if (!firebaseAuth) return true;
+      
+        // Sprawdź czy stan Firebase jest zgodny z backendem
+        const currentUser = firebaseAuth.currentUser;
+        if (!currentUser) {
+          // Sesja backendowa jest aktywna, ale Firebase nie ma użytkownika
+          // To normalne jeśli strona została odświeżona lub otwarta w nowej karcie
+          console.log("Sesja backendowa aktywna, ale brak użytkownika Firebase.");
+          
+          try {
+            // Opcjonalnie: próba silent sign-in w Firebase, jeśli istnieje token
+            const savedToken = localStorage.getItem(FIREBASE_TOKEN_KEY);
+            if (savedToken) {
+              console.log("Próba użycia zapisanego tokenu do odtworzenia sesji Firebase...");
+              try {
+                await firebaseAuth.signInWithCustomToken(savedToken).catch(() => {
+                  console.log("Zapisany token nie jest poprawnym customToken, ignorowanie.");
+                });
+              } catch (e) {
+                console.log("Nie udało się odtworzyć sesji Firebase, korzystamy z sesji backendowej.");
+              }
+            }
+          } catch (e) {
+            console.warn("Błąd podczas próby odtworzenia sesji Firebase:", e);
+          }
+        }
+        
+        return true;
+      } else {
+        console.log("Brak aktywnej sesji backendowej.");
+        
+        // Usuń dane o uwierzytelnieniu
+        clearAuthState();
+        
+        return false;
+      }
+    } catch (error) {
+      console.error("Błąd podczas sprawdzania sesji backendowej:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Zapisuje stan uwierzytelnienia w SessionStorage dla lepszej trwałości między odświeżeniami.
+   * @param {Object} state - Stan uwierzytelnienia do zapisania
+   */
+  function saveAuthState(state) {
+    try {
+      if (!state) return;
+      sessionStorage.setItem(AUTH_STATE_KEY, JSON.stringify({
+        ...state,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      console.warn("Nie można zapisać stanu uwierzytelnienia:", e);
+    }
+  }
+
+  /**
+   * Pobiera zapisany stan uwierzytelnienia.
+   * @returns {Object|null} Zapisany stan uwierzytelnienia lub null
+   */
+  function getAuthState() {
+    try {
+      const stateJson = sessionStorage.getItem(AUTH_STATE_KEY);
+      if (!stateJson) return null;
+      
+      const state = JSON.parse(stateJson);
+      // Sprawdź czy stan nie jest zbyt stary (max 12h)
+      const maxAge = 12 * 60 * 60 * 1000; // 12 godzin
+      if (Date.now() - state.timestamp > maxAge) {
+        clearAuthState();
+        return null;
+      }
+      
+      return state;
+    } catch (e) {
+      console.warn("Błąd odczytu stanu uwierzytelnienia:", e);
+      return null;
+    }
+  }
+
+  /**
+   * Czyści wszystkie dane o uwierzytelnieniu.
+   */
+  function clearAuthState() {
+    localStorage.removeItem(FIREBASE_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_STATE_KEY);
+    stopTokenRefresh();
+  }
+
+  /**
+   * Aktualizuje interfejs użytkownika na podstawie danych użytkownika.
+   * @param {Object} userData - Dane użytkownika
+   */
+  function updateUserInterface(userData) {
+    const userDisplayNameElement = document.getElementById('user-display-name');
+    const logoutButton = document.getElementById('logout-btn');
+    
+    if (!userData) {
+      if (userDisplayNameElement) {
+        userDisplayNameElement.textContent = 'Logged out';
+      }
+      if (logoutButton) {
+        logoutButton.disabled = true;
+        logoutButton.style.display = 'none';
+      }
+      return;
+    }
+    
+    // Aktualizuj nazwę użytkownika (preferuj name, potem email, na końcu user_id)
+    if (userDisplayNameElement) {
+      userDisplayNameElement.textContent = userData.name || userData.email || userData.user_id || 'Użytkownik';
+    }
+    
+    // Aktywuj przycisk wylogowania
+    if (logoutButton) {
+      logoutButton.disabled = false;
+      logoutButton.style.display = '';
+    }
+  }
+
+  /**
+   * Rozpoczyna automatyczne odświeżanie tokenu Firebase.
+   * @param {firebase.User} user - Obiekt użytkownika Firebase
+   */
+  function startTokenRefresh(user) {
+    if (tokenRefreshTimer) {
+      clearInterval(tokenRefreshTimer);
+    }
+    
+    // Funkcja do odświeżenia tokenu
+    const refreshToken = async () => {
+      if (!user) return;
+      
+      try {
+        console.log("Automatyczne odświeżanie tokenu Firebase...");
+        const newToken = await user.getIdToken(true);
+        localStorage.setItem(FIREBASE_TOKEN_KEY, newToken);
+        console.log("Token Firebase odświeżony pomyślnie.");
+      } catch (error) {
+        console.error("Błąd odświeżania tokenu Firebase:", error);
+      }
+    };
+    
+    // Odśwież token od razu, a potem w regularnych odstępach
+    refreshToken();
+    tokenRefreshTimer = setInterval(refreshToken, TOKEN_REFRESH_INTERVAL);
+  }
+
+  /**
+   * Zatrzymuje automatyczne odświeżanie tokenu.
+   */
+  function stopTokenRefresh() {
+    if (tokenRefreshTimer) {
+      clearInterval(tokenRefreshTimer);
+      tokenRefreshTimer = null;
+    }
+  }
+  
+  /**
+   * Rozpoczyna okresowe sprawdzanie sesji backendowej.
+   * Jest to dodatkowe zabezpieczenie na wypadek wygaśnięcia sesji.
+   */
+  function startSessionCheck() {
+    if (sessionCheckTimer) {
+      clearInterval(sessionCheckTimer);
+    }
+    
+    // Sprawdzaj stan sesji co 5 minut
+    sessionCheckTimer = setInterval(async () => {
+      const isSessionActive = await checkBackendSession();
+      if (!isSessionActive) {
+        console.log("Sesja backendowa wygasła podczas sprawdzania okresowego.");
+        // Jeśli Firebase nadal myśli, że jesteśmy zalogowani, ale backend nie,
+        // wylogujmy się z Firebase, aby zsynchronizować stany
+        if (firebaseAuth && firebaseAuth.currentUser) {
+          console.log("Wylogowanie z Firebase z powodu wygaśnięcia sesji backendowej.");
+          await firebaseAuth.signOut().catch(e => console.warn("Błąd wylogowania z Firebase:", e));
+        }
+        // Zaktualizuj UI
+        updateUserInterface(null);
+      }
+    }, 5 * 60 * 1000); // Co 5 minut
+  }
+
+  /**
+   * Zatrzymuje okresowe sprawdzanie sesji.
+   */
+  function stopSessionCheck() {
+    if (sessionCheckTimer) {
+      clearInterval(sessionCheckTimer);
+      sessionCheckTimer = null;
+    }
+  }
+
   // === DODANO: Funkcja do udostępnienia globalnie (jeśli potrzeba) ===
   // Robimy to wewnątrz funkcji, aby mieć dostęp do zmiennych lokalnych jak FIREBASE_TOKEN_KEY
   async function fetchWithAuth(url, options = {}) {
-    const token = localStorage.getItem(FIREBASE_TOKEN_KEY);
+    // Pobierz token z localStorage albo z Firebase, jeśli dostępne
+    let token = localStorage.getItem(FIREBASE_TOKEN_KEY);
+    
+    // Jeśli brak tokenu w localStorage, ale Firebase twierdzi, że jesteśmy zalogowani, pobierz nowy token
+    if (!token && firebaseAuth && firebaseAuth.currentUser) {
+      try {
+        token = await firebaseAuth.currentUser.getIdToken(true);
+        localStorage.setItem(FIREBASE_TOKEN_KEY, token);
+      } catch (error) {
+        console.warn("Nie można pobrać tokenu z Firebase:", error);
+      }
+    }
+    
+    // Jeśli wciąż brak tokenu, sprawdź sesję backendową
     if (!token) {
-      console.error("No Firebase token found. Redirecting to login.");
-      window.location.href = '/login';
-      // Rzucenie błędu zatrzyma pętlę Promise
-      return Promise.reject(new Error("No auth token found. Please log in."));
+      const hasBackendSession = await checkBackendSession();
+      if (!hasBackendSession) {
+        console.error("Brak tokenu Firebase i aktywnej sesji backendowej.");
+        window.location.href = '/login';
+        return Promise.reject(new Error("Brak uwierzytelnienia. Przekierowanie do strony logowania."));
+      }
     }
 
     const headers = new Headers(options.headers || {});
-    headers.set('Authorization', `Bearer ${token}`);
+    
+    // Dodaj token tylko jeśli faktycznie go mamy
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    
     // Automatyczne ustawianie Content-Type dla JSON
     if (options.body && typeof options.body === 'string' && !headers.has('Content-Type')) {
-         try {
-             JSON.parse(options.body);
-             headers.set('Content-Type', 'application/json');
-         } catch (e) { /* Ignore if body is not JSON */ }
-     }
+      try {
+        JSON.parse(options.body);
+        headers.set('Content-Type', 'application/json');
+      } catch (e) { /* Ignore if body is not JSON */ }
+    }
 
     try {
-        const response = await fetch(url, { ...options, headers });
-        if (response.status === 401) {
-            // Token wygasł lub jest nieprawidłowy po stronie backendu
-            console.warn("401 Unauthorized response received from backend. Redirecting to login.");
-            localStorage.removeItem(FIREBASE_TOKEN_KEY); // Usuń nieprawidłowy token
-            // Można spróbować odświeżyć token Firebase i ponowić zapytanie,
-            // ale prościej jest przekierować do logowania.
-            window.location.href = '/login';
-            throw new Error("Session expired or token invalid.");
+      const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+      
+      if (response.status === 401) {
+        // Token wygasł lub jest nieprawidłowy po stronie backendu
+        console.warn("401 Unauthorized: Sesja wygasła. Sprawdzamy status sesji backendowej...");
+        
+        // Spróbuj sprawdzić, czy sesja backendowa nadal istnieje
+        const hasBackendSession = await checkBackendSession();
+        
+        if (hasBackendSession) {
+          // Sesja backendowa wciąż działa, ale token Firebase wygasł
+          console.log("Sesja backendowa aktywna, ale otrzymano 401. Próba ponownego żądania...");
+          
+          // Usuń token z kolejnego żądania, polegaj tylko na sesji backendowej
+          headers.delete('Authorization');
+          return fetch(url, { ...options, headers, credentials: 'same-origin' });
+        } else {
+          // Ani sesja backendowa, ani token Firebase nie działają
+          console.warn("Sesja wygasła. Przekierowuję do logowania.");
+          localStorage.removeItem(FIREBASE_TOKEN_KEY);
+          window.location.href = '/login';
+          throw new Error("Sesja wygasła lub token nieprawidłowy.");
         }
-        // Zwracamy całą odpowiedź, aby można było sprawdzić status itp. w miejscu wywołania
-        return response;
+      }
+      
+      // Zwracamy całą odpowiedź, aby można było sprawdzić status itp. w miejscu wywołania
+      return response;
     } catch(error) {
-        // Loguj tylko błędy inne niż oczekiwane błędy sesji
-        if (error.message !== "Session expired or token invalid." && error.message !== "No auth token found. Please log in.") {
-             console.error(`API request error for ${url}:`, error);
-        }
-        // Przekaż błąd dalej, aby obsłużyć go w miejscu wywołania
-        throw error;
+      // Loguj tylko błędy inne niż oczekiwane błędy sesji
+      if (error.message !== "Sesja wygasła lub token nieprawidłowy." && 
+          error.message !== "Brak uwierzytelnienia. Przekierowanie do strony logowania.") {
+        console.error(`Błąd zapytania API dla ${url}:`, error);
+      }
+      // Przekaż błąd dalej, aby obsłużyć go w miejscu wywołania
+      throw error;
     }
   }
   // Udostępnienie globalne (proste rozwiązanie)
   window.fetchWithAuth = fetchWithAuth;
   // ================================================================
 
+  // Inicjalizacja systemu uwierzytelniania przy starcie
   initializeAuth();
   setupEventListeners();
 
   async function initializeAuth() {
     try {
+      console.log("Inicjalizacja uwierzytelnienia...");
+      
+      // Próba wstępnego odtworzenia stanu z SessionStorage (zanim Firebase zacznie działać)
+      const savedAuthState = getAuthState();
+      if (savedAuthState && savedAuthState.authenticated && savedAuthState.user) {
+        console.log("Znaleziono zapisany stan uwierzytelnienia w SessionStorage.");
+        updateUserInterface(savedAuthState.user);
+      }
+      
+      // Pobranie konfiguracji Firebase z backendu
       const response = await fetch('/auth/firebase-config');
       if (!response.ok) {
         let errorMsg = 'Błąd pobierania konfiguracji Firebase';
@@ -90,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
+      // Inicjalizacja Firebase
       if (firebase.apps.length === 0) {
          firebaseApp = firebase.initializeApp({ apiKey: config.apiKey, authDomain: config.authDomain });
       } else {
@@ -97,6 +381,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       firebaseAuth = firebase.auth();
       console.log("Firebase initialized successfully on index page.");
+      
+      // Jeśli jeszcze nie sprawdziliśmy sesji backendowej, zróbmy to teraz
+      if (!sessionInitialized) {
+        console.log("Sprawdzanie stanu sesji backendowej przy inicjalizacji...");
+        await checkBackendSession();
+        sessionInitialized = true;
+        
+        // Uruchom okresowe sprawdzanie sesji
+        startSessionCheck();
+      }
+      
+      // Nasłuchuj na zmiany stanu Firebase
       firebaseAuth.onAuthStateChanged(handleAuthStateChanged);
 
     } catch (error) {
@@ -121,57 +417,83 @@ document.addEventListener('DOMContentLoaded', function() {
    * Obsługuje zmiany stanu uwierzytelnienia użytkownika.
    * Pobiera i zapisuje token ID, jeśli użytkownik jest zalogowany.
    * Ustawia nazwę użytkownika bezpośrednio z danych Firebase.
+   * Dodano synchronizację z sesją backendową.
    * @param {firebase.User | null} user - Obiekt użytkownika Firebase lub null.
    */
   async function handleAuthStateChanged(user) {
-    const userDisplayNameElement = document.getElementById('user-display-name');
-    const logoutButton = document.getElementById('logout-btn');
-
+    console.log("Firebase onAuthStateChanged wywołany, stan użytkownika:", user ? "zalogowany" : "wylogowany");
+    
     if (user) {
       // Użytkownik jest zalogowany w Firebase
-      const displayName = user.displayName || user.email || 'User'; // Pobierz nazwę
+      const displayName = user.displayName || user.email || 'User';
       console.log('Firebase user state: Signed in -', displayName);
 
       try {
+        // Pobierz nowy token i zapisz go
         const idToken = await user.getIdToken(true);
         localStorage.setItem(FIREBASE_TOKEN_KEY, idToken);
         console.log("Firebase ID Token stored/refreshed.");
 
-        // Zaktualizowano: Bezpośrednio ustaw nazwę z Firebase
-        if (userDisplayNameElement) {
-          userDisplayNameElement.textContent = displayName;
-          console.log('Display name set from Firebase:', displayName);
-        }
-
-        // Odblokuj przycisk wylogowania
-        if (logoutButton) {
-           logoutButton.disabled = false;
-           logoutButton.style.display = '';
-        }
-
-        // fetchProtectedUserData(); // Możesz odkomentować, jeśli potrzebujesz danych API przy starcie
+        // Ustaw nazwę z Firebase
+        updateUserInterface({
+          name: displayName,
+          email: user.email,
+          user_id: user.uid
+        });
+        
+        // Zapisz stan uwierzytelnienia w SessionStorage
+        saveAuthState({
+          authenticated: true,
+          user: {
+            name: displayName,
+            email: user.email,
+            user_id: user.uid
+          },
+          source: 'firebase'
+        });
+        
+        // Uruchom automatyczne odświeżanie tokenu
+        startTokenRefresh(user);
 
       } catch (error) {
          console.error("Error getting Firebase ID token:", error);
          localStorage.removeItem(FIREBASE_TOKEN_KEY);
-         displayAuthError(`Błąd sesji: ${error.message}. Spróbuj zalogować się ponownie.`);
-         if (firebaseAuth) {
-            await firebaseAuth.signOut().catch(e => console.error("Sign out after token failure error:", e));
+         
+         // Sprawdź czy mamy aktywną sesję backendową mimo problemu z Firebase
+         const hasBackendSession = await checkBackendSession();
+         if (!hasBackendSession) {
+           displayAuthError(`Błąd sesji: ${error.message}. Spróbuj zalogować się ponownie.`);
+           if (firebaseAuth) {
+              await firebaseAuth.signOut().catch(e => console.error("Sign out after token failure error:", e));
+           }
          }
       }
 
     } else {
       // Użytkownik nie jest zalogowany w Firebase
       console.log('Firebase user state: Signed out.');
+      
+      // Usuń token Firebase
       localStorage.removeItem(FIREBASE_TOKEN_KEY);
-
-      // Zaktualizowano: Ustaw tekst zastępczy dla wylogowanego
-      if (userDisplayNameElement) {
-          userDisplayNameElement.textContent = 'Logged out';
-      }
-      if (logoutButton) {
-          logoutButton.disabled = true;
-          logoutButton.style.display = 'none';
+      
+      // Zatrzymaj automatyczne odświeżanie tokenu
+      stopTokenRefresh();
+      
+      // *** WAŻNE: Sprawdź, czy sesja backendowa nadal istnieje mimo braku użytkownika Firebase ***
+      const hasBackendSession = await checkBackendSession();
+      
+      if (!hasBackendSession) {
+        // Ani Firebase, ani backend nie mają aktywnej sesji
+        console.log("Brak aktywnej sesji Firebase i backendowej. Użytkownik jest wylogowany.");
+        
+        // Aktualizuj UI dla wylogowanego użytkownika
+        updateUserInterface(null);
+        
+        // Wyczyść zapisany stan uwierzytelnienia
+        clearAuthState();
+      } else {
+        console.log("Firebase twierdzi, że użytkownik jest wylogowany, ale sesja backendowa jest aktywna.");
+        // UI został już zaktualizowany w checkBackendSession()
       }
     }
   }
@@ -218,6 +540,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (response.ok) {
         console.log("Backend session cleared successfully.");
+        
+        // Wyczyść wszystkie dane uwierzytelniania
+        clearAuthState();
+        
+        // Zatrzymaj wszystkie timery
+        stopSessionCheck();
+        stopTokenRefresh();
+        
         window.location.href = '/login'; // Przekieruj na stronę logowania
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -355,6 +685,9 @@ document.addEventListener('DOMContentLoaded', function() {
         this.disabled = true;
         console.log("Refreshing feed data..."); // Zaktualizowano log
         try {
+            // Sprawdź status sesji przy odświeżaniu danych
+            await checkBackendSession();
+            
             // TODO: Zaimplementuj faktyczne odświeżanie danych z API
             // await fetchFeedData(); // Przykładowa funkcja
             await new Promise(resolve => setTimeout(resolve, 1500)); // Symulacja opóźnienia

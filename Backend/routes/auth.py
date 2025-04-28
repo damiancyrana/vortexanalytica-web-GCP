@@ -1,17 +1,18 @@
 """
 Moduł tras autoryzacji (Wersja Produkcyjna - Hybrydowa).
 Logowanie Firebase + sesja ciasteczkowa, wylogowanie.
+Dodano endpoint sprawdzający status sesji.
 """
 from __future__ import annotations
 
 import logging
-from typing import Dict, Any # Dodano Any
+from typing import Dict, Any, Optional # Dodano Optional
 from fastapi import FastAPI, Request, Depends, HTTPException, status, Response, Body
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, Field, EmailStr # Dodano EmailStr
+from pydantic import BaseModel, Field, EmailStr
 
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature, BadSignature
 # Importujemy potrzebne zależności
 from Backend.core.dependencies import get_template_context, verify_firebase_token, get_current_active_user
 from Backend.core.config import Settings, get_settings
@@ -127,9 +128,7 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
         return JSONResponse(content={"apiKey": api_key, "authDomain": auth_domain})
 
     # Trasa POST do wylogowania (usuwa ciasteczko sesyjne)
-
     @app.post("/logout", status_code=status.HTTP_200_OK, summary="Wylogowuje użytkownika (usuwa ciasteczko sesji)")
-
     async def logout(
         response: Response,
         settings: Settings = Depends(get_settings)
@@ -144,3 +143,44 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
             samesite=settings.SESSION_COOKIE_SAMESITE
         )
         return {"status": "ok", "message": "Logged out successfully."}
+
+    # NOWY ENDPOINT: Sprawdzanie statusu sesji
+    @app.get("/api/auth/session-status", summary="Sprawdza status sesji użytkownika")
+    async def check_session_status(
+        request: Request,
+        settings: Settings = Depends(get_settings)
+    ) -> Dict[str, Any]:
+        """
+        Sprawdza status sesji użytkownika i zwraca informacje o sesji.
+        Nie rzuca wyjątku, jeśli użytkownik nie jest zalogowany.
+        """
+        session_cookie = request.cookies.get(settings.SESSION_COOKIE_NAME)
+        if not session_cookie or not settings.SESSION_SECRET_KEY:
+            return {"authenticated": False, "user": None}
+        
+        try:
+            serializer = URLSafeTimedSerializer(settings.SESSION_SECRET_KEY)
+            session_data = serializer.loads(session_cookie, max_age=settings.SESSION_COOKIE_MAX_AGE)
+            
+            if not isinstance(session_data, dict) or 'user_id' not in session_data:
+                logger.warning(f"Nieprawidłowa struktura danych w sesji: {type(session_data)}")
+                return {"authenticated": False, "user": None}
+            
+            # Zwróć dane sesji
+            return {
+                "authenticated": True,
+                "user": {
+                    "user_id": session_data.get("user_id"),
+                    "email": session_data.get("email"),
+                    "name": session_data.get("name")
+                }
+            }
+        except SignatureExpired:
+            logger.info(f"Wygasła sesja podczas sprawdzania statusu")
+            return {"authenticated": False, "user": None, "error": "expired_session"}
+        except (BadTimeSignature, BadSignature) as e:
+            logger.warning(f"Nieprawidłowy podpis sesji podczas sprawdzania statusu: {e}")
+            return {"authenticated": False, "user": None, "error": "invalid_session"}
+        except Exception as e:
+            logger.error(f"Nieoczekiwany błąd podczas sprawdzania statusu sesji: {e}", exc_info=True)
+            return {"authenticated": False, "user": None, "error": "server_error"}
