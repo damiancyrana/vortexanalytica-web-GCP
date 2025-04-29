@@ -9,6 +9,7 @@
   --purple: #b967ff;
   --text-sec: rgba(240, 240, 245, 0.75);
   --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
+  --blur: blur(12px);
 
   /* Light Theme Specific Colors */
   --bg-body-light: #f0f2f5;
@@ -17,7 +18,7 @@
   --text-color-light: #212529;
   --text-muted-light: #aaaaaa; /* Kolor gwiazd dla jasnego motywu */
   --border-color-light: #dee2e6;
-  --header-bg-light: rgba(255, 255, 255, 0.8);
+  --header-bg-light: #0a0a10; /* Updated to match requirement - solid color */
   --header-border-light: var(--border-color-light);
   --footer-bg-light: #e9ecef;
   --footer-border-light: var(--border-color-light);
@@ -94,15 +95,23 @@ body.dark-theme #quantum-field {
   opacity: 0.9;
 }
 
-/* Header */
+/* Header - Updated to match landing_page.css */
 header {
-  width: 100%; background: var(--current-header-bg);
+  position: fixed; /* Changed from relative to fixed */
+  inset: 0 0 auto; /* Added to match landing_page.css */
+  width: 100%; 
+  background: var(--current-header-bg);
   border-bottom: 1px solid var(--current-header-border);
-  backdrop-filter: blur(12px); padding: 1rem 2rem; z-index: 1000;
-  flex-shrink: 0; position: relative;
+  backdrop-filter: blur(12px); 
+  padding: 1rem 2rem; 
+  z-index: 1000;
+  display: flex; /* Added to match landing_page.css */
+  justify-content: space-between; /* Added to match landing_page.css */
+  align-items: center; /* Added to match landing_page.css */
   transition: background-color var(--t-fast), border-color var(--t-fast);
-  box-sizing: border-box; /* Dodano box-sizing */
+  box-sizing: border-box;
 }
+
 .header-container {
   display: flex; align-items: center; justify-content: space-between; /* Zmieniono na space-between */
   width: 100%; max-width: var(--content-max-width); /* Ograniczenie szerokości */
@@ -167,6 +176,20 @@ header {
 }
 #user-display-name { font-weight: 600; color: var(--accent-color); }
 
+/* Main Content Area - Adjusted for fixed header */
+.main-content {
+  flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
+  width: 100%; max-width: var(--content-max-width); margin: 0 auto;
+  padding: 20px; box-sizing: border-box; position: relative;
+  background-color: transparent; z-index: 1;
+  margin-top: 65px; /* Added to account for fixed header */
+}
+.main-content main {
+    flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
+    background-color: transparent;
+}
+
+/* Rest of the styles remain unchanged */
 /* Logout Button */
 .logoutButton{
     --figure-duration:100;--transform-figure:none;--walking-duration:100;
@@ -214,19 +237,6 @@ body:not(.dark-theme) .logoutButton .figure{fill:var(--accent-color)}
 @keyframes spin{0%{transform:rotate(0deg) scale(.94)}to{transform:rotate(359deg) scale(.94)}}
 @keyframes shake{0%,to{transform:rotate(-1deg)}50%{transform:rotate(2deg)}}
 @keyframes flash{0%{opacity:.4}to{opacity:0}}
-
-
-/* Main Content Area */
-.main-content {
-  flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
-  width: 100%; max-width: var(--content-max-width); margin: 0 auto;
-  padding: 20px; box-sizing: border-box; position: relative;
-  background-color: transparent; z-index: 1;
-}
-.main-content main {
-    flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
-    background-color: transparent;
-}
 
 /* View Sections */
 .view-section { flex-grow: 1; overflow: hidden; display: none; }
