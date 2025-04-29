@@ -80,21 +80,44 @@ class VortexApplication:
         logger.info("Inicjalizacja aplikacji FastAPI zakończona.")
 
     def _configure_static_cache(self) -> None:
-        """Konfiguruje cache dla plików statycznych"""
+        """Konfiguruje cache dla plików statycznych w zależności od trybu"""
         @self._app.middleware("http")
         async def add_cache_headers(request, call_next):
             response = await call_next(request)
-            
-            # Dodaj nagłówki cache dla plików statycznych
+
+            # Sprawdzenie, czy settings zostały zainicjowane
+            if not self._settings:
+                logger.warning("Settings nie są dostępne w _configure_static_cache, cache nie zostanie ustawiony.")
+                return response
+
+            # Nagłówki cache zależne od środowiska
             if request.url.path.startswith("/static/"):
-                if "js" in request.url.path or "css" in request.url.path:
-                    # Javascript i CSS - 7 dni
-                    response.headers["Cache-Control"] = "public, max-age=604800"
-                elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
-                    # Obrazy - 30 dni
-                    response.headers["Cache-Control"] = "public, max-age=2592000"
-            
+                if self._settings.is_development: # Użyj is_development z config.py
+                    # W trybie deweloperskim uniemożliwiaj cache'owanie
+                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                    response.headers["Pragma"] = "no-cache"
+                    response.headers["Expires"] = "0"
+                    logger.debug(f"Ustawiono nagłówki no-cache dla {request.url.path} (dev mode)")
+                else:
+                    # W trybie produkcyjnym ustaw długi cache
+                    if "js" in request.url.path or "css" in request.url.path:
+                        response.headers["Cache-Control"] = "public, max-age=604800" # 7 dni
+                        logger.debug(f"Ustawiono Cache-Control: public, max-age=604800 dla {request.url.path} (prod mode)")
+                    elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
+                        response.headers["Cache-Control"] = "public, max-age=2592000" # 30 dni
+                        logger.debug(f"Ustawiono Cache-Control: public, max-age=2592000 dla {request.url.path} (prod mode)")
+
+            # Dla HTML i API dodaj no-cache TYLKO w trybie deweloperskim
+            elif self._settings.is_development and not request.url.path.startswith("/static/"):
+                if "text/html" in response.headers.get("content-type", "") or \
+                    "application/json" in response.headers.get("content-type", ""):
+                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                    response.headers["Pragma"] = "no-cache"
+                    response.headers["Expires"] = "0"
+                    logger.debug(f"Ustawiono nagłówki no-cache dla {request.url.path} (dev mode)")
+
             return response
+    
 
     def _configure_middleware(self) -> None:
         """ Konfiguruje middleware aplikacji. """
