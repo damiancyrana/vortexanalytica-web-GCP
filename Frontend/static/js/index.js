@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function clearAuthState() {
     localStorage.removeItem(FIREBASE_TOKEN_KEY);
     sessionStorage.removeItem(AUTH_STATE_KEY);
+    sessionStorage.clear();
     stopTokenRefresh();
   }
 
@@ -431,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         // Pobierz nowy token i zapisz go
         const idToken = await user.getIdToken(true);
-        localStorage.setItem(FIREBASE_TOKEN_KEY, idToken);
+        sessionStorage.setItem(FIREBASE_TOKEN_KEY, idToken);
         console.log("Firebase ID Token stored/refreshed.");
 
         // Ustaw nazwę z Firebase
