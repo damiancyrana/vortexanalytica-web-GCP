@@ -2,60 +2,108 @@
    VORTEX ANALYTICA – Login Page (single-page, mobile ready)
    ========================================================= */
 
-/* ---------- brak przewijania ---------- */
-html, body{
-  height:100vh;
-  overflow:hidden;
+/* ---------- Imports & Variables (jeśli istnieją, np. z landing_page.css) ---------- */
+/* Zakładamy, że zmienne jak --bg-dark są dostępne globalnie lub zaimportowane */
+:root {
+  /* Przykładowe zmienne, jeśli nie są dziedziczone */
+  --bg-dark: #1a1f2e;
+  --blue-accent: #4e8cff;
+  --text-light: #fff;
+  --text-light-muted: rgba(255, 255, 255, .7);
+  --text-light-dim: rgba(255, 255, 255, .5);
+  --border-light: rgba(255, 255, 255, .1);
+  --input-bg: rgba(255, 255, 255, .05);
+  --input-bg-focus: rgba(255, 255, 255, .08);
+  --input-border-focus: var(--blue-accent);
+  --input-shadow-focus: rgba(78, 140, 255, .2);
+  --social-microsoft-bg: rgba(0, 120, 215, .2);
+  --social-microsoft-hover: rgba(0, 120, 215, .3);
+  --social-google-bg: rgba(219, 68, 55, .2);
+  --social-google-hover: rgba(219, 68, 55, .3);
 }
+
+/* ---------- brak przewijania globalnie ---------- */
+html, body{
+  height:100vh; /* Użyj 100vh zamiast 100% dla lepszej kompatybilności mobilnej */
+  overflow:hidden; /* Zapobiega przewijaniu całej strony */
+  font-family:'Exo 2', sans-serif; /* Spójność z landing page */
+  background-color: var(--bg-dark); /* Tło domyślne */
+  color: var(--text-light); /* Domyślny kolor tekstu */
+  position: relative; /* Potrzebne dla z-index canvasa */
+}
+
+/* ===== ANIMATED BACKGROUND CANVAS (Dodano z landing_page.css) ===== */
+#quantum-field{
+  position:fixed; /* Użyj fixed zamiast absolute */
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:-1; /* Tło pod wszystkim innym */
+  pointer-events:none; /* Ignoruje zdarzenia myszy */
+  display:block; /* Upewnij się, że jest widoczne */
+}
+
 
 /* ---------- sekcja wypełnia całe okno ---------- */
 .login-section{
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
-  padding:40px 20px;
+  min-height:100vh; /* Użyj min-height */
+  height: auto; /* Pozwól na wzrost, jeśli kontener jest wyższy */
+  padding: 20px; /* Zmieniono padding dla lepszego dopasowania na różnych ekranach */
   position:relative;
-  z-index:10;
+  z-index: 1; /* Sekcja logowania nad tłem */
+  box-sizing: border-box;
 }
 
 /* ---------- karta logowania ---------- */
 .login-container {
-  background-color: var(--bg-dark, #1a1f2e);
+  background-color: var(--bg-dark); /* Używamy zmiennej */
+  border: 1px solid var(--border-light); /* Dodanie subtelnej ramki */
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 600px;
+  width: 90%; /* Elastyczna szerokość jako domyślna */
+  max-width: 600px; /* Maksymalna szerokość dla dużych ekranów */
   padding: 40px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
+  position: relative; /* Już jest relative */
+  z-index: 2; /* Kontener nad tłem i sekcją (jeśli sekcja ma tło) */
+  margin: auto; /* Wyśrodkowanie w flex container */
+  overflow: hidden; /* Początkowo ukryj przepełnienie */
+  transition: padding 0.3s ease, max-width 0.3s ease;
+  backdrop-filter: blur(5px); /* Dodanie lekkiego rozmycia tła pod kontenerem */
+  background-color: rgba(26, 31, 54, 0.6); /* Lekko przezroczyste tło jak w index.css */
 }
 
 /* ---------- nagłówek ---------- */
 .login-header{text-align:center;margin-bottom:30px}
 .login-header h1{
   font-family:'Exo 2',sans-serif;font-weight:600;font-size:28px;
-  color:#fff;margin-bottom:8px;
+  color: var(--text-light);margin-bottom:8px;
+  transition: font-size 0.3s ease;
 }
-.login-header p{color:rgba(255,255,255,.7);font-size:16px}
+.login-header p{
+  color: var(--text-light-muted);font-size:16px;
+  transition: font-size 0.3s ease;
+}
 
 /* ---------- zakładki ---------- */
 .auth-tabs{
   display:flex;margin-bottom:30px;
-  border-bottom:1px solid rgba(255,255,255,.1);
+  border-bottom:1px solid var(--border-light);
 }
 .tab-btn{
   flex:1;background:transparent;border:none;
-  color:rgba(255,255,255,.6);
+  color: var(--text-light-dim);
   font-family:'Exo 2',sans-serif;font-size:16px;font-weight:500;
-  padding:12px 20px;cursor:pointer;transition:.3s;
+  padding:12px 10px; /* Zmniejszono padding poziomy */
+  cursor:pointer;transition:.3s;
+  white-space: nowrap; /* Zapobiega łamaniu tekstu */
 }
-.tab-btn:hover{color:rgba(255,255,255,.9)}
+.tab-btn:hover{color: var(--text-light-muted)}
 .tab-btn.active{
-  color:#fff;border-bottom:2px solid #4e8cff;
+  color: var(--text-light);border-bottom:2px solid var(--blue-accent);
 }
 
 /* ---------- formularze ---------- */
@@ -65,27 +113,29 @@ html, body{
 .form-group{margin-bottom:24px}
 .form-group label{
   display:block;margin-bottom:8px;font-size:14px;
-  color:rgba(255,255,255,.9);
+  color: var(--text-light-muted); /* Nieco ciemniejsza etykieta */
 }
 
 /* pole z ikoną */
 .input-with-icon{position:relative}
 .input-with-icon i{
   position:absolute;left:15px;top:50%;transform:translateY(-50%);
-  color:rgba(255,255,255,.4);
+  color: var(--text-light-dim);
+  z-index: 1; /* Upewnienie się, że ikona jest nad tłem inputa */
 }
 .input-with-icon input{
   width:100%;padding:14px 14px 14px 45px;border-radius:6px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.05);color:#fff;
+  border:1px solid var(--border-light);
+  background: var(--input-bg);color: var(--text-light);
   font-family:'Exo 2',sans-serif;font-size:15px;transition:.3s;
+  box-sizing: border-box; /* Dodano dla pewności */
 }
 .input-with-icon input:focus{
-  outline:none;border-color:#4e8cff;
-  background:rgba(255,255,255,.08);
-  box-shadow:0 0 0 2px rgba(78,140,255,.2);
+  outline:none;border-color: var(--input-border-focus);
+  background: var(--input-bg-focus);
+  box-shadow:0 0 0 2px var(--input-shadow-focus);
 }
-.input-with-icon input::placeholder{color:rgba(255,255,255,.3)}
+.input-with-icon input::placeholder{color: var(--text-light-dim)}
 
 /* siła hasła */
 .password-strength-meter{
@@ -97,37 +147,19 @@ html, body{
   background:linear-gradient(to right,#ff4d4d,#ffcc00,#00cc66);
   transition:width .3s;
 }
-.password-hints{margin-top:8px;font-size:14px;color:rgba(255,255,255,.5)}
+.password-hints{margin-top:8px;font-size:14px;color: var(--text-light-dim)}
 
 /* ---------- opcje ---------- */
 .form-options{
-  display:flex;justify-content:space-between;align-items:center;
+  display:flex;justify-content:flex-end; /* Przesunięcie linku w prawo */
+  align-items:center;
   margin-bottom:24px;font-size:14px;
 }
 
-/* checkbox */
-.checkbox-container{
-  display:flex;align-items:center;cursor:pointer;user-select:none;
-  color:rgba(255,255,255,.7);position:relative;
-}
-.checkbox-container input{position:absolute;opacity:0;cursor:pointer;height:0;width:0}
-.checkmark{
-  height:18px;width:18px;background:rgba(255,255,255,.1);
-  border-radius:4px;margin-right:8px;position:relative;
-}
-.checkbox-container:hover .checkmark{background:rgba(255,255,255,.2)}
-.checkbox-container input:checked~.checkmark{background:#4e8cff}
-.checkmark:after{
-  content:"";position:absolute;display:none;
-}
-.checkbox-container input:checked~.checkmark:after{display:block}
-.checkbox-container .checkmark:after{
-  left:6px;top:3px;width:5px;height:10px;border:solid #fff;
-  border-width:0 2px 2px 0;transform:rotate(45deg);
-}
+/* Usunięto checkbox "Remember me" - nie było go w HTML */
 
 .forgot-password{
-  color:#4e8cff;text-decoration:none;transition:.3s;
+  color: var(--blue-accent);text-decoration:none;transition:.3s;
 }
 .forgot-password:hover{color:#79a8ff;text-decoration:underline}
 
@@ -135,8 +167,9 @@ html, body{
 .auth-button{
   width:100%;padding:14px;border:none;border-radius:6px;
   background:linear-gradient(135deg,#4e8cff,#3366cc);
-  color:#fff;font-family:'Exo 2',sans-serif;font-size:16px;font-weight:600;
+  color: var(--text-light);font-family:'Exo 2',sans-serif;font-size:16px;font-weight:600;
   cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center;
+  box-sizing: border-box;
 }
 .auth-button i{margin-right:8px}
 .auth-button:hover{
@@ -152,26 +185,39 @@ html, body{
 }
 .separator::before,
 .separator::after{
-  content:'';flex:1;border-bottom:1px solid rgba(255,255,255,.1);
+  content:'';flex:1;border-bottom:1px solid var(--border-light);
 }
 .separator span{
-  padding:0 10px;color:rgba(255,255,255,.5);font-size:14px;
+  padding:0 10px;color: var(--text-light-dim);font-size:14px;
 }
 
 /* social login */
 .social-login{display:flex;gap:12px}
 .social-btn{
-  flex:1;padding:12px;border:1px solid rgba(255,255,255,.1);
-  border-radius:6px;background:rgba(255,255,255,.05);color:#fff;
+  flex:1;padding:12px;border:1px solid var(--border-light);
+  border-radius:6px;background: var(--input-bg);color: var(--text-light);
   font-family:'Exo 2',sans-serif;font-size:14px;cursor:pointer;transition:.3s;
   display:flex;justify-content:center;align-items:center;
+  box-sizing: border-box;
+  white-space: nowrap; /* Zapobiega łamaniu tekstu w przyciskach */
 }
 .social-btn i{margin-right:8px}
 
-.social-btn.microsoft{background:rgba(0,120,215,.2)}
-.social-btn.microsoft:hover{background:rgba(0,120,215,.3)}
-.social-btn.google{background:rgba(219,68,55,.2)}
-.social-btn.google:hover{background:rgba(219,68,55,.3)}
+.social-btn.microsoft{background: var(--social-microsoft-bg)}
+.social-btn.microsoft:hover{background: var(--social-microsoft-hover)}
+.social-btn.google{background: var(--social-google-bg)}
+.social-btn.google:hover{background: var(--social-google-hover)}
+/* Dodano styl dla nieaktywnego przycisku LinkedIn */
+.social-btn.linkedin[disabled] {
+    background: rgba(100, 100, 100, 0.1);
+    border-color: rgba(100, 100, 100, 0.2);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.social-btn.linkedin[disabled]:hover {
+    background: rgba(100, 100, 100, 0.1); /* Brak zmiany hover */
+}
 
 /* ---------- animacja ---------- */
 @keyframes fadeIn{
@@ -179,38 +225,107 @@ html, body{
   to  {opacity:1;transform:translateY(0)}
 }
 
-/* ---------- smartfony ≤ 576 px ---------- */
-@media (max-width:576px){
-  .login-container{
-      padding:30px 20px;
-      max-width:340px;
+
+/* ======================================== */
+/* ==        RESPONSIVENESS             == */
+/* ======================================== */
+
+/* --- Urządzenia o niskiej wysokości (np. 1024x600 w poziomie) --- */
+/* Obejmuje również max-height 600px z poprzedniej wersji */
+@media (max-height: 650px) and (min-width: 601px) {
+  .login-section {
+    align-items: flex-start; /* Wyrównaj do góry */
+    padding-top: 3vh; /* Mniejszy padding górny */
+    padding-bottom: 3vh;
+    overflow-y: auto; /* Pozwól przewijać sekcję, jeśli kontener jest za wysoki */
   }
-  .login-header h1{font-size:22px}
-  .login-header p{font-size:14px}
-  .tab-btn{padding:10px 8px;font-size:14px}
-  .form-options{
-      flex-direction:column;align-items:flex-start;gap:12px;
+  .login-container {
+    max-height: none; /* Usuń ograniczenie wysokości kontenera */
+    overflow-y: visible; /* Usuń wewnętrzne przewijanie */
+    margin-top: 0;
+    margin-bottom: 0;
   }
-  .social-login{flex-direction:column}
-  .auth-button{font-size:15px;padding:12px}
+  /* Ukryj stopkę na niskich ekranach, jeśli jest w tym samym pliku */
+  /* Jeśli stopka jest w innym pliku (np. base.html), ta reguła może nie działać */
+  body > footer { /* Bardziej specyficzny selektor, jeśli stopka jest poza .main-container w HTML */
+     display: none;
+  }
 }
 
-/* ---------- tablety ≤ 768 px ---------- */
-@media (min-width:577px) and (max-width:768px){
-  .login-container{max-width:400px;padding:35px}
+
+/* --- Średnie ekrany mobilne/małe tablety (np. 540x720) --- */
+/* Dostosowujemy istniejący breakpoint 577-768px */
+@media (min-width: 577px) and (max-width: 768px){
+  .login-container{
+      max-width: 480px; /* Zwiększono max-width (było 400px) */
+      padding: 35px;
+      width: 85%; /* Zamiast 80%, dla lepszego dopasowania */
+  }
   .tab-btn{font-size:15px}
 }
 
-@media (max-width: 768px) {
-  .login-container {
-    width: 90%;
-    padding: 30px;
+/* --- Małe smartfony (≤ 576 px) - obejmuje 360x740, 375x667 --- */
+/* Dostosowujemy istniejący breakpoint */
+@media (max-width:576px){
+  .login-section {
+      padding: 15px; /* Zmniejszono padding sekcji */
+      align-items: flex-start; /* Wyrównanie do góry */
+      padding-top: 5vh; /* Mniejszy odstęp od góry */
+      overflow-y: auto; /* Pozwól sekcji na przewijanie */
   }
+  .login-container{
+      padding: 25px 15px; /* Mniejszy padding kontenera */
+      width: 95%; /* Nieco szerszy kontener */
+      max-width: none; /* Usunięcie ograniczenia dla małych ekranów */
+      margin-top: 0;
+      margin-bottom: 20px; /* Dodaj margines na dole */
+      overflow-y: visible; /* Usuń wewnętrzne przewijanie */
+  }
+  .login-header h1{font-size:20px; margin-bottom: 5px;} /* Mniejszy nagłówek */
+  .login-header p{font-size:14px; margin-bottom: 20px;} /* Mniejszy podtytuł */
+  .auth-tabs { margin-bottom: 20px; }
+  .tab-btn{padding:10px 5px; font-size:13px} /* Mniejszy padding i czcionka zakładek */
+  .form-group { margin-bottom: 18px; } /* Mniejszy margines grupy */
+  .input-with-icon input { padding: 12px 12px 12px 40px; font-size: 14px; } /* Dostosowanie paddingu i fonta inputów */
+  .password-hints { font-size: 12px; } /* Mniejsze podpowiedzi hasła */
+  .form-options{
+      flex-direction:column;align-items:flex-start;gap:12px;
+      margin-bottom: 18px;
+  }
+  .checkbox-container { font-size: 13px; } /* Mniejszy tekst checkboxa */
+  .checkmark { width: 16px; height: 16px; }
+  .checkbox-container .checkmark:after { left: 5px; top: 2px; width: 4px; height: 8px;}
+  .forgot-password { font-size: 13px; }
+
+  .auth-button{font-size:14px;padding:12px} /* Mniejszy przycisk główny */
+  .separator { margin: 18px 0; }
+  .separator span { font-size: 12px; }
+  .social-login{flex-direction:column; gap: 10px;} /* Przyciski jeden pod drugim */
+  .social-btn { padding: 10px; font-size: 13px; } /* Mniejsze przyciski social */
 }
 
-@media (max-width: 480px) {
-  .login-container {
-    width: 95%;
-    padding: 25px;
-  }
+/* --- Bardzo wąskie ekrany (< 360px) --- */
+@media (max-width: 359px) {
+    .login-section { padding: 10px; padding-top: 3vh; }
+    .login-container { padding: 20px 10px; }
+    .login-header h1 { font-size: 18px; }
+    .login-header p { font-size: 13px; }
+    .tab-btn { font-size: 12px; padding: 8px 4px; }
+    .input-with-icon input { padding: 10px 10px 10px 35px; font-size: 13px;}
+    .input-with-icon i { left: 12px; }
+    .auth-button { font-size: 13px; padding: 10px; }
+    .social-btn { font-size: 12px; padding: 9px; }
+    .social-btn i { font-size: 1.1em; margin-right: 5px;}
+}
+
+/* --- Poprawka dla checkboxa na bardzo małych ekranach --- */
+@media (max-width: 330px) {
+    /* Usunięto pustą regułę */
+    .form-options .checkbox-container a { /* Pozwól linkom w checkboxie się łamać */
+       white-space: normal;
+       display: inline; /* Lub inline-block jeśli potrzeba */
+    }
+    .forgot-password {
+        margin-top: 10px; /* Dodaj odstęp, jeśli checkbox zajmuje więcej miejsca */
+    }
 }

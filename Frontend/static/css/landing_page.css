@@ -27,6 +27,7 @@
   --blur: blur(12px);
   --section-padding: 8rem;
   --container-width: 1200px;
+  --header-height: 65px; /* Approximate initial header height */
 }
 
 /* ======= RESET & BASE ======= */
@@ -72,12 +73,13 @@ header {
   z-index: 1000;
   background: rgba(10, 10, 16, .7);
   backdrop-filter: var(--blur);
-  padding: 1rem 2rem;
+  padding: 1rem 2rem; /* Initial padding */
+  height: var(--header-height);
   border-bottom: 1px solid rgba(0, 229, 255, .1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color var(--t-fast);
+  transition: background-color var(--t-fast), padding var(--t-fast), height var(--t-fast);
 }
 .logo{display:flex;align-items:center;gap:1rem}
 .logo-text {
@@ -90,6 +92,7 @@ header {
   background-clip: text;
   color: transparent;
   line-height: 1;
+  transition: font-size var(--t-fast);
 }
 .quantum-logo{position:relative;width:36px;height:36px}
 .quantum-core{position:absolute;width:16px;height:16px;border-radius:50%;top:50%;left:50%;
@@ -122,7 +125,7 @@ nav a:hover::after{width:100%}
   .mobile-menu-btn{display:block}
   nav{
       position:fixed;top:0;right:-100%;width:80%;max-width:350px;height:100vh;
-      background:var(--bg-medium);padding-top:6rem;
+      background:var(--bg-medium);padding-top:calc(var(--header-height) + 2rem); /* Adjust padding */
       flex-direction:column;justify-content:flex-start;
       transition:transform var(--t-smooth);transform:translateX(100%);
       box-shadow:-10px 0 30px rgba(0,0,0,.3);z-index:999;
@@ -133,11 +136,18 @@ nav a:hover::after{width:100%}
 }
 
 /* ===== MAIN LAYOUT & SECTIONS ===== */
-.main-container{max-width:var(--container-width);margin-inline:auto;padding-inline:2rem;margin-top:80px} /* Margin-top to offset fixed header */
+.main-container{
+  max-width:var(--container-width);
+  margin-inline:auto;
+  padding-inline:2rem;
+  margin-top:var(--header-height); /* Margin-top to offset fixed header */
+  transition: margin-top var(--t-fast), padding-inline var(--t-fast);
+}
 section{
   padding-block:var(--section-padding);
   position:relative;
   overflow:hidden;
+  transition: padding-block var(--t-fast);
 }
 section:not(:first-of-type)::before{
   content:'';position:absolute;top:0;left:5%;width:90%;height:1px;
@@ -151,11 +161,13 @@ section:not(:first-of-type)::before{
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  transition: font-size var(--t-fast), margin-bottom var(--t-fast);
 }
 .section-subtitle{
   font-size:clamp(1.1rem,3vw,1.4rem);
   color:var(--text-sec);text-align:center;max-width:800px;margin:0 auto 4rem auto;
   font-weight:300;
+  transition: font-size var(--t-fast), margin-bottom var(--t-fast);
 }
 
 /* Generic Card */
@@ -164,7 +176,7 @@ section:not(:first-of-type)::before{
   border:1px solid var(--card-border);
   border-radius:16px;
   padding:2.5rem;
-  transition:transform var(--t-fast),box-shadow var(--t-fast);
+  transition:transform var(--t-fast),box-shadow var(--t-fast), padding var(--t-fast);
   backdrop-filter:var(--blur);
   display:flex;flex-direction:column;height:100%;
 }
@@ -174,15 +186,16 @@ section:not(:first-of-type)::before{
 }
 
 /* Grid Helpers */
-.grid-container{display:grid;gap:2.5rem}
+.grid-container{display:grid;gap:2.5rem; transition: gap var(--t-fast);}
 .grid-2-cols{grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr))}
 .grid-3-cols{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
 
 /* ===== HERO ===== */
 .hero{
-  min-height:calc(100vh - 80px);
+  min-height:calc(100vh - var(--header-height));
   display:flex;align-items:center;justify-content:center;text-align:center;
   padding-bottom:5rem;
+  transition: min-height var(--t-fast), padding-bottom var(--t-fast);
 }
 .hero-content{max-width:850px}
 .hero h1{
@@ -193,10 +206,12 @@ section:not(:first-of-type)::before{
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  transition: font-size var(--t-fast);
 }
 .hero p.subtitle{
   font-size:clamp(1.2rem,4vw,1.6rem);
   color:var(--text-sec);max-width:700px;margin:0 auto 2.5rem auto;font-weight:300;
+  transition: font-size var(--t-fast);
 }
 
 /* Kontener dla przycisków w sekcji Hero */
@@ -207,6 +222,7 @@ section:not(:first-of-type)::before{
   gap: 1.5rem; /* Mniejszy odstęp */
   margin-top: 3rem;
   flex-wrap: wrap;
+  transition: gap var(--t-fast);
 }
 
 /* ===== NOWE STYLE PRZYCISKÓW w sekcji Hero ===== */
@@ -399,7 +415,7 @@ section:not(:first-of-type)::before{
   text-decoration: none;
   font-size: 1rem;
   font-weight: 600;
-  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast), color var(--t-fast);
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast), color var(--t-fast), padding var(--t-fast), font-size var(--t-fast);
   white-space: nowrap;
   position: relative;
   z-index: 1;
@@ -450,7 +466,7 @@ section:not(:first-of-type)::before{
   display:inline-flex;align-items:center;justify-content:center;gap:.8rem;
   background:var(--gradient-border);color:var(--text-main);padding:.9rem 2rem;
   border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;
-  transition:transform var(--t-fast),box-shadow var(--t-fast);width:100%;
+  transition:transform var(--t-fast),box-shadow var(--t-fast), padding var(--t-fast), font-size var(--t-fast);width:100%;
   font-family: inherit;
 }
 .submit-button:hover{
@@ -472,7 +488,8 @@ footer {
   padding: 3rem 2rem;
   text-align: center;
   border-top: 1px solid rgba(0, 229, 255, .1);
-  margin-top: var(--section-padding);
+  margin-top: var(--section-padding); /* Use variable */
+  transition: padding var(--t-fast), margin-top var(--t-fast);
 }
 .footer-links{display:flex;gap:1.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
 .footer-links a{color:var(--text-sec);text-decoration:none;font-size:.9rem}
@@ -487,56 +504,148 @@ footer {
 .mt-2{margin-top:2rem}
 
 
-/* ===== RESPONSIVE STYLES ===== */
+/* ======================================== */
+/* ==        RESPONSIVE STYLES             == */
+/* ======================================== */
 
-@media (max-width: 992px) {
-  /* Już obsłużone w sekcji Mobile Nav */
+/* Targeting devices like 1024x600 (landscape, short height) */
+@media (max-width: 1100px) and (max-height: 650px) and (orientation: landscape) {
+  :root {
+    --section-padding: 4rem; /* Significantly reduce section padding */
+    /* --header-height: 60px; Keep header height standard for landscape width */
+  }
+  .hero {
+    padding-bottom: 3rem; /* Reduce hero bottom padding */
+    min-height: calc(90vh - var(--header-height)); /* Slightly less than full viewport */
+  }
+  .section-title {
+    margin-bottom: 1rem; /* Reduce space below title */
+    font-size: clamp(2rem, 4vw, 3rem); /* Slightly smaller title */
+  }
+  .section-subtitle {
+    margin-bottom: 2.5rem; /* Reduce space below subtitle */
+    font-size: clamp(1rem, 2.5vw, 1.2rem); /* Slightly smaller subtitle */
+  }
+  footer {
+    margin-top: var(--section-padding); /* Match reduced padding */
+    padding: 2rem 1.5rem; /* Reduce footer padding */
+  }
+  .info-card {
+     padding: 1.8rem; /* Reduce card padding */
+  }
 }
 
+/* Standard Tablets & Smaller Laptops */
+@media (max-width: 992px) {
+  /* Mobile Nav is already handled above */
+  :root {
+     /* Header height might need adjustment if content overlaps */
+     /* --header-height: 60px; */
+  }
+}
+
+/* Smaller Tablets & Large Phones */
 @media (max-width: 768px) {
-   .hero-buttons .btn { /* Dostosowanie przycisków dla tabletów */
+   .hero-buttons .btn { /* Adjust button size */
       padding: 0.8rem 2rem;
       font-size: 0.9rem;
    }
    .hero-buttons {
-      gap: 1rem;
+      gap: 1rem; /* Reduce gap between buttons */
+   }
+   .main-container{
+     padding-inline:1.5rem; /* Reduce side padding */
+   }
+   :root {
+      --section-padding: 6rem; /* Slightly reduce section padding */
+   }
+   footer {
+      margin-top: var(--section-padding);
    }
 }
 
 
-@media (max-width:576px){
-  :root{--section-padding:4rem}
-  header{padding:.7rem 1.2rem}
-  .logo-text{font-size:1rem}
-  .main-container{padding-inline:1rem; margin-top: 60px;}
-  .grid-container{gap:1.5rem}
+/* Large Phones & Small Tablets Portrait (includes 540px width) */
+@media (max-width: 600px){ /* Changed from 576px */
+  :root{
+      --section-padding: 4rem; /* Further reduce padding */
+      --header-height: 60px; /* Fixed smaller header height */
+  }
+  header{
+      padding:.7rem 1.2rem;
+      /* Height set by variable */
+  }
+  .main-container{
+      padding-inline:1rem;
+      margin-top: var(--header-height); /* Use variable */
+  }
+
+  .logo-text{font-size:1.1rem} /* Slightly smaller logo text */
+  .grid-container{gap:1.5rem} /* Reduce grid gap */
   .hero h1{font-size:clamp(2.2rem,9vw,3.2rem)}
   .hero p.subtitle{font-size:clamp(1rem,4.5vw,1.25rem)}
 
-  .hero-buttons .btn { /* Przyciski w Hero na małych ekranach */
-    padding: 0.7rem 1.5rem;
-    font-size: 0.85rem;
-    width: 70%; /* Zajmują więcej szerokości */
-    max-width: 280px;
+  .hero-buttons .btn { /* Make buttons larger, stack vertically */
+    padding: 0.8rem 1.5rem; /* Adjust padding */
+    font-size: 0.9rem; /* Adjust font size */
+    width: 80%; /* Make buttons wider */
+    max-width: 300px; /* Set a max width */
   }
-   .hero-buttons { /* Układ pionowy */
+   .hero-buttons { /* Stack buttons */
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 1rem; /* Adjust gap */
   }
 
-  /* Oryginalne style dla małych ekranów */
+  /* Original styles for small screens */
   .section-title{font-size:clamp(1.8rem,7vw,2.6rem)}
   .section-subtitle{font-size:clamp(.95rem,3.8vw,1.1rem);margin-bottom:3rem}
   .problem-container,
   .grid-2-cols,
-  .grid-3-cols{grid-template-columns:1fr}
+  .grid-3-cols{grid-template-columns:1fr} /* Force single column */
   .info-card{padding:1.8rem}
   .submit-button{padding:.8rem 1.5rem;font-size:.95rem}
-  footer{padding:2rem 1.2rem}
-  .login-button.microsoft { /* Dostosowanie przycisku MVP */
+  footer{
+      padding:2rem 1.2rem;
+      margin-top: var(--section-padding); /* Use variable */
+  }
+  .login-button.microsoft { /* Adjust MVP button */
       font-size: .9rem;
       padding: .8rem 1.5rem;
   }
 }
 
-/* Usunięte style .animated-button */
+/* Very Narrow Phones (360px, 375px) */
+@media (max-width: 400px) {
+  :root {
+     --header-height: 56px; /* Slightly smaller header */
+  }
+  header {
+      padding: 0.6rem 1rem; /* Reduce header padding */
+      /* Height set by variable */
+  }
+  .main-container {
+      margin-top: var(--header-height); /* Use variable */
+      padding-inline: 0.8rem; /* Reduce side padding further */
+  }
+  .logo-text { font-size: 1rem; } /* Even smaller logo text */
+  .logo { gap: 0.5rem; } /* Reduce gap in logo */
+  .quantum-logo { width: 30px; height: 30px; } /* Scale down logo graphic slightly */
+  @keyframes orbit{to{transform:rotate(360deg) translateX(13px) rotate(-360deg)}} /* Adjust orbit */
+
+  .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); } /* Adjust hero title size */
+  .hero p.subtitle { font-size: clamp(0.9rem, 4vw, 1.1rem); } /* Adjust hero subtitle size */
+
+  .hero-buttons .btn { /* Adjust hero buttons for very narrow screens */
+    width: 90%; /* Make buttons take almost full width */
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+  }
+  .hero-buttons { gap: 0.8rem; } /* Reduce gap */
+
+  .section-title { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
+  .section-subtitle { font-size: clamp(0.9rem, 3.5vw, 1rem); margin-bottom: 2.5rem;}
+  .info-card { padding: 1.5rem; } /* Reduce card padding */
+  .login-button.microsoft { font-size: .85rem; padding: .7rem 1.2rem; }
+  .submit-button { font-size: .9rem; padding: .7rem 1.5rem; }
+  footer { padding: 1.5rem 1rem; }
+}

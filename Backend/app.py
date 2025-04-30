@@ -1,5 +1,5 @@
 """
-Vortex Analytica - Główny moduł aplikacji (Wersja Produkcyjna - Hybrydowa)
+Vortex Analytica - Główny moduł aplikacji (Wersja Produkcyjna)
 """
 import logging
 import os
@@ -80,7 +80,7 @@ class VortexApplication:
         logger.info("Inicjalizacja aplikacji FastAPI zakończona.")
 
     def _configure_static_cache(self) -> None:
-        """Konfiguruje cache dla plików statycznych w zależności od trybu"""
+        """Konfiguruje cache dla plików statycznych (tryb produkcyjny)"""
         @self._app.middleware("http")
         async def add_cache_headers(request, call_next):
             response = await call_next(request)
@@ -90,31 +90,14 @@ class VortexApplication:
                 logger.warning("Settings nie są dostępne w _configure_static_cache, cache nie zostanie ustawiony.")
                 return response
 
-            # Nagłówki cache zależne od środowiska
+            # Nagłówki cache dla trybu produkcyjnego
             if request.url.path.startswith("/static/"):
-                if self._settings.is_development: # Użyj is_development z config.py
-                    # W trybie deweloperskim uniemożliwiaj cache'owanie
-                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-                    response.headers["Pragma"] = "no-cache"
-                    response.headers["Expires"] = "0"
-                    logger.debug(f"Ustawiono nagłówki no-cache dla {request.url.path} (dev mode)")
-                else:
-                    # W trybie produkcyjnym ustaw długi cache
-                    if "js" in request.url.path or "css" in request.url.path:
-                        response.headers["Cache-Control"] = "public, max-age=604800" # 7 dni
-                        logger.debug(f"Ustawiono Cache-Control: public, max-age=604800 dla {request.url.path} (prod mode)")
-                    elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
-                        response.headers["Cache-Control"] = "public, max-age=2592000" # 30 dni
-                        logger.debug(f"Ustawiono Cache-Control: public, max-age=2592000 dla {request.url.path} (prod mode)")
-
-            # Dla HTML i API dodaj no-cache TYLKO w trybie deweloperskim
-            elif self._settings.is_development and not request.url.path.startswith("/static/"):
-                if "text/html" in response.headers.get("content-type", "") or \
-                    "application/json" in response.headers.get("content-type", ""):
-                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-                    response.headers["Pragma"] = "no-cache"
-                    response.headers["Expires"] = "0"
-                    logger.debug(f"Ustawiono nagłówki no-cache dla {request.url.path} (dev mode)")
+                if "js" in request.url.path or "css" in request.url.path:
+                    response.headers["Cache-Control"] = "public, max-age=604800" # 7 dni
+                    logger.debug(f"Ustawiono Cache-Control: public, max-age=604800 dla {request.url.path}")
+                elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
+                    response.headers["Cache-Control"] = "public, max-age=2592000" # 30 dni
+                    logger.debug(f"Ustawiono Cache-Control: public, max-age=2592000 dla {request.url.path}")
 
             return response
     
@@ -134,13 +117,21 @@ class VortexApplication:
 
         logger.info("Konfiguracja middleware zakończona.")
 
+
     def _configure_cors(self) -> None:
         """Konfiguruje middleware CORS"""
         allowed_origins = [
-            str(self._settings.base_url) if self._settings.base_url else "https://vortexanalytica.com",
-            "https://www.vortexanalytica.com",
-            # W środowisku deweloperskim dodaj localhost
-            *(["http://localhost:8040", "http://127.0.0.1:8040"] if self._settings.is_development else [])
+            "https://www.vortexanalytica.com",  # Primary domain
+            "https://vortexanalytica.com",       # Non-www version
+            "http://www.vortexanalytica.com",    # HTTP version (for redirect)
+            "http://vortexanalytica.com",        # HTTP non-www
+            # "https://34.0.244.67",               # HTTPS IP
+            # "http://34.0.244.67",                # HTTP IP
+            # Include localhost for development
+            # "http://localhost", 
+            # "http://localhost:8040", 
+            # "http://127.0.0.1",
+            # "http://127.0.0.1:8040"
         ]
         self._app.add_middleware(
             CORSMiddleware,
@@ -148,9 +139,8 @@ class VortexApplication:
             allow_credentials=True,
             allow_methods=["GET", "POST", "OPTIONS"],
             allow_headers=["Content-Type", "X-CSRF-Token"],
-            max_age=600  # 10 minut cache preflight
+            max_age=10  # 10 minutes cache preflight
         )
-        logger.info(f"Skonfigurowano CORS dla domen: {allowed_origins}")
 
     def _configure_csrf(self) -> None:
         """Konfiguruje middleware CSRF"""
@@ -168,12 +158,10 @@ class VortexApplication:
             logger.critical("!!! BIBLIOTEKA starlette-csrf NIE JEST ZAINSTALOWANA !!!")
             logger.critical("!!! OCHRONA CSRF JEST WYMAGANA PRZY UŻYCIU CIASTECZEK - APLIKACJA JEST PODATNA NA ATAKI CSRF !!!")
             # W produkcji zatrzymujemy aplikację:
-            if self._settings.is_production:
-                raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
+            raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
         except Exception as e:
             logger.critical(f"!!! Nie można skonfigurować CSRFMiddleware: {e} !!!", exc_info=True)
-            if self._settings.is_production:
-                raise RuntimeError(f"Failed to configure CSRF protection: {e}")
+            raise RuntimeError(f"Failed to configure CSRF protection: {e}")
 
     @property
     def app(self) -> FastAPI:
@@ -212,3 +200,4 @@ def get_optimal_workers():
 # Przykładowe polecenie z optymalną liczbą workerów:
 # uvicorn --factory Backend.app:create_app --workers $(python -c "from Backend.app import get_optimal_workers; print(get_optimal_workers())") --host 0.0.0.0 --port 8040
 # uvicorn --factory Backend.app:create_app  --workers 4 --host 0.0.0.0 --port 8040
+# sudo fuser -k 8040/tcp

@@ -1,5 +1,5 @@
 """
-Moduł konfiguracji aplikacji Vortex Analytica (Wersja Produkcyjna - Hybrydowa)
+Moduł konfiguracji aplikacji Vortex Analytica (Wersja Produkcyjna)
 Dostosowany do Pydantic v2.x
 Klucz Firebase ładowany z Secret Managera.
 Klucz Sesji (SESSION_SECRET_KEY) ładowany WYŁĄCZNIE z Secret Managera.
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Podstawowe ustawienia
     app_name: str = "Vortex Analytica"
-    environment: str = os.getenv("ENVIRONMENT", "production") # Domyślnie produkcja
+    environment: str = "production" # Zawsze produkcja
     log_level: str = os.getenv("LOG_LEVEL", "INFO").upper()
     base_url: Optional[AnyHttpUrl] = Field(None) # Wczytaj z env, jeśli potrzebne (np. BASE_URL=...)
 
@@ -73,28 +73,17 @@ class Settings(BaseSettings):
         """ Ustawienia po inicjalizacji Pydantic. """
         from fastapi.responses import HTMLResponse
         self.default_response_class = HTMLResponse
-        # Wymuś Secure=True na produkcji
-        if self.is_production:
-            self.SESSION_COOKIE_SECURE = True
-        else:
-            # Dostosuj logikę dla dev, jeśli konieczne (np. testy na HTTP)
-            base_url_str = str(self.base_url) if self.base_url else ""
-            if self.environment == "development" and ("http://localhost" in base_url_str or "http://127.0.0.1" in base_url_str):
-                 logger.warning("Uruchomiono w trybie deweloperskim na HTTP, ustawiam SESSION_COOKIE_SECURE=False.")
-                 self.SESSION_COOKIE_SECURE = False
-            else:
-                 # Nawet w dev, jeśli nie jest to localhost http, używaj Secure
-                 self.SESSION_COOKIE_SECURE = True
-
+        # Zawsze używaj Secure=True (tryb produkcyjny)
+        self.SESSION_COOKIE_SECURE = True
 
     @property
     def templates_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "templates")
     @property
     def static_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "static")
     @property
-    def is_development(self) -> bool: return self.environment.lower() == "development"
+    def is_development(self) -> bool: return False  # Zawsze False - tylko produkcja
     @property
-    def is_production(self) -> bool: return self.environment.lower() == "production"
+    def is_production(self) -> bool: return True  # Zawsze True - tylko produkcja
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
         """ Zwraca klienta Secret Managera, inicjalizując go raz. """
