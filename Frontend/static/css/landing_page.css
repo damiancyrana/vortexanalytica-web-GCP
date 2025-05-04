@@ -34,14 +34,13 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;}
 
-/* Styl body (zgodnie z żądaniem) */
+/* Body styles (as requested) */
 body
 {
   margin:0;
   padding:0;
-  /* Używamy --bg-dark jako domyślnego, zamiast #0c002b */
   background: var(--bg-dark);
-  font-family:'Exo 2', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  font-family:'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
               Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color:var(--text-main);
   line-height:1.6;
@@ -73,7 +72,7 @@ header {
   z-index: 1000;
   background: rgba(10, 10, 16, .7);
   backdrop-filter: var(--blur);
-  padding: 1rem 2rem; /* Initial padding */
+  padding: 1rem 2rem; /* Padding zostaje na header, bo kontroluje jego szerokość */
   height: var(--header-height);
   border-bottom: 1px solid rgba(0, 229, 255, .1);
   display: flex;
@@ -125,7 +124,7 @@ nav a:hover::after{width:100%}
   .mobile-menu-btn{display:block}
   nav{
       position:fixed;top:0;right:-100%;width:80%;max-width:350px;height:100vh;
-      background:var(--bg-medium);padding-top:calc(var(--header-height) + 2rem); /* Adjust padding */
+      background:var(--bg-medium);padding-top:calc(var(--header-height) + 2rem);
       flex-direction:column;justify-content:flex-start;
       transition:transform var(--t-smooth);transform:translateX(100%);
       box-shadow:-10px 0 30px rgba(0,0,0,.3);z-index:999;
@@ -139,8 +138,9 @@ nav a:hover::after{width:100%}
 .main-container{
   max-width:var(--container-width);
   margin-inline:auto;
-  padding-inline:2rem;
-  margin-top:var(--header-height); /* Margin-top to offset fixed header */
+  /* Zwiększony padding boczny dla odsunięcia siatek i innych treści */
+  padding-inline: 3rem; /* Zmieniono z 2rem na 3rem (można dostosować) */
+  margin-top:var(--header-height);
   transition: margin-top var(--t-fast), padding-inline var(--t-fast);
 }
 section{
@@ -214,48 +214,45 @@ section:not(:first-of-type)::before{
   transition: font-size var(--t-fast);
 }
 
-/* Kontener dla przycisków w sekcji Hero */
+/* Container for buttons in Hero section */
 .hero-buttons {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem; /* Mniejszy odstęp */
+  gap: 1.5rem;
   margin-top: 3rem;
   flex-wrap: wrap;
   transition: gap var(--t-fast);
 }
 
-/* ===== NOWE STYLE PRZYCISKÓW w sekcji Hero ===== */
+/* ===== NEW BUTTON STYLES in Hero section ===== */
 .btn {
-  /* Domyślny kolor - cyan/blue */
   --hue: 190;
   position: relative;
-  padding: 1rem 2.5rem; /* Mniejszy padding */
-  font-size: 1rem; /* Standardowy rozmiar fonta */
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: white;
   text-decoration: none;
-  text-transform: uppercase; /* Wielkie litery */
-  letter-spacing: 1px; /* Mniejszy letter-spacing */
+  text-transform: uppercase;
+  letter-spacing: 1px;
   background-color: hsl(var(--hue), 100%, 41%);
   border: 1px solid hsl(var(--hue), 100%, 41%);
   outline: transparent;
-  border-radius: 4px; /* Zaokrąglenie rogów */
+  border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
   transition: 0.25s;
-  font-family: inherit; /* Użyj fonta strony */
+  font-family: inherit;
 }
 
-/* Hover dla podstawowego przycisku (nieużywane w ghost) */
 .btn:hover {
   background: hsl(var(--hue), 100%, 31%);
   border-color: hsl(var(--hue), 100%, 31%);
 }
 
-/* Styl "Ghost" */
 .btn-ghost {
   color: hsl(var(--hue), 100%, 41%);
   background-color: transparent;
@@ -263,14 +260,12 @@ section:not(:first-of-type)::before{
 }
 
 .btn-ghost:hover {
-  color: white; /* Tekst staje się biały */
-  background-color: hsl(var(--hue), 100%, 41%); /* Tło wypełnia się kolorem */
+  color: white;
+  background-color: hsl(var(--hue), 100%, 41%);
 }
 
-/* Styl "Shine" (efekt przy najechaniu) */
 .btn-shine {
-  /* Ten styl nie wymaga dodatkowych reguł poza :hover i ::before */
-  color: hsl(var(--hue), 100%, 41%); /* Kolor tekstu dla shine ghost */
+  color: hsl(var(--hue), 100%, 41%);
 }
 
 .btn-shine::before {
@@ -283,25 +278,24 @@ section:not(:first-of-type)::before{
   background: linear-gradient(
     120deg,
     transparent,
-    hsla(var(--hue), 100%, 41%, 0.5), /* Połprzezroczysty blask */
+    hsla(var(--hue), 100%, 41%, 0.5),
     transparent
   );
-  transform: translateX(-100%); /* Początkowo poza przyciskiem */
-  transition: 0.6s; /* Czas animacji blasku */
+  transform: translateX(-100%);
+  transition: 0.6s;
 }
 
 .btn-shine:hover {
-  color: white; /* Tekst biały w hover */
-  background: hsl(var(--hue), 100%, 31%); /* Ciemniejsze tło w hover (jak w normalnym btn) */
+  color: white;
+  background: hsl(var(--hue), 100%, 31%);
   border-color: hsl(var(--hue), 100%, 31%);
-  box-shadow: 0 0 20px 5px hsla(var(--hue), 100%, 41%, 0.4); /* Delikatny cień */
+  box-shadow: 0 0 20px 5px hsla(var(--hue), 100%, 41%, 0.4);
 }
 
 .btn-shine:hover::before {
-  transform: translateX(100%); /* Przesunięcie blasku przez przycisk */
+  transform: translateX(100%);
 }
 
-/* Definicje kolorów dla konkretnych przycisków */
 .btn-login {
   --hue: 190; /* Cyan/Blue */
 }
@@ -339,13 +333,37 @@ section:not(:first-of-type)::before{
 .engine-card p{color:var(--text-sec);font-size:.95rem}
 
 /* ===== CAPABILITIES ===== */
-.capability-card{position:relative;padding-left:3.5rem}
-.capability-icon{
-  position:absolute;left:1.5rem;top:2.2rem;font-size:1.8rem;width:40px;height:40px;
-  line-height:40px;text-align:center;border-radius:50%;background:var(--bg-light);color:var(--teal);
+.capability-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
-.capability-card h3{font-size:1.3rem;color:var(--text-main);margin-bottom:.5rem}
-.capability-card p{color:var(--text-sec);font-size:.95rem}
+
+.capability-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--bg-light);
+  color: var(--teal);
+  font-size: 1.8rem;
+}
+
+.capability-card h3 {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  margin-bottom: .5rem;
+  margin-top: 0;
+}
+
+.capability-card p {
+  color: var(--text-sec);
+  font-size: .95rem;
+  margin-top: 0;
+}
+
 
 /* ===== ADVANTAGE ===== */
 #advantage{background-color:var(--bg-medium)}
@@ -354,27 +372,77 @@ section:not(:first-of-type)::before{
 .usp-text h4{font-size:1.1rem;color:var(--text-main);margin-bottom:.2rem}
 .usp-text p{color:var(--text-sec);font-size:.95rem}
 
-/* ===== ABOUT ===== */
-.team-card{text-align:center;padding:2.5rem 1.5rem}
-.team-photo-placeholder{
-  width:120px;height:120px;border-radius:50%;background:var(--bg-light);
-  margin:0 auto 1.5rem auto;display:flex;justify-content:center;align-items:center;
-  border:2px solid var(--card-border);
+ /* ===== ABOUT ===== */
+.team-card{
+  text-align:center;
+  padding:2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
-.team-photo-placeholder i{font-size:3rem;color:var(--text-dim)}
-.team-card h3{font-size:1.5rem;margin-bottom:.5rem;color:var(--text-main)}
-.team-card .title{font-size:1rem;color:var(--purple);margin-bottom:1.5rem;font-weight:600}
+
+.team-photo-placeholder {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  margin: 0 auto 2rem auto;
+  border: 3px solid var(--card-border);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+
+.team-photo-placeholder:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 229, 255, 0.15);
+}
+
+.team-photo-placeholder img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.team-card h3{
+  font-size: 1.7rem;
+  margin-bottom: .5rem;
+  color: var(--text-main);
+}
+
+.team-card .title{
+  font-size: 1.1rem;
+  color: var(--teal);
+  margin-bottom: 2rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
 .team-card .linkedin-link{
-  display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-light);
-  padding:.6rem 1.2rem;border:1px solid var(--card-border);border-radius:6px;
-  color:var(--text-main);text-decoration:none;font-size:.9rem;font-weight:500;
-  transition:background var(--t-fast),transform var(--t-fast);margin-top:auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content: center; /* Dodano, aby wyśrodkować zawartość */
+  gap:.5rem;
+  background:var(--bg-light);
+  padding:.6rem 1.2rem;
+  border:1px solid var(--card-border);
+  border-radius:6px;
+  color:var(--text-main);
+  text-decoration:none;
+  font-size:.9rem;
+  font-weight:500;
+  transition:background var(--t-fast),transform var(--t-fast), box-shadow var(--t-fast);
+  margin-top: auto;
 }
 .team-card .linkedin-link:hover{
   background:var(--bg-medium);transform:translateY(-2px);
   box-shadow:0 4px 10px rgba(0,229,255,.1);
 }
-.team-card .linkedin-link i{font-size:1.1rem}
+.team-card .linkedin-link i{
+  font-size:1.1rem;
+}
 
 /* ===== AUDIENCE ===== */
 #audience{text-align:center}
@@ -400,8 +468,7 @@ section:not(:first-of-type)::before{
 .mvp-features li:last-child{border-bottom:none}
 .mvp-icon{font-size:1.2rem;color:var(--teal);min-width:20px;text-align:center}
 .mvp-text{color:var(--text-sec);font-size:1rem}
-/* Styl przycisku logowania w sekcji MVP (używa .login-button) */
-/* Ta klasa jest zachowana dla przycisku Microsoft w sekcji MVP */
+
 .login-button{
   display: inline-flex;
   align-items: center;
@@ -421,7 +488,7 @@ section:not(:first-of-type)::before{
   z-index: 1;
   overflow: hidden;
   cursor: pointer;
-  font-family: inherit; /* Użyj fonta strony */
+  font-family: inherit;
 }
 .login-button i{
   font-size: 1.2rem;
@@ -437,7 +504,7 @@ section:not(:first-of-type)::before{
 #mvp .text-center .login-button.microsoft {
     margin-top: 2rem;
 }
-.login-button.microsoft:hover { /* Basic hover for MVP button */
+.login-button.microsoft:hover {
     background: var(--bg-medium);
     box-shadow: 0 4px 10px rgba(0,229,255,.1);
     transform: translateY(-2px);
@@ -485,15 +552,21 @@ section:not(:first-of-type)::before{
 footer {
   background: rgba(10, 10, 16, .7);
   backdrop-filter: var(--blur);
-  padding: 3rem 2rem;
+  padding: 3rem 2rem; /* Padding nagłówka/stopki kontroluje ich szerokość */
   text-align: center;
   border-top: 1px solid rgba(0, 229, 255, .1);
-  margin-top: var(--section-padding); /* Use variable */
+  margin-top: var(--section-padding);
   transition: padding var(--t-fast), margin-top var(--t-fast);
 }
 .footer-links{display:flex;gap:1.5rem;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
 .footer-links a{color:var(--text-sec);text-decoration:none;font-size:.9rem}
 .footer-links a:hover{color:var(--blue)}
+.footer-coffee-button {
+  margin-bottom: 1.5rem;
+}
+footer .btn-coffee {
+  display: inline-block;
+}
 .copy{color:var(--text-dim);font-size:.85rem;margin-top:1rem}
 
 /* ===== UTILITIES ===== */
@@ -511,141 +584,186 @@ footer {
 /* Targeting devices like 1024x600 (landscape, short height) */
 @media (max-width: 1100px) and (max-height: 650px) and (orientation: landscape) {
   :root {
-    --section-padding: 4rem; /* Significantly reduce section padding */
-    /* --header-height: 60px; Keep header height standard for landscape width */
+    --section-padding: 4rem;
+  }
+  .main-container {
+      padding-inline: 2.5rem; /* Dostosowany padding boczny */
   }
   .hero {
-    padding-bottom: 3rem; /* Reduce hero bottom padding */
-    min-height: calc(90vh - var(--header-height)); /* Slightly less than full viewport */
+    padding-bottom: 3rem;
+    min-height: calc(90vh - var(--header-height));
   }
   .section-title {
-    margin-bottom: 1rem; /* Reduce space below title */
-    font-size: clamp(2rem, 4vw, 3rem); /* Slightly smaller title */
+    margin-bottom: 1rem;
+    font-size: clamp(2rem, 4vw, 3rem);
   }
   .section-subtitle {
-    margin-bottom: 2.5rem; /* Reduce space below subtitle */
-    font-size: clamp(1rem, 2.5vw, 1.2rem); /* Slightly smaller subtitle */
+    margin-bottom: 2.5rem;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
   }
   footer {
-    margin-top: var(--section-padding); /* Match reduced padding */
-    padding: 2rem 1.5rem; /* Reduce footer padding */
+    margin-top: var(--section-padding);
+    padding: 2rem 1.5rem;
   }
   .info-card {
-     padding: 1.8rem; /* Reduce card padding */
+     padding: 1.8rem;
   }
+  .capability-card {
+     gap: 1rem;
+  }
+  .team-photo-placeholder {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .team-card h3 { font-size: 1.3rem; }
+  .team-card .title { font-size: 0.9rem; margin-bottom: 1.5rem; }
 }
 
 /* Standard Tablets & Smaller Laptops */
 @media (max-width: 992px) {
   /* Mobile Nav is already handled above */
-  :root {
-     /* Header height might need adjustment if content overlaps */
-     /* --header-height: 60px; */
+  .main-container {
+      padding-inline: 2.5rem; /* Dostosowany padding boczny */
+  }
+  .team-photo-placeholder {
+     width: 140px;
+     height: 140px;
   }
 }
 
 /* Smaller Tablets & Large Phones */
 @media (max-width: 768px) {
-   .hero-buttons .btn { /* Adjust button size */
+   .main-container{
+     padding-inline: 2rem; /* Dostosowany padding boczny */
+   }
+   :root {
+      --section-padding: 6rem;
+   }
+   .hero-buttons .btn {
       padding: 0.8rem 2rem;
       font-size: 0.9rem;
    }
    .hero-buttons {
-      gap: 1rem; /* Reduce gap between buttons */
-   }
-   .main-container{
-     padding-inline:1.5rem; /* Reduce side padding */
-   }
-   :root {
-      --section-padding: 6rem; /* Slightly reduce section padding */
+      gap: 1rem;
    }
    footer {
       margin-top: var(--section-padding);
    }
+   .capability-card {
+      gap: 1.2rem;
+   }
+   .team-photo-placeholder {
+      width: 130px;
+      height: 130px;
+      margin-bottom: 1.8rem;
+   }
+   .team-card h3 { font-size: 1.5rem; }
+   .team-card .title { font-size: 1rem; margin-bottom: 1.8rem; }
 }
 
 
 /* Large Phones & Small Tablets Portrait (includes 540px width) */
-@media (max-width: 600px){ /* Changed from 576px */
+@media (max-width: 600px){
   :root{
-      --section-padding: 4rem; /* Further reduce padding */
-      --header-height: 60px; /* Fixed smaller header height */
+      --section-padding: 4rem;
+      --header-height: 60px;
+  }
+  .main-container{
+      padding-inline: 1.5rem; /* Dostosowany padding boczny */
+      margin-top: var(--header-height);
   }
   header{
       padding:.7rem 1.2rem;
-      /* Height set by variable */
   }
-  .main-container{
-      padding-inline:1rem;
-      margin-top: var(--header-height); /* Use variable */
-  }
-
-  .logo-text{font-size:1.1rem} /* Slightly smaller logo text */
-  .grid-container{gap:1.5rem} /* Reduce grid gap */
+  .logo-text{font-size:1.1rem}
+  .grid-container{gap:1.5rem}
   .hero h1{font-size:clamp(2.2rem,9vw,3.2rem)}
   .hero p.subtitle{font-size:clamp(1rem,4.5vw,1.25rem)}
-
-  .hero-buttons .btn { /* Make buttons larger, stack vertically */
-    padding: 0.8rem 1.5rem; /* Adjust padding */
-    font-size: 0.9rem; /* Adjust font size */
-    width: 80%; /* Make buttons wider */
-    max-width: 300px; /* Set a max width */
+  .hero-buttons .btn-login {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
   }
-   .hero-buttons { /* Stack buttons */
-    flex-direction: column;
-    gap: 1rem; /* Adjust gap */
+   .hero-buttons {
+    gap: 1rem;
   }
-
-  /* Original styles for small screens */
   .section-title{font-size:clamp(1.8rem,7vw,2.6rem)}
   .section-subtitle{font-size:clamp(.95rem,3.8vw,1.1rem);margin-bottom:3rem}
   .problem-container,
   .grid-2-cols,
-  .grid-3-cols{grid-template-columns:1fr} /* Force single column */
+  .grid-3-cols{grid-template-columns:1fr}
   .info-card{padding:1.8rem}
   .submit-button{padding:.8rem 1.5rem;font-size:.95rem}
   footer{
       padding:2rem 1.2rem;
-      margin-top: var(--section-padding); /* Use variable */
+      margin-top: var(--section-padding);
   }
-  .login-button.microsoft { /* Adjust MVP button */
+  .login-button.microsoft {
       font-size: .9rem;
       padding: .8rem 1.5rem;
   }
+  footer .btn-coffee {
+      padding: 0.8rem 1.5rem;
+      font-size: 0.9rem;
+  }
+   .capability-card {
+      gap: 1rem;
+   }
+   .team-photo-placeholder {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1.5rem;
+      border-width: 2px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+   }
+   .team-card h3 { font-size: 1.4rem; }
+   .team-card .title { font-size: 0.95rem; margin-bottom: 1.5rem; }
 }
 
 /* Very Narrow Phones (360px, 375px) */
 @media (max-width: 400px) {
   :root {
-     --header-height: 56px; /* Slightly smaller header */
-  }
-  header {
-      padding: 0.6rem 1rem; /* Reduce header padding */
-      /* Height set by variable */
+     --header-height: 56px;
   }
   .main-container {
-      margin-top: var(--header-height); /* Use variable */
-      padding-inline: 0.8rem; /* Reduce side padding further */
+      margin-top: var(--header-height);
+      padding-inline: 1rem; /* Dostosowany padding boczny */
   }
-  .logo-text { font-size: 1rem; } /* Even smaller logo text */
-  .logo { gap: 0.5rem; } /* Reduce gap in logo */
-  .quantum-logo { width: 30px; height: 30px; } /* Scale down logo graphic slightly */
-  @keyframes orbit{to{transform:rotate(360deg) translateX(13px) rotate(-360deg)}} /* Adjust orbit */
+  header {
+      padding: 0.6rem 1rem;
+  }
+  .logo-text { font-size: 1rem; }
+  .logo { gap: 0.5rem; }
+  .quantum-logo { width: 30px; height: 30px; }
+  @keyframes orbit{to{transform:rotate(360deg) translateX(13px) rotate(-360deg)}}
 
-  .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); } /* Adjust hero title size */
-  .hero p.subtitle { font-size: clamp(0.9rem, 4vw, 1.1rem); } /* Adjust hero subtitle size */
-
-  .hero-buttons .btn { /* Adjust hero buttons for very narrow screens */
-    width: 90%; /* Make buttons take almost full width */
+  .hero h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .hero p.subtitle { font-size: clamp(0.9rem, 4vw, 1.1rem); }
+  .hero-buttons .btn-login {
+    width: 90%;
     padding: 0.7rem 1.2rem;
     font-size: 0.85rem;
   }
-  .hero-buttons { gap: 0.8rem; } /* Reduce gap */
-
+  .hero-buttons { gap: 0.8rem; }
   .section-title { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
   .section-subtitle { font-size: clamp(0.9rem, 3.5vw, 1rem); margin-bottom: 2.5rem;}
-  .info-card { padding: 1.5rem; } /* Reduce card padding */
+  .info-card { padding: 1.5rem; }
   .login-button.microsoft { font-size: .85rem; padding: .7rem 1.2rem; }
   .submit-button { font-size: .9rem; padding: .7rem 1.5rem; }
   footer { padding: 1.5rem 1rem; }
+  footer .btn-coffee {
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
+      width: 90%;
+      max-width: 280px;
+  }
+   .capability-card {
+      gap: 0.8rem;
+   }
+   .team-photo-placeholder {
+      width: 110px;
+      height: 110px;
+   }
+   .team-card h3 { font-size: 1.3rem; }
+   .team-card .title { font-size: 0.9rem; }
 }

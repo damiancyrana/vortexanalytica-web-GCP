@@ -1,19 +1,125 @@
-{% extends "error_base.html" %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Błąd{% endblock %} - Vortex Analytica</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    {# Odwołanie do CSS - dostosuj ścieżkę, jeśli jest inna dla stron błędów #}
+    {# Może być potrzebny CSS podobny do landing_page lub dedykowany dla błędów #}
+    <link rel="stylesheet" href="/static/css/landing_page.css" />
+    <style>
+        /* Dodatkowe style specyficzne dla stron błędów */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+        }
+        .error-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            backdrop-filter: var(--blur);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: var(--pink); /* Kolor ikony błędu */
+            margin-bottom: 1.5rem;
+        }
+        .error-code {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .error-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            color: var(--text-sec);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        .error-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .error-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .8rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--t-fast);
+            border: 1px solid var(--card-border);
+            background: var(--bg-light);
+            color: var(--text-main);
+        }
+        .error-btn i {
+            font-size: 1rem;
+        }
+        .error-btn:hover {
+            background: var(--bg-medium);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,229,255,.1);
+        }
+         .error-btn.secondary {
+            background: transparent;
+            color: var(--text-sec);
+        }
+        .error-btn.secondary:hover {
+            background: var(--bg-light);
+             color: var(--text-main);
+        }
 
-{% block title %}Strona nie znaleziona{% endblock %}
+         /* Responsywność dla kontenera błędu */
+         @media (max-width: 600px) {
+            .error-container { padding: 2rem 1rem; }
+            .error-icon { font-size: 3rem; }
+            .error-code { font-size: 4rem; }
+            .error-title { font-size: 1.5rem; }
+            .error-message { font-size: 0.95rem; }
+            .error-actions { flex-direction: column; gap: 0.8rem; }
+            .error-btn { width: 80%; justify-content: center; }
+         }
 
-{% block error_code %}404{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="{% block error_icon %}fas fa-exclamation-circle{% endblock %}"></i>
+        </div>
+        <div class="error-code">{% block error_code %}Błąd{% endblock %}</div>
+        <h1 class="error-title">{% block error_title %}Wystąpił błąd{% endblock %}</h1>
+        <p class="error-message">
+            {% block error_message %}Przepraszamy, napotkano nieoczekiwany problem.{% endblock %}
+        </p>
+        <div class="error-actions">
+            {% block error_actions %}
+            <a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+            {% endblock %}
+        </div>
+    </div>
 
-{% block error_icon %}fas fa-search{% endblock %}
-
-{% block error_title %}Strona nie znaleziona{% endblock %}
-
-{% block error_message %}
-Przepraszamy, ale nie mogliśmy znaleźć strony, której szukasz. 
-Adres URL mógł zostać zmieniony lub strona mogła zostać usunięta.
-{% endblock %}
-
-{% block error_actions %}
-<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
-<a href="javascript:history.back()" class="error-btn secondary"><i class="fas fa-arrow-left"></i> Wróć do poprzedniej strony</a>
-{% endblock %}
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

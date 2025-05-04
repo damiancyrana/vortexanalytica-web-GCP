@@ -9,7 +9,7 @@
   --purple: #b967ff;
   --text-sec: rgba(240, 240, 245, 0.75);
   --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
-  --blur: blur(12px);
+  --blur: blur(10px); /* Lekko zmniejszony blur dla subtelniejszego efektu */
 
   /* Light Theme Specific Colors */
   --bg-body-light: #f0f2f5;
@@ -38,8 +38,8 @@
   --header-border-dark: rgba(0, 229, 255, .1);
   --footer-bg-dark: rgba(10, 10, 16, .9);
   --footer-border-dark: rgba(0, 229, 255, .1);
-  --item-bg-dark: rgba(26, 31, 54, 0.8);
-  --container-bg-dark: rgba(10, 10, 16, 0.65);
+  --item-bg-dark: rgba(26, 31, 54, 0.7); /* Lekko zmniejszona nieprzezroczystość tła */
+  --container-bg-dark: rgba(10, 10, 16, 0.6); /* Lekko zmniejszona nieprzezroczystość */
   --item-border-dark: rgba(0, 229, 255, 0.1);
   --control-bg-dark: rgba(0, 0, 0, 0.2);
   --link-color-dark: var(--blue);
@@ -63,9 +63,9 @@
   /* Common Variables */
   --accent-color: var(--blue);
   --accent-color-hover: var(--teal);
-  --footer-height: 50px;
-  --content-max-width: 90%; /* Możesz dostosować, np. 1200px dla stałej szerokości */
-  --header-height: 65px; /* Initial header height estimation */
+  --footer-height: 45px; /* Zmniejszona wysokość stopki */
+  --content-max-width: 95%; /* Zwiększona szerokość dla lepszego wykorzystania przestrzeni */
+  --header-height: 60px; /* Zmniejszona wysokość nagłówka */
   --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 
   /* Logout Button Variables */
@@ -83,6 +83,7 @@ body {
   color: var(--current-text-color);
   display: flex; flex-direction: column; position: relative;
   transition: background-color var(--t-fast), color var(--t-fast);
+  font-size: 15px; /* Lekkie zmniejszenie bazowej czcionki */
 }
 
 /* Dark mode with deep teal gradient background - matching provided image */
@@ -94,73 +95,73 @@ body.dark-theme {
 #quantum-field {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   z-index: -1; pointer-events: none; display: block;
-  opacity: 0.3;
+  opacity: 0.25; /* Zmniejszona domyślna opacity */
   transition: opacity 0.5s ease-in-out;
 }
 body.dark-theme #quantum-field {
-  opacity: 0.6;
+  opacity: 0.5; /* Zmniejszona opacity w trybie ciemnym */
 }
 
-/* Header - Updated to match landing_page.css */
+/* Header */
 header {
-  position: fixed; /* Changed from relative to fixed */
-  inset: 0 0 auto; /* Added to match landing_page.css */
+  position: fixed;
+  inset: 0 0 auto;
   width: 100%;
-  height: var(--header-height); /* Use variable for height */
+  height: var(--header-height);
   background: var(--current-header-bg);
   border-bottom: 1px solid var(--current-header-border);
-  backdrop-filter: blur(12px);
-  padding: 0 2rem; /* Adjust padding for variable height */
+  backdrop-filter: var(--blur); /* Użycie zmiennej --blur */
+  padding: 0 1.5rem; /* Zmniejszony padding */
   z-index: 1000;
-  display: flex; /* Added to match landing_page.css */
-  justify-content: space-between; /* Added to match landing_page.css */
-  align-items: center; /* Added to match landing_page.css */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   transition: background-color var(--t-fast), border-color var(--t-fast), height var(--t-fast), padding var(--t-fast);
   box-sizing: border-box;
 }
 
 .header-container {
-  display: flex; align-items: center; justify-content: space-between; /* Zmieniono na space-between */
-  width: 100%; max-width: var(--content-max-width); /* Ograniczenie szerokości */
-  margin: 0 auto; /* Wycentrowanie kontenera */
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; max-width: var(--content-max-width);
+  margin: 0 auto;
   box-sizing: border-box;
-  gap: 20px; /* Zachowaj odstęp ogólny */
+  gap: 15px; /* Zmniejszony odstęp */
 }
 .header-right-group {
     display: flex; align-items: center;
-    /* Zaktualizowano: Zmniejszono gap i usunięto margin-left: auto */
-    gap: 1.5rem; /* Zmniejszony odstęp */
-    /* margin-left: auto; <= Usunięte */
+    gap: 1.2rem; /* Zmniejszony odstęp */
 }
 
 /* Logo */
-.logo { display: flex; align-items: center; flex-shrink: 0; } /* Dodano flex-shrink */
+.logo { display: flex; align-items: center; flex-shrink: 0; }
 .logo-text {
   background: var(--gradient-text); -webkit-background-clip: text;
   background-clip: text; color: transparent; font-family: 'Exo 2', sans-serif;
-  font-size: 1.3rem; font-weight: 600; letter-spacing: .05em;
+  font-size: 1.2rem; /* Zmniejszony rozmiar czcionki */
+  font-weight: 600; letter-spacing: .04em; /* Zmniejszony letter-spacing */
   text-transform: uppercase; line-height: 1; text-shadow: none;
-  white-space: nowrap; /* Zapobiegaj zawijaniu logo */
+  white-space: nowrap;
 }
 
 /* Navigation */
 .nav-buttons {
     display: flex;
-    /* Zaktualizowano: Zmniejszono gap */
-    gap: 2rem; /* Zmniejszony odstęp */
+    gap: 1.5rem; /* Zmniejszony odstęp */
     align-items: center;
-    flex-shrink: 0; /* Dodano flex-shrink */
+    flex-shrink: 0;
 }
 .nav-btn {
   background: transparent; border: none; padding: 0; margin: 0; outline: none;
   width: auto; height: auto; cursor: pointer; color: var(--current-text-muted);
-  font-size: .9rem; font-weight: 400; text-transform: uppercase;
-  letter-spacing: .03em; text-decoration: none; transition: color var(--t-fast);
-  position: relative; padding-bottom: 5px;
-  white-space: nowrap; /* Zapobiegaj zawijaniu tekstu przycisków */
+  font-size: .85rem; /* Zmniejszony rozmiar czcionki */
+  font-weight: 400; text-transform: uppercase;
+  letter-spacing: .02em; /* Zmniejszony letter-spacing */
+  text-decoration: none; transition: color var(--t-fast), padding var(--t-fast);
+  position: relative; padding-bottom: 4px; /* Zmniejszony padding */
+  white-space: nowrap;
 }
-.nav-btn span { display: flex; align-items: center; justify-content: center; gap: 6px; color: inherit; z-index: 1; position: static; }
-.nav-btn i { font-size: 1rem; color: inherit; }
+.nav-btn span { display: flex; align-items: center; justify-content: center; gap: 5px; color: inherit; z-index: 1; position: static; }
+.nav-btn i { font-size: 0.9rem; color: inherit; transition: font-size var(--t-fast); } /* Zmniejszony rozmiar ikony */
 .nav-btn:hover, .nav-btn.active { color: var(--accent-color); }
 .nav-btn::after {
   content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
@@ -172,26 +173,26 @@ header {
 .user-controls {
     display: flex;
     align-items: center;
-    /* Zaktualizowano: Zmniejszono gap */
-    gap: 1rem; /* Zmniejszony odstęp */
-    flex-shrink: 0; /* Dodano flex-shrink */
+    gap: 0.8rem; /* Zmniejszony odstęp */
+    flex-shrink: 0;
 }
 .user-info {
     color: var(--current-text-color);
-    font-size: 0.9rem; /* Lekko zmniejszono */
-    white-space: nowrap; /* Zapobiegaj zawijaniu */
+    font-size: 0.85rem; /* Zmniejszony rozmiar czcionki */
+    white-space: nowrap;
 }
 #user-display-name { font-weight: 600; color: var(--accent-color); }
 
-/* Main Content Area - Adjusted for fixed header */
+/* Main Content Area */
 .main-content {
   flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
   width: 100%; max-width: var(--content-max-width); margin: 0 auto;
-  padding: 20px; box-sizing: border-box; position: relative;
+  padding: 15px; /* Zmniejszony padding */
+  box-sizing: border-box; position: relative;
   background-color: transparent; z-index: 1;
-  margin-top: var(--header-height); /* Use variable for dynamic margin */
-  height: calc(100vh - var(--header-height) - var(--footer-height)); /* Calculate height */
-  transition: margin-top var(--t-fast);
+  margin-top: var(--header-height);
+  height: calc(100vh - var(--header-height) - var(--footer-height));
+  transition: margin-top var(--t-fast), padding var(--t-fast);
 }
 .main-content main {
     flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;
@@ -199,7 +200,7 @@ header {
     height: 100%; /* Ensure main takes available space */
 }
 
-/* Logout Button */
+/* Logout Button - bez zmian, zachowano oryginalny styl */
 .logoutButton{
     --figure-duration:100;--transform-figure:none;--walking-duration:100;
     --transform-arm1:none;--transform-wrist1:none;--transform-arm2:none;
@@ -210,12 +211,11 @@ header {
     color:var(--logout-light);cursor:pointer;display:block;
     font-family:'Exo 2',sans-serif;font-size:14px;font-weight:500;
     perspective:100px;position:relative;-webkit-tap-highlight-color:transparent;
-    /* Zaktualizowano: Usunięto duży margin-right */
-    /* margin-right:100px; <= Usunięte */
+    transition: width var(--t-fast), height var(--t-fast), background-color var(--t-fast), border var(--t-fast), border-radius var(--t-fast), padding var(--t-fast);
 }
-.logoutButton::before{content:'';background-color:var(--logout-dark);border-radius:5px;display:block;height:100%;left:0;position:absolute;top:0;transform:none;transition:transform .05s ease;width:100%;z-index:2}
-.logoutButton .button-text{color:var(--logout-light);font-weight:500;position:relative;z-index:10;line-height:40px}
-.logoutButton svg{display:block;position:absolute}
+.logoutButton::before{content:'';background-color:var(--logout-dark);border-radius:5px;display:block;height:100%;left:0;position:absolute;top:0;transform:none;transition:transform .05s ease, opacity var(--t-fast);width:100%;z-index:2}
+.logoutButton .button-text{color:var(--logout-light);font-weight:500;position:relative;z-index:10;line-height:40px; transition: opacity var(--t-fast); }
+.logoutButton svg{display:block;position:absolute; transition: opacity var(--t-fast);}
 .logoutButton .figure{bottom:5px;fill:var(--logout-middle);right:18px;transform:var(--transform-figure);transition:transform calc(var(--figure-duration)*1ms) cubic-bezier(.2,.1,.8,.9);width:30px;z-index:4}
 .logoutButton .door,.logoutButton .doorway{bottom:4px;fill:var(--logout-light);right:12px;width:32px}
 .logoutButton .door{transform:rotateY(0deg);transform-origin:100% 50%;transform-style:preserve-3d;transition:transform .2s ease;z-index:5}
@@ -242,6 +242,24 @@ body:not(.dark-theme) .logoutButton .button-text{color:var(--text-color-light)}
 body:not(.dark-theme) .logoutButton .door,body:not(.dark-theme) .logoutButton .doorway{fill:var(--text-color-light)}
 body:not(.dark-theme) .logoutButton .door path{fill:var(--accent-color);stroke:var(--accent-color)}
 body:not(.dark-theme) .logoutButton .figure{fill:var(--accent-color)}
+
+/* Logout Icon Style (Used in mobile view) */
+.logoutButton::after {
+    content: ""; /* Initially empty */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0; /* Initially hidden */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--logout-light);
+    z-index: 10;
+    opacity: 0;
+    transition: font-size var(--t-fast), opacity var(--t-fast), color var(--t-fast);
+}
+body:not(.dark-theme) .logoutButton::after { color: var(--text-color-light); }
+
 @keyframes spin{0%{transform:rotate(0deg) scale(.94)}to{transform:rotate(359deg) scale(.94)}}
 @keyframes shake{0%,to{transform:rotate(-1deg)}50%{transform:rotate(2deg)}}
 @keyframes flash{0%{opacity:.4}to{opacity:0}}
@@ -251,10 +269,10 @@ body:not(.dark-theme) .logoutButton .figure{fill:var(--accent-color)}
 .view-section.active { display: grid; } /* Domyślnie grid, JS zmieni na flex dla #overview-view */
 #overview-view.active { display: flex; flex-direction: column; } /* Nadpisanie dla overview */
 
-/* Feed View Specific Grid - Removed borders and background */
+/* Feed View Specific Grid (Desktop) */
 #feed-view {
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 15px; /* Zmniejszony odstęp */
   flex-grow: 1;
   overflow: hidden;
   height: 100%;
@@ -262,14 +280,14 @@ body:not(.dark-theme) .logoutButton .figure{fill:var(--accent-color)}
   border: none;
 }
 
-/* Message Containers */
+/* Message Containers (Desktop) */
 .messages-container,
 .narrative-clusters-container {
-  border-radius: 10px;
+  border-radius: 8px; /* Zmniejszony border-radius */
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100%; /* Important for flex child */
+  height: 100%;
   box-sizing: border-box;
   transition: background-color var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
   background-color: transparent;
@@ -279,22 +297,22 @@ body.dark-theme .messages-container,
 body.dark-theme .narrative-clusters-container {
   background-color: transparent;
   border: 1px solid var(--border-color-dark);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(4px); /* Zmniejszony blur */
 }
 
 body:not(.dark-theme) .messages-container,
 body:not(.dark-theme) .narrative-clusters-container {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.65); /* Lekko zmniejszona nieprzezroczystość */
   border: 1px solid var(--current-border-color);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(4px); /* Zmniejszony blur */
 }
 
-/* Message Headers - Transparent with just bottom border */
+/* Message Headers */
 .messages-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
+  padding: 12px 15px; /* Zmniejszony padding pionowy */
   flex-shrink: 0;
   border-bottom: 1px solid var(--current-border-color);
   background-color: transparent;
@@ -303,81 +321,90 @@ body:not(.dark-theme) .narrative-clusters-container {
 
 body.dark-theme .messages-header {
   background-color: transparent;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15); /* Lekko subtelniejsza linia */
 }
 
 body:not(.dark-theme) .messages-header {
   background-color: transparent;
 }
 
-.messages-title { display: flex; align-items: center; gap: 10px; color: var(--current-text-color); font-weight: 600; font-size: 1.1rem; }
-.messages-controls { display: flex; gap: 8px; }
+.messages-title { display: flex; align-items: center; gap: 8px; color: var(--current-text-color); font-weight: 600; font-size: 1rem; } /* Zmniejszony rozmiar i odstęp */
+.messages-controls { display: flex; gap: 6px; } /* Zmniejszony odstęp */
 .message-filter {
   background-color: var(--current-control-bg); color: var(--current-text-color);
   border: 1px solid var(--current-border-color); border-radius: 4px;
-  padding: 5px 10px; font-size: 0.85rem; font-family: inherit;
+  padding: 4px 8px; /* Zmniejszony padding */
+  font-size: 0.8rem; /* Zmniejszony rozmiar czcionki */
+  font-family: inherit;
   transition: background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast);
 }
 .message-filter:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 2px rgba(from var(--accent-color) r g b / 0.3); }
 .message-action {
   background-color: var(--current-control-bg); color: var(--current-text-muted);
   border: 1px solid var(--current-border-color); border-radius: 4px;
-  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; /* Zmniejszony rozmiar */
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.2s ease;
 }
+.message-action i { font-size: 0.85rem; } /* Zmniejszony rozmiar ikony */
 .message-action:hover { background-color: rgba(from var(--accent-color) r g b / 0.1); color: var(--accent-color); border-color: var(--accent-color); }
 
 /* Message List */
 .message-list {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 15px;
+  padding: 12px; /* Zmniejszony padding */
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px; /* Zmniejszony odstęp */
   transition: padding var(--t-fast), gap var(--t-fast);
 }
 
 /* Message Items */
 .message-item {
-  border-radius: 6px; padding: 12px; transition: all 0.3s ease;
-  min-height: 80px; display: flex; flex-direction: column;
+  border-radius: 5px; /* Zmniejszony border-radius */
+  padding: 10px; /* Zmniejszony padding */
+  min-height: 70px; /* Zmniejszona minimalna wysokość */
+  display: flex; flex-direction: column;
   justify-content: space-between; flex-shrink: 0;
-  transition: padding var(--t-fast), transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: padding var(--t-fast), transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; /* Szybsza tranzyscja */
 }
-body.dark-theme .message-item { background-color: var(--item-bg-dark); border: 1px solid var(--item-border-dark); backdrop-filter: blur(2px); }
+body.dark-theme .message-item { background-color: var(--item-bg-dark); border: 1px solid var(--item-border-dark); backdrop-filter: blur(1px); } /* Minimalny blur */
 body:not(.dark-theme) .message-item { background-color: var(--current-item-bg); border: 1px solid var(--current-item-border); }
 
 body.dark-theme .message-item:hover {
-  transform: translateY(-3px) scale(1.01); border-color: rgba(0, 229, 255, 0.4);
-  background-color: rgba(36, 41, 74, 0.85); box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+  transform: translateY(-2px) scale(1.005); /* Subtelniejszy hover */
+  border-color: rgba(0, 229, 255, 0.3); /* Subtelniejszy hover */
+  background-color: rgba(36, 41, 74, 0.75); /* Subtelniejszy hover */
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.1); /* Subtelniejszy hover */
 }
 body:not(.dark-theme) .message-item:hover {
-   transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+   transform: translateY(-1px); /* Subtelniejszy hover */
+   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); /* Subtelniejszy hover */
    border-color: var(--accent-color);
 }
 
-.message-item .message-header { display: flex; justify-content: space-between; margin-bottom: 8px; padding: 0; border-bottom: none; align-items: baseline; flex-shrink: 0; background: transparent; }
-.message-item .message-title { font-weight: 600; color: var(--current-text-color); font-size: 1rem; gap: 0; }
-.message-time, .narrative-strength { font-size: 0.8rem; color: var(--current-text-muted); white-space: nowrap; margin-left: 10px; }
-.message-content { color: var(--current-text-color); opacity: 0.85; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px; flex-grow: 1; transition: font-size var(--t-fast); }
+.message-item .message-header { display: flex; justify-content: space-between; margin-bottom: 6px; padding: 0; border-bottom: none; align-items: baseline; flex-shrink: 0; background: transparent; }
+.message-item .message-title { font-weight: 600; color: var(--current-text-color); font-size: 0.95rem; gap: 0; } /* Zmniejszony rozmiar */
+.message-time, .narrative-strength { font-size: 0.75rem; color: var(--current-text-muted); white-space: nowrap; margin-left: 8px; } /* Zmniejszony rozmiar i margines */
+.message-content { color: var(--current-text-color); opacity: 0.8; font-size: 0.85rem; line-height: 1.35; margin-bottom: 8px; flex-grow: 1; transition: font-size var(--t-fast); } /* Zmniejszony rozmiar i margines */
 .message-footer { display: flex; justify-content: flex-start; flex-shrink: 0; }
-.message-category { font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
-.message-category.equities { background-color: rgba(52, 152, 219, 0.2); color: #3498db; }
-.message-category.crypto { background-color: rgba(241, 196, 15, 0.2); color: #f1c40f; }
-.message-category.forex { background-color: rgba(46, 204, 113, 0.2); color: #2ecc71; }
-.message-category.commodities { background-color: rgba(230, 126, 34, 0.2); color: #e67e22; }
+.message-category { font-size: 0.65rem; font-weight: 600; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.4px; text-transform: uppercase; } /* Zmniejszony rozmiar i padding */
+.message-category.equities { background-color: rgba(52, 152, 219, 0.15); color: #3498db; } /* Subtelniejsze tło */
+.message-category.crypto { background-color: rgba(241, 196, 15, 0.15); color: #f1c40f; } /* Subtelniejsze tło */
+.message-category.forex { background-color: rgba(46, 204, 113, 0.15); color: #2ecc71; } /* Subtelniejsze tło */
+.message-category.commodities { background-color: rgba(230, 126, 34, 0.15); color: #e67e22; } /* Subtelniejsze tło */
 
 /* Strength Bar */
-.strength-bar-container { height: 4px; border-radius: 2px; overflow: hidden; margin-top: 10px; flex-shrink: 0; }
-body.dark-theme .strength-bar-container { background-color: rgba(255, 255, 255, 0.08); }
-body:not(.dark-theme) .strength-bar-container { background-color: rgba(from var(--current-border-color) r g b / 0.3); }
+.strength-bar-container { height: 3px; border-radius: 1.5px; overflow: hidden; margin-top: 8px; flex-shrink: 0; } /* Cieńszy pasek */
+body.dark-theme .strength-bar-container { background-color: rgba(255, 255, 255, 0.06); } /* Subtelniejsze tło */
+body:not(.dark-theme) .strength-bar-container { background-color: rgba(from var(--current-border-color) r g b / 0.2); } /* Subtelniejsze tło */
 
-.strength-bar { height: 100%; background-color: var(--accent-color); border-radius: 2px; transition: width 0.5s ease-out; }
-body.dark-theme .strength-bar { box-shadow: 0 0 5px rgba(from var(--accent-color) r g b / 0.5); }
+.strength-bar { height: 100%; background-color: var(--accent-color); border-radius: 1.5px; transition: width 0.5s ease-out; }
+body.dark-theme .strength-bar { box-shadow: 0 0 4px rgba(from var(--accent-color) r g b / 0.4); } /* Subtelniejszy cień */
 
-.fade-in { animation: fadeIn 0.5s ease-in; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease-in; } /* Szybsza animacja */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } } /* Mniejszy ruch */
 
 /* Footer */
 footer {
@@ -386,26 +413,28 @@ footer {
   height: var(--footer-height); display: flex; align-items: center;
   position: relative; z-index: 1;
   transition: background-color var(--t-fast), border-color var(--t-fast), height var(--t-fast), padding var(--t-fast);
+  backdrop-filter: var(--blur); /* Dodano blur dla spójności */
 }
 .footer-container {
   display: flex; justify-content: space-between; align-items: center;
   width: 100%; max-width: var(--content-max-width); margin: 0 auto;
-  padding: 0 20px; box-sizing: border-box;
+  padding: 0 1.5rem; /* Zmniejszony padding, spójny z headerem */
+  box-sizing: border-box;
   transition: padding var(--t-fast);
 }
-.footer-left { display: flex; align-items: center; gap: 15px; }
-.copyright { font-size: 0.85rem; color: var(--current-text-muted); }
+.footer-left { display: flex; align-items: center; gap: 12px; } /* Zmniejszony odstęp */
+.copyright { font-size: 0.8rem; color: var(--current-text-muted); } /* Zmniejszony rozmiar */
 footer .theme-toggle { display: flex; align-items: center; }
 footer .theme-toggle-btn {
   background: transparent; border: 1px solid var(--current-border-color);
-  border-radius: 50%; width: 30px; height: 30px; display: flex;
+  border-radius: 50%; width: 28px; height: 28px; display: flex; /* Zmniejszony rozmiar */
   align-items: center; justify-content: center; color: var(--current-text-muted);
   cursor: pointer; transition: all 0.3s ease; padding: 0;
 }
-footer .theme-toggle-btn i { font-size: 0.8rem; }
+footer .theme-toggle-btn i { font-size: 0.75rem; } /* Zmniejszony rozmiar ikony */
 footer .theme-toggle-btn:hover { color: var(--accent-color); border-color: var(--accent-color); background-color: rgba(from var(--accent-color) r g b / 0.1); }
-.footer-links { display: flex; align-items: center; gap: 15px; }
-.footer-link { font-size: 0.85rem; color: var(--current-link-color); text-decoration: none; transition: color 0.3s ease; }
+.footer-links { display: flex; align-items: center; gap: 12px; } /* Zmniejszony odstęp */
+.footer-link { font-size: 0.8rem; color: var(--current-link-color); text-decoration: none; transition: color 0.3s ease; } /* Zmniejszony rozmiar */
 .footer-link:hover { color: var(--accent-color); }
 
 /* Dark Theme Variable Overrides */
@@ -438,137 +467,243 @@ body.dark-theme {
 /* Targeting devices like 1024x600 (landscape, short height) */
 @media (max-width: 1100px) and (max-height: 650px) and (orientation: landscape) {
   :root {
-    --header-height: 55px; /* Slightly smaller header */
-    --footer-height: 40px; /* Slightly smaller footer */
+    --header-height: 50px; /* Further reduced header height */
+    --footer-height: 35px; /* Further reduced footer height */
   }
-  header { padding: 0 1.5rem; }
+  header { padding: 0 1.2rem; }
   .main-content {
-      padding: 10px; /* Reduce padding */
-      /* Height is recalculated automatically */
+      /* Keep original padding for landscape tablet */
+      padding: 10px 12px;
+      height: calc(100vh - var(--header-height) - var(--footer-height)); /* Ensure height calculation uses updated vars */
   }
-  .messages-header { padding: 10px; }
-  .messages-title { font-size: 1rem; } /* Slightly smaller title */
-  .message-list { padding: 10px; gap: 10px; }
-  .message-item { padding: 10px; }
-  .message-content { font-size: 0.85rem; line-height: 1.3; }
-  .logo-text { font-size: 1.2rem; }
-  .nav-btn { font-size: 0.85rem; }
-  .user-info { font-size: 0.85rem; }
-  footer { padding: 0 1.5rem; }
-  .copyright, .footer-link { font-size: 0.8rem; }
-  .footer-container { padding: 0 10px; }
+  .messages-header { padding: 8px 12px; }
+  .messages-title { font-size: 0.95rem; }
+  .message-list { padding: 8px; gap: 8px; }
+  .message-item { padding: 8px; }
+  .message-content { font-size: 0.8rem; line-height: 1.3; }
+  .logo-text { font-size: 1.1rem; }
+  .nav-btn { font-size: 0.8rem; }
+  .user-info { font-size: 0.8rem; }
+  footer { padding: 0 1.2rem; }
+  .copyright, .footer-link { font-size: 0.75rem; }
+  .footer-container { padding: 0 12px; }
 }
 
-
-/* Medium devices (tablets, large phones landscape) */
+/* =================================================================== */
+/* == Mobile Specific Layout (Premium Full-Screen Scroll Snap)      == */
+/* =================================================================== */
 @media (max-width: 900px) {
-   .header-right-group { gap: 1.5rem; } /* Gap is already updated */
+   .header-right-group { gap: 1rem; }
+   /* Dostosowania przycisku wylogowania pozostają bez zmian */
    .logoutButton {
        margin-right: 0; width: 100px; padding: 0 0 0 10px;
-       height: 35px; /* Match reduced nav size */
+       height: 35px;
        line-height: 35px;
    }
    .logoutButton .button-text { font-size: 12px; line-height: 35px; }
    .logoutButton .figure { right: 8px; width: 22px; bottom: 4px; }
    .logoutButton .door, .logoutButton .doorway { right: 4px; width: 25px; bottom: 3px; }
-   #feed-view { grid-template-columns: 1fr; } /* Stack columns */
-    .messages-container, .narrative-clusters-container {
-        height: calc( (100vh - var(--header-height) - var(--footer-height) - 20px - 40px) / 2 ); /* Approx half height minus gaps/padding */
-        min-height: 250px; /* Ensure minimum usable height */
-    }
-    .main-content { gap: 20px; } /* Add gap when stacked */
-}
 
-/* Small tablets and phones (portrait) */
-@media (max-width: 768px) {
-  :root {
-    --header-height: 60px; /* Slightly adjust header height */
-  }
-  header { padding: 0 1rem; }
-  .header-container { max-width: none; padding: 0; } /* Remove width limit */
-  .main-content { padding-left: 15px; padding-right: 15px; }
-  .footer-container { padding-left: 15px; padding-right: 15px; }
-  .user-welcome { display: none; } /* Hide text welcome */
-  .user-info { font-size: 0; } /* Hide username text visually */
-  #user-display-name::before { /* Show initial/icon instead */
-      content: attr(data-initial); /* Needs JS to set data-initial="JD" for John Doe */
-      display: inline-block;
-      width: 28px; height: 28px; line-height: 28px;
-      border-radius: 50%; background-color: var(--accent-color); color: var(--current-header-bg);
-      text-align: center; font-size: 0.8rem; font-weight: 600;
-      margin-right: 5px;
-  }
-  .nav-buttons { gap: 1.5rem; }
-  .header-right-group { gap: 1rem; }
-  .logoutButton { margin-right: 0; height: 35px; width: 90px; }
-  .messages-header { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .messages-container, .narrative-clusters-container {
-      /* Adjust height calculation if header/footer height changed */
-      height: calc( (100vh - var(--header-height) - var(--footer-height) - 20px - 30px) / 2 );
-  }
-}
+   /* --- Konfiguracja Scroll Snap dla Premium UX --- */
 
-/* Small phones (portrait) */
-@media (max-width: 600px) {
-  :root {
-     /* Keep header height from 768px */
-     --footer-height: auto; /* Footer height becomes dynamic */
-  }
-  header { padding: 0 10px; }
-  .main-content { padding: 15px 10px; } /* Slightly more vertical padding */
-  .footer-container { padding-left: 10px; padding-right: 10px; }
-
-  .user-controls { gap: 10px; }
-  .nav-btn { padding-bottom: 0; }
-  .nav-btn::after { display: none; }
-  .nav-btn span { display: none; } /* Hide nav button text */
-  .nav-btn i { font-size: 1.2rem; display: block; margin: 0 auto; } /* Center icon */
-  .nav-buttons { gap: 1.5rem; } /* Adjust gap for icons */
-
-  .logoutButton {
-      width: 35px; height: 35px; padding: 0; margin-right: 0;
-      background-color: var(--current-control-bg); /* Add background for visibility */
-      border: 1px solid var(--current-border-color); border-radius: 50%;
-  }
-  .logoutButton .button-text { display: none; }
-  .logoutButton svg { display: none; }
-  .logoutButton::after {
-      content: "\f2f5"; /* Font Awesome logout icon */
-      font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 1rem;
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      color: var(--current-text-muted); z-index: 10;
-      transition: color var(--t-fast);
+   /* 1. Główny kontener treści na mobile - bez paddingu, aby dzieci mogły wypełnić wysokość */
+   .main-content {
+       padding-top: 0; /* Usuń górny padding */
+       padding-bottom: 0; /* Usuń dolny padding */
+       padding-left: 0; /* Usuń lewy padding */
+       padding-right: 0; /* Usuń prawy padding */
+       overflow: hidden; /* Główny kontener nie przewija, robi to #feed-view */
+       height: calc(100vh - var(--header-height) - var(--footer-height)); /* Upewnij się, że wysokość jest poprawna */
    }
-   .logoutButton:hover::after { color: var(--accent-color); }
-   body:not(.dark-theme) .logoutButton::after { color: var(--text-muted-light); }
-   body:not(.dark-theme) .logoutButton:hover::after { color: var(--link-color-light); }
-   .logoutButton::before { display: none; } /* Hide original background element */
 
-  .user-info { display: none; } /* Hide user info completely */
+   /* 2. Kontener dla sekcji Feed (#feed-view) staje się kontenerem przewijania */
+   #feed-view {
+       display: flex; /* Użyj flexbox */
+       flex-direction: column; /* Ułóż sekcje pionowo */
+       height: 100%; /* Musi zajmować 100% wysokości .main-content */
+       overflow-y: auto; /* Włącz przewijanie pionowe TYLKO dla tego kontenera */
+       scroll-snap-type: y mandatory; /* Włącz przyciąganie w pionie, 'mandatory' zapewnia zatrzymanie na elemencie */
+       gap: 0; /* Usuń odstęp między sekcjami */
+       background-color: transparent; /* Upewnij się, że tło jest przezroczyste lub spójne */
+       /* Reset potential desktop grid styles */
+       grid-template-columns: 1fr;
+   }
 
-  footer { height: auto; }
-  .footer-container { flex-direction: column; gap: 8px; height: auto; padding-top: 10px; padding-bottom: 10px; }
-  .footer-left { order: 2; }
-  .footer-links { order: 1; }
-}
+   /* 3. Stylizowanie sekcji (dzieci scroll snap) */
+   .messages-container,
+   .narrative-clusters-container {
+       height: 100%; /* KAŻDA sekcja zajmuje DOKŁADNIE 100% wysokości kontenera #feed-view */
+       min-height: 100%; /* Wzmocnienie reguły wysokości */
+       width: 100%; /* Zajmij pełną szerokość */
+       flex-shrink: 0; /* Zapobiegaj kurczeniu się sekcji */
+       scroll-snap-align: start; /* Przyciągaj do GÓRNEJ krawędzi każdej sekcji */
+       scroll-snap-stop: always; /* Wymuś zatrzymanie na tym elemencie (dla płynniejszego efektu na niektórych przeglądarkach) */
 
-/* Very narrow phones (e.g., 360px, 375px) */
-@media (max-width: 380px) {
-  :root {
-     --header-height: 55px; /* Further reduce header height */
-  }
-  header { padding: 0 8px; }
-  .logo-text { font-size: 1.1rem; }
-  .nav-buttons { gap: 1rem; }
-  .nav-btn i { font-size: 1.1rem; }
-  .header-right-group { gap: 8px; }
-  .logoutButton { width: 32px; height: 32px; }
-  .logoutButton::after { font-size: 0.9rem; }
-  .messages-title { font-size: 1rem; }
-  .message-filter { padding: 4px 8px; font-size: 0.8rem; }
-  .message-action { width: 28px; height: 28px; }
-  .main-content { padding: 10px 8px; }
-  .message-item { padding: 10px; }
-  .message-content { font-size: 0.85rem; }
-  .message-category { font-size: 0.65rem; padding: 2px 6px;}
-}
+       /* --- Struktura wewnętrzna dla umożliwienia przewijania TREŚCI wewnątrz sekcji --- */
+       display: flex;
+       flex-direction: column;
+       overflow: hidden; /* WAŻNE: Ukryj przepełnienie samej sekcji, aby nie psuć layoutu */
+
+       /* Dostosowanie wyglądu - usuwamy zbędne obramowania/zaokrąglenia */
+       border-radius: 0;
+       border: none; /* Usuwamy wszystkie bordery - dodamy separator poniżej */
+       padding: 0; /* Usuwamy padding z kontenera sekcji */
+       box-sizing: border-box;
+       backdrop-filter: none; /* Remove backdrop filter if it causes issues with snap */
+   }
+
+   /* Dodanie wizualnego separatora (border-top) dla drugiej i kolejnych sekcji */
+    body.dark-theme .narrative-clusters-container {
+        border-top: 1px solid var(--border-color-dark);
+    }
+    body:not(.dark-theme) .narrative-clusters-container {
+        border-top: 1px solid var(--current-border-color);
+    }
+
+   /* 4. Nagłówek WEWNĄTRZ każdej sekcji */
+   .messages-header {
+       flex-shrink: 0; /* Nagłówek nie powinien się kurczyć */
+       padding: 10px 15px; /* Dodajemy padding z powrotem tutaj */
+       border-bottom: 1px solid var(--current-border-color); /* Przywracamy dolną granicę nagłówka */
+       border-top: none; /* Upewnij się, że nie ma górnej granicy */
+       border-left: none;
+       border-right: none;
+       border-radius: 0; /* Usuń zaokrąglenia */
+       background-color: rgba(from var(--current-item-bg) r g b / 0.8); /* Lekkie tło dla nagłówka dla oddzielenia od listy */
+       backdrop-filter: blur(3px); /* Minimalny blur dla nagłówka */
+       z-index: 2; /* Ensure header is above list content */
+   }
+    body.dark-theme .messages-header {
+        background-color: rgba(from var(--item-bg-dark) r g b / 0.7);
+        border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+    }
+
+
+   /* 5. Lista wiadomości WEWNĄTRZ każdej sekcji - to ona będzie przewijalna, jeśli treść jest dłuższa */
+   .message-list {
+       flex-grow: 1; /* Lista zajmuje pozostałą dostępną przestrzeń */
+       overflow-y: auto; /* Włącz przewijanie pionowe TYLKO dla listy, jeśli jej zawartość jest za długa */
+       padding: 15px; /* Dodaj padding z powrotem tutaj */
+       gap: 12px; /* Zachowaj odstęp między elementami listy */
+       height: auto; /* Wysokość jest dynamiczna, zarządzana przez flex-grow */
+        /* Opcjonalnie: Dodaj stylizację paska przewijania dla estetyki */
+       scrollbar-width: thin;
+       scrollbar-color: var(--accent-color) transparent;
+       background-color: var(--current-bg-body); /* Add background to list */
+       border-radius: 0; /* Ensure no radius inherited */
+   }
+
+    /* Adjust item background within list for better visibility on mobile */
+    body.dark-theme .message-list .message-item {
+      background-color: var(--item-bg-dark);
+      border: 1px solid var(--item-border-dark);
+    }
+    body:not(.dark-theme) .message-list .message-item {
+      background-color: var(--current-item-bg);
+      border: 1px solid var(--current-item-border);
+    }
+
+
+    /* Poprawki dla małych tabletów/telefonów w orientacji pionowej */
+    @media (max-width: 768px) {
+      :root {
+        --header-height: 55px; /* Dostosuj wg potrzeb */
+      }
+      header { padding: 0 1rem; }
+      .main-content {
+         /* Inherit full height calculation */
+         height: calc(100vh - var(--header-height) - var(--footer-height));
+      }
+      .footer-container { padding-left: 1rem; padding-right: 1rem; }
+      .user-welcome { display: none; }
+      .user-info { font-size: 0; }
+      #user-display-name::before {
+          content: attr(data-initial);
+          display: inline-block; width: 26px; height: 26px; line-height: 26px;
+          border-radius: 50%; background-color: var(--accent-color); color: var(--current-header-bg);
+          text-align: center; font-size: 0.75rem; font-weight: 600; margin-right: 5px;
+      }
+      .nav-buttons { gap: 1.2rem; }
+      .header-right-group { gap: 0.8rem; }
+      .logoutButton { margin-right: 0; height: 32px; width: 85px; }
+      /* Nagłówek wewnątrz sekcji - na mniejszych ekranach może wymagać innego layoutu */
+      .messages-header {
+         flex-direction: row; /* Wróć do wiersza */
+         align-items: center;
+         justify-content: space-between;
+         gap: 8px;
+         padding: 8px 12px; /* Zmniejsz padding */
+       }
+       .messages-title { font-size: 0.9rem; }
+       .message-filter { font-size: 0.75rem; padding: 3px 6px;}
+       .message-action { width: 26px; height: 26px; }
+       .message-action i { font-size: 0.8rem; }
+       .message-list { padding: 12px; gap: 10px;}
+    }
+
+    /* Poprawki dla małych telefonów */
+    @media (max-width: 600px) {
+       :root {
+         --footer-height: auto; /* Stopka dynamiczna */
+       }
+       header { padding: 0 10px; }
+       footer { backdrop-filter: none; } /* Usuń blur ze stopki jeśli nachodzi */
+       .footer-container { padding: 10px; flex-direction: column; gap: 8px; height: auto; }
+       .footer-left { order: 2; } .footer-links { order: 1; }
+
+       .user-controls { gap: 8px; }
+       .nav-btn { padding-left: 6px; padding-right: 6px; }
+       .nav-btn::after { display: none; } .nav-btn span { display: none; }
+       .nav-btn i { font-size: 1.2rem; display: block; margin: 0 auto; }
+       .nav-buttons { gap: 1.5rem; }
+
+       /* Przycisk wylogowania jako ikona */
+       .logoutButton {
+          width: 36px; height: 36px; padding: 0; margin-right: 0;
+          background-color: var(--current-control-bg); border: 1px solid var(--current-border-color); border-radius: 50%;
+       }
+       .logoutButton .button-text, .logoutButton svg, .logoutButton::before { display: none; opacity: 0; }
+       .logoutButton::after {
+          content: "\f2f5"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+          font-size: 1.1rem; opacity: 1; color: var(--logout-light);
+          position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;
+          transition: color var(--t-fast);
+       }
+       .logoutButton:hover::after { color: var(--accent-color); }
+       body:not(.dark-theme) .logoutButton::after { color: var(--text-muted-light); }
+       body:not(.dark-theme) .logoutButton:hover::after { color: var(--link-color-light); }
+
+       .user-info { display: none; }
+
+       /* Dostosowanie nagłówków i list w sekcjach */
+       .messages-header {
+           flex-direction: column; /* Na bardzo małych wracamy do kolumny */
+           align-items: flex-start;
+           gap: 6px;
+           padding: 8px 10px;
+       }
+       .messages-title { font-size: 0.9rem; }
+       .message-list { padding: 10px; gap: 8px;}
+       .message-item { padding: 8px; }
+       .message-content { font-size: 0.8rem; }
+       .message-category { font-size: 0.6rem; padding: 2px 5px;}
+    }
+
+    /* Poprawki dla bardzo wąskich telefonów */
+    @media (max-width: 380px) {
+       :root {
+         --header-height: 50px;
+       }
+        .main-content {
+           /* Inherit full height calculation */
+           height: calc(100vh - var(--header-height) - var(--footer-height));
+        }
+       header { padding: 0 8px; }
+       .logo-text { font-size: 1rem; }
+       .nav-buttons { gap: 1.2rem; }
+       .nav-btn i { font-size: 1.1rem; }
+       .header-right-group { gap: 0.8rem; }
+       .logoutButton { width: 32px; height: 32px; }
+       .logoutButton::after { font-size: 1rem; }
+    }
+} /* Koniec bloku @media (max-width: 900px) */

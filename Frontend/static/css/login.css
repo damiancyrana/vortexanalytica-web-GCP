@@ -3,9 +3,7 @@
    ========================================================= */
 
 /* ---------- Imports & Variables (jeśli istnieją, np. z landing_page.css) ---------- */
-/* Zakładamy, że zmienne jak --bg-dark są dostępne globalnie lub zaimportowane */
 :root {
-  /* Przykładowe zmienne, jeśli nie są dziedziczone */
   --bg-dark: #1a1f2e;
   --blue-accent: #4e8cff;
   --text-light: #fff;
@@ -24,24 +22,24 @@
 
 /* ---------- brak przewijania globalnie ---------- */
 html, body{
-  height:100vh; /* Użyj 100vh zamiast 100% dla lepszej kompatybilności mobilnej */
-  overflow:hidden; /* Zapobiega przewijaniu całej strony */
-  font-family:'Exo 2', sans-serif; /* Spójność z landing page */
-  background-color: var(--bg-dark); /* Tło domyślne */
-  color: var(--text-light); /* Domyślny kolor tekstu */
-  position: relative; /* Potrzebne dla z-index canvasa */
+  height:100vh;
+  overflow:hidden;
+  font-family:'Exo 2', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  position: relative;
 }
 
-/* ===== ANIMATED BACKGROUND CANVAS (Dodano z landing_page.css) ===== */
+/* ===== ANIMATED BACKGROUND CANVAS ===== */
 #quantum-field{
-  position:fixed; /* Użyj fixed zamiast absolute */
+  position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  z-index:-1; /* Tło pod wszystkim innym */
-  pointer-events:none; /* Ignoruje zdarzenia myszy */
-  display:block; /* Upewnij się, że jest widoczne */
+  z-index:-1;
+  pointer-events:none;
+  display:block;
 }
 
 
@@ -50,30 +48,30 @@ html, body{
   display:flex;
   justify-content:center;
   align-items:center;
-  min-height:100vh; /* Użyj min-height */
-  height: auto; /* Pozwól na wzrost, jeśli kontener jest wyższy */
-  padding: 20px; /* Zmieniono padding dla lepszego dopasowania na różnych ekranach */
+  min-height:100vh;
+  height: auto;
+  padding: 20px;
   position:relative;
-  z-index: 1; /* Sekcja logowania nad tłem */
+  z-index: 1;
   box-sizing: border-box;
 }
 
 /* ---------- karta logowania ---------- */
 .login-container {
-  background-color: var(--bg-dark); /* Używamy zmiennej */
-  border: 1px solid var(--border-light); /* Dodanie subtelnej ramki */
+  background-color: rgba(26, 31, 54, 0.7);
+  border: 1px solid var(--border-light);
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  width: 90%; /* Elastyczna szerokość jako domyślna */
-  max-width: 600px; /* Maksymalna szerokość dla dużych ekranów */
+  width: 90%;
+  max-width: 600px;
   padding: 40px;
-  position: relative; /* Już jest relative */
-  z-index: 2; /* Kontener nad tłem i sekcją (jeśli sekcja ma tło) */
-  margin: auto; /* Wyśrodkowanie w flex container */
-  overflow: hidden; /* Początkowo ukryj przepełnienie */
-  transition: padding 0.3s ease, max-width 0.3s ease;
-  backdrop-filter: blur(5px); /* Dodanie lekkiego rozmycia tła pod kontenerem */
-  background-color: rgba(26, 31, 54, 0.6); /* Lekko przezroczyste tło jak w index.css */
+  position: relative;
+  z-index: 2;
+  margin: auto;
+  overflow: hidden;
+  transition: padding 0.3s ease, max-width 0.3s ease, max-height 0.3s ease;
+  backdrop-filter: blur(5px);
+  max-height: 95vh;
 }
 
 /* ---------- nagłówek ---------- */
@@ -97,9 +95,9 @@ html, body{
   flex:1;background:transparent;border:none;
   color: var(--text-light-dim);
   font-family:'Exo 2',sans-serif;font-size:16px;font-weight:500;
-  padding:12px 10px; /* Zmniejszono padding poziomy */
+  padding:12px 10px;
   cursor:pointer;transition:.3s;
-  white-space: nowrap; /* Zapobiega łamaniu tekstu */
+  white-space: nowrap;
 }
 .tab-btn:hover{color: var(--text-light-muted)}
 .tab-btn.active{
@@ -113,7 +111,7 @@ html, body{
 .form-group{margin-bottom:24px}
 .form-group label{
   display:block;margin-bottom:8px;font-size:14px;
-  color: var(--text-light-muted); /* Nieco ciemniejsza etykieta */
+  color: var(--text-light-muted);
 }
 
 /* pole z ikoną */
@@ -121,14 +119,14 @@ html, body{
 .input-with-icon i{
   position:absolute;left:15px;top:50%;transform:translateY(-50%);
   color: var(--text-light-dim);
-  z-index: 1; /* Upewnienie się, że ikona jest nad tłem inputa */
+  z-index: 1;
 }
 .input-with-icon input{
   width:100%;padding:14px 14px 14px 45px;border-radius:6px;
   border:1px solid var(--border-light);
   background: var(--input-bg);color: var(--text-light);
   font-family:'Exo 2',sans-serif;font-size:15px;transition:.3s;
-  box-sizing: border-box; /* Dodano dla pewności */
+  box-sizing: border-box;
 }
 .input-with-icon input:focus{
   outline:none;border-color: var(--input-border-focus);
@@ -151,12 +149,10 @@ html, body{
 
 /* ---------- opcje ---------- */
 .form-options{
-  display:flex;justify-content:flex-end; /* Przesunięcie linku w prawo */
+  display:flex;justify-content:flex-end;
   align-items:center;
   margin-bottom:24px;font-size:14px;
 }
-
-/* Usunięto checkbox "Remember me" - nie było go w HTML */
 
 .forgot-password{
   color: var(--blue-accent);text-decoration:none;transition:.3s;
@@ -192,14 +188,26 @@ html, body{
 }
 
 /* social login */
-.social-login{display:flex;gap:12px}
+.social-login{
+  display:flex;
+  gap:12px;
+  flex-wrap: wrap; /* <<< Pozwól przyciskom się zawijać */
+  justify-content: center; /* <<< Wyśrodkuj przyciski, gdy się zawiną */
+}
 .social-btn{
-  flex:1;padding:12px;border:1px solid var(--border-light);
-  border-radius:6px;background: var(--input-bg);color: var(--text-light);
+  /* Usunięto flex: 1; aby przyciski miały naturalną szerokość */
+  flex-grow: 1; /* Pozwól rosnąć, aby wypełnić przestrzeń, jeśli jest miejsce */
+  flex-basis: auto; /* Bazowa szerokość auto */
+  min-width: 150px; /* Minimalna szerokość dla czytelności */
+  padding:12px;
+  border:1px solid var(--border-light);
+  border-radius:6px;
+  background: var(--input-bg);
+  color: var(--text-light);
   font-family:'Exo 2',sans-serif;font-size:14px;cursor:pointer;transition:.3s;
   display:flex;justify-content:center;align-items:center;
   box-sizing: border-box;
-  white-space: nowrap; /* Zapobiega łamaniu tekstu w przyciskach */
+  white-space: nowrap;
 }
 .social-btn i{margin-right:8px}
 
@@ -207,7 +215,6 @@ html, body{
 .social-btn.microsoft:hover{background: var(--social-microsoft-hover)}
 .social-btn.google{background: var(--social-google-bg)}
 .social-btn.google:hover{background: var(--social-google-hover)}
-/* Dodano styl dla nieaktywnego przycisku LinkedIn */
 .social-btn.linkedin[disabled] {
     background: rgba(100, 100, 100, 0.1);
     border-color: rgba(100, 100, 100, 0.2);
@@ -216,7 +223,7 @@ html, body{
     opacity: 0.6;
 }
 .social-btn.linkedin[disabled]:hover {
-    background: rgba(100, 100, 100, 0.1); /* Brak zmiany hover */
+    background: rgba(100, 100, 100, 0.1);
 }
 
 /* ---------- animacja ---------- */
@@ -231,83 +238,101 @@ html, body{
 /* ======================================== */
 
 /* --- Urządzenia o niskiej wysokości (np. 1024x600 w poziomie) --- */
-/* Obejmuje również max-height 600px z poprzedniej wersji */
 @media (max-height: 650px) and (min-width: 601px) {
   .login-section {
-    align-items: flex-start; /* Wyrównaj do góry */
-    padding-top: 3vh; /* Mniejszy padding górny */
-    padding-bottom: 3vh;
-    overflow-y: auto; /* Pozwól przewijać sekcję, jeśli kontener jest za wysoki */
+    align-items: flex-start;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
   }
   .login-container {
-    max-height: none; /* Usuń ograniczenie wysokości kontenera */
-    overflow-y: visible; /* Usuń wewnętrzne przewijanie */
+    max-height: 90vh;
+    overflow-y: auto;
     margin-top: 0;
     margin-bottom: 0;
+    padding: 30px 30px 50px 30px;
   }
-  /* Ukryj stopkę na niskich ekranach, jeśli jest w tym samym pliku */
-  /* Jeśli stopka jest w innym pliku (np. base.html), ta reguła może nie działać */
-  body > footer { /* Bardziej specyficzny selektor, jeśli stopka jest poza .main-container w HTML */
+  body > footer {
      display: none;
   }
 }
 
 
 /* --- Średnie ekrany mobilne/małe tablety (np. 540x720) --- */
-/* Dostosowujemy istniejący breakpoint 577-768px */
 @media (min-width: 577px) and (max-width: 768px){
   .login-container{
-      max-width: 480px; /* Zwiększono max-width (było 400px) */
-      padding: 35px;
-      width: 85%; /* Zamiast 80%, dla lepszego dopasowania */
+      max-width: 480px;
+      padding: 35px 35px 50px 35px;
+      width: 85%;
+      max-height: 88vh;
+      overflow-y: auto;
   }
   .tab-btn{font-size:15px}
+  .social-login {
+      /* Na tabletach w pionie, układ poziomy może nadal działać */
+      /* flex-direction: column; */ /* Opcjonalnie: Włącz, jeśli poziomy jest za ciasny */
+      /* gap: 10px; */
+  }
+  .social-btn {
+      /* flex-grow: 0; */ /* Opcjonalnie: Zapobiegaj rozciąganiu, jeśli w kolumnie */
+  }
 }
 
 /* --- Małe smartfony (≤ 576 px) - obejmuje 360x740, 375x667 --- */
-/* Dostosowujemy istniejący breakpoint */
 @media (max-width:576px){
   .login-section {
-      padding: 15px; /* Zmniejszono padding sekcji */
-      align-items: flex-start; /* Wyrównanie do góry */
-      padding-top: 5vh; /* Mniejszy odstęp od góry */
-      overflow-y: auto; /* Pozwól sekcji na przewijanie */
+      padding: 15px;
+      align-items: flex-start;
+      padding-top: 2vh;
   }
   .login-container{
-      padding: 25px 15px; /* Mniejszy padding kontenera */
-      width: 95%; /* Nieco szerszy kontener */
-      max-width: none; /* Usunięcie ograniczenia dla małych ekranów */
+      padding: 25px 15px 60px 15px;
+      width: 95%;
+      max-width: none;
       margin-top: 0;
-      margin-bottom: 20px; /* Dodaj margines na dole */
-      overflow-y: visible; /* Usuń wewnętrzne przewijanie */
+      margin-bottom: 20px;
+      overflow-y: auto;
+      max-height: 88vh;
   }
-  .login-header h1{font-size:20px; margin-bottom: 5px;} /* Mniejszy nagłówek */
-  .login-header p{font-size:14px; margin-bottom: 20px;} /* Mniejszy podtytuł */
+  .login-header h1{font-size:20px; margin-bottom: 5px;}
+  .login-header p{font-size:14px; margin-bottom: 20px;}
   .auth-tabs { margin-bottom: 20px; }
-  .tab-btn{padding:10px 5px; font-size:13px} /* Mniejszy padding i czcionka zakładek */
-  .form-group { margin-bottom: 18px; } /* Mniejszy margines grupy */
-  .input-with-icon input { padding: 12px 12px 12px 40px; font-size: 14px; } /* Dostosowanie paddingu i fonta inputów */
-  .password-hints { font-size: 12px; } /* Mniejsze podpowiedzi hasła */
+  .tab-btn{padding:10px 5px; font-size:13px}
+  .form-group { margin-bottom: 18px; }
+  .input-with-icon input { padding: 12px 12px 12px 40px; font-size: 14px; }
+  .password-hints { font-size: 12px; }
   .form-options{
       flex-direction:column;align-items:flex-start;gap:12px;
       margin-bottom: 18px;
   }
-  .checkbox-container { font-size: 13px; } /* Mniejszy tekst checkboxa */
+  .checkbox-container { font-size: 13px; }
   .checkmark { width: 16px; height: 16px; }
   .checkbox-container .checkmark:after { left: 5px; top: 2px; width: 4px; height: 8px;}
   .forgot-password { font-size: 13px; }
 
-  .auth-button{font-size:14px;padding:12px} /* Mniejszy przycisk główny */
+  .auth-button{font-size:14px;padding:12px}
   .separator { margin: 18px 0; }
   .separator span { font-size: 12px; }
-  .social-login{flex-direction:column; gap: 10px;} /* Przyciski jeden pod drugim */
-  .social-btn { padding: 10px; font-size: 13px; } /* Mniejsze przyciski social */
+  .social-login{
+      flex-direction:column; /* Przyciski jeden pod drugim */
+      gap: 10px;
+  }
+  .social-btn {
+      padding: 10px; font-size: 13px;
+      flex-grow: 0; /* Nie pozwól rozciągać się w pionie */
+      min-width: 0; /* Reset min-width */
+   }
+  .social-login .social-btn:last-child {
+      margin-bottom: 0;
+  }
 }
 
 /* --- Bardzo wąskie ekrany (< 360px) --- */
 @media (max-width: 359px) {
-    .login-section { padding: 10px; padding-top: 3vh; }
-    .login-container { padding: 20px 10px; }
+    .login-section { padding: 10px; padding-top: 1vh; }
+    .login-container {
+        padding: 20px 10px 50px 10px;
+        max-height: 90vh;
+    }
     .login-header h1 { font-size: 18px; }
     .login-header p { font-size: 13px; }
     .tab-btn { font-size: 12px; padding: 8px 4px; }
@@ -320,12 +345,28 @@ html, body{
 
 /* --- Poprawka dla checkboxa na bardzo małych ekranach --- */
 @media (max-width: 330px) {
-    /* Usunięto pustą regułę */
-    .form-options .checkbox-container a { /* Pozwól linkom w checkboxie się łamać */
+    .form-options .checkbox-container a {
        white-space: normal;
-       display: inline; /* Lub inline-block jeśli potrzeba */
+       display: inline;
     }
     .forgot-password {
-        margin-top: 10px; /* Dodaj odstęp, jeśli checkbox zajmuje więcej miejsca */
+        margin-top: 10px;
     }
+}
+
+/* Dodatkowe style dla paska przewijania wewnątrz kontenera (WebKit) */
+.login-container::-webkit-scrollbar {
+  width: 6px;
+}
+.login-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.login-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.login-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
 }

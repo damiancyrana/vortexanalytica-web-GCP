@@ -1,0 +1,19 @@
+{% extends "error/error_base.html" %} {# Zakładając, że error_base.html jest w katalogu error #}
+{# lub {% extends "error_base.html" %} jeśli error_base.html jest w głównym katalogu templates #}
+
+{% block title %}Strona nie znaleziona{% endblock %}
+
+{% block error_code %}404{% endblock %}
+
+{% block error_icon %}fas fa-search{% endblock %} {# Ikona lupy dla 404 #}
+
+{% block error_title %}Strona nie znaleziona{% endblock %}
+
+{% block error_message %}
+Przepraszamy, ale nie mogliśmy znaleźć strony, której szukasz.
+{% endblock %}
+
+{% block error_actions %}
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+<a href="javascript:history.back()" class="error-btn secondary"><i class="fas fa-arrow-left"></i> Wróć do poprzedniej strony</a>
+{% endblock %}
