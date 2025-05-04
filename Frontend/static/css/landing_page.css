@@ -27,7 +27,7 @@
   --blur: blur(12px);
   --section-padding: 8rem;
   --container-width: 1200px;
-  --header-height: 65px; /* Approximate initial header height */
+  --header-height: 50px; /* Approximate initial header height */
 }
 
 /* ======= RESET & BASE ======= */

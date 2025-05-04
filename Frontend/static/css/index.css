@@ -65,7 +65,7 @@
   --accent-color-hover: var(--teal);
   --footer-height: 45px; /* Zmniejszona wysokość stopki */
   --content-max-width: 95%; /* Zwiększona szerokość dla lepszego wykorzystania przestrzeni */
-  --header-height: 60px; /* Zmniejszona wysokość nagłówka */
+  --header-height: 50px; /* Zmniejszona wysokość nagłówka */
   --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 
   /* Logout Button Variables */

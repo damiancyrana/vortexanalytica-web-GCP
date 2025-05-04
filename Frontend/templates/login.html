@@ -1,104 +1,13 @@
 <!DOCTYPE html>
-<html lang="pl"> <head>
+<html lang="en"> <head>
   <meta charset="utf-8" />
-  <title>Vortex Analytica — Logowanie i Rejestracja</title> <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vortex Analytica — Login and Registration</title> <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Vortex Analytica: Zaloguj się, aby uzyskać dostęp do analiz rynkowych AI" /> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        content="Vortex Analytica: Sign in to access AI-powered market analytics" /> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
   <link rel="stylesheet" href="/static/css/landing_page.css" /> <link rel="stylesheet" href="/static/css/login.css" /> <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <style>
-    /* Komunikaty uwierzytelniania */
-    .auth-message {
-      margin-top: 15px;
-      padding: 10px 15px; /* Zwiększono padding */
-      border-radius: 5px;
-      text-align: center;
-      display: none; /* Ukryte domyślnie */
-      font-size: 0.9rem;
-      line-height: 1.4;
-      word-wrap: break-word; /* Zapewnia zawijanie długich komunikatów */
-    }
-
-    .auth-message.error {
-      background-color: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      color: #e20909;
-    }
-    /* Poprawki dla ciemnego motywu (jeśli istnieje) */
-    [data-theme="dark"] .auth-message.error {
-        background-color: rgba(239, 68, 68, 0.2);
-        border-color: rgba(239, 68, 68, 0.4);
-        color: #fca5a5;
-    }
-
-    .auth-message.success {
-      background-color: rgba(0, 128, 0, 0.1);
-      border: 1px solid rgba(0, 128, 0, 0.3);
-      color: #15803d;
-    }
-     [data-theme="dark"] .auth-message.success {
-        background-color: rgba(34, 197, 94, 0.2);
-        border-color: rgba(34, 197, 94, 0.4);
-        color: #86efac;
-    }
-
-    /* Indykator siły hasła */
-    .password-strength-meter {
-      height: 4px;
-      background-color: #ddd;
-      margin-top: 5px;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    [data-theme="dark"] .password-strength-meter {
-       background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .strength-bar {
-      height: 100%;
-      width: 0;
-      background-color: #ddd;
-      transition: width 0.3s, background-color 0.3s;
-    }
-
-    /* Styl dla stanu ładowania przycisku (w tym społecznościowego) */
-    .auth-button.loading,
-    .social-btn.loading {
-      position: relative; /* Potrzebne do pozycjonowania spinnera */
-      cursor: wait;
-      opacity: 0.7;
-      color: transparent !important; /* Ukryj tekst/ikonę */
-      pointer-events: none; /* Zapobiegaj wielokrotnym kliknięciom */
-    }
-     .social-btn.loading i:first-child { /* Ukryj oryginalną ikonę społecznościową */
-      display: none;
-    }
-
-    .auth-button.loading::after,
-    .social-btn.loading::after { /* Spinner */
-      content: "\f110"; /* Ikona spinnera Font Awesome */
-      font-family: "Font Awesome 6 Free";
-      font-weight: 500;
-      display: inline-block;
-      animation: fa-spin 1s infinite linear;
-      color: var(--button-text-color, #fff); /* Użyj zmiennej CSS lub domyślnego koloru */
-      font-size: 1em; /* Dopasuj rozmiar spinnera */
-      /* Pozycjonowanie spinnera na środku przycisku */
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-     [data-theme="dark"] .auth-button.loading::after,
-     [data-theme="dark"] .social-btn.loading::after {
-         color: var(--button-text-color-dark, #eee);
-     }
-
-
-  </style>
 </head>
 <body data-theme="light"> <canvas id="quantum-field"></canvas>
 
@@ -113,40 +22,40 @@
   <section class="login-section">
     <div class="login-container">
       <div class="login-header">
-        <h1>Witaj w Vortex Analytica</h1> <p>Zaloguj się do panelu analiz rynkowych</p> </div>
+        <h1>Welcome to Vortex Analytica</h1> <p>Sign in to access market analytics dashboard</p> </div>
 
       <div class="auth-tabs">
-        <button class="tab-btn active" data-target="login-form">Logowanie</button>
-        <button class="tab-btn" data-target="register-form">Utwórz Konto</button>
+        <button class="tab-btn active" data-target="login-form">Sign In</button>
+        <button class="tab-btn" data-target="register-form">Create Account</button>
       </div>
 
       <form id="login-form" class="auth-form active" novalidate> <div class="form-group">
           <label for="login-email">Email</label>
           <div class="input-with-icon">
             <i class="fa fa-envelope"></i>
-            <input type="email" id="login-email" name="email" required placeholder="Adres email">
+            <input type="email" id="login-email" name="email" required placeholder="Email address">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="login-password">Hasło</label>
+          <label for="login-password">Password</label>
           <div class="input-with-icon">
             <i class="fa fa-lock"></i>
-            <input type="password" id="login-password" name="password" required placeholder="Twoje hasło">
+            <input type="password" id="login-password" name="password" required placeholder="Your password">
           </div>
         </div>
 
         <div class="form-options">
-          <a href="#" class="forgot-password">Nie pamiętasz hasła?</a>
+          <a href="#" class="forgot-password">Forgot password?</a>
         </div>
 
         <div id="login-message-area" class="auth-message"></div>
 
-        <button type="submit" class="auth-button" id="login-button"> <i class="fas fa-sign-in-alt"></i> Zaloguj się
+        <button type="submit" class="auth-button" id="login-button"> <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
 
         <div class="separator">
-          <span>lub kontynuuj przez</span>
+          <span>or continue with</span>
         </div>
 
         <div class="social-login">
@@ -160,10 +69,10 @@
       </form>
 
       <form id="register-form" class="auth-form" novalidate> <div class="form-group">
-          <label for="reg-name">Imię i Nazwisko</label>
+          <label for="reg-name">Full Name</label>
           <div class="input-with-icon">
             <i class="fa fa-user"></i>
-            <input type="text" id="reg-name" name="name" required placeholder="Twoje imię i nazwisko">
+            <input type="text" id="reg-name" name="name" required placeholder="Your full name">
           </div>
         </div>
 
@@ -171,46 +80,46 @@
           <label for="reg-email">Email</label>
           <div class="input-with-icon">
             <i class="fa fa-envelope"></i>
-            <input type="email" id="reg-email" name="email" required placeholder="Adres email">
+            <input type="email" id="reg-email" name="email" required placeholder="Email address">
           </div>
         </div>
 
         <div class="form-group">
-          <label for="reg-password">Hasło</label>
+          <label for="reg-password">Password</label>
           <div class="input-with-icon">
             <i class="fa fa-lock"></i>
-            <input type="password" id="reg-password" name="password" required placeholder="Utwórz hasło" aria-describedby="password-hints">
+            <input type="password" id="reg-password" name="password" required placeholder="Create password" aria-describedby="password-hints">
             <div class="password-strength-meter">
               <div class="strength-bar"></div>
             </div>
           </div>
           <div class="password-hints" id="password-hints">
-            <small>Min. 8 znaków, wielka i mała litera, cyfra, znak specjalny.</small>
+            <small>Min. 8 characters, uppercase & lowercase letters, number, special character.</small>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="reg-confirm-password">Potwierdź Hasło</label>
+          <label for="reg-confirm-password">Confirm Password</label>
           <div class="input-with-icon">
             <i class="fa fa-lock"></i>
-            <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Potwierdź swoje hasło">
+            <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Confirm your password">
           </div>
         </div>
 
         <div class="form-options">
           <label class="checkbox-container">
             <input type="checkbox" id="reg-terms" name="terms" required> <span class="checkmark"></span>
-            Akceptuję <a href="/terms" target="_blank">Regulamin</a> i <a href="/privacy" target="_blank">Politykę Prywatności</a>
+            I accept the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
           </label>
         </div>
 
          <div id="register-message-area" class="auth-message"></div>
 
-        <button type="submit" class="auth-button" id="register-button"> <i class="fas fa-user-plus"></i> Utwórz Konto
+        <button type="submit" class="auth-button" id="register-button"> <i class="fas fa-user-plus"></i> Create Account
         </button>
 
         <div class="separator">
-          <span>lub zarejestruj się przez</span>
+          <span>or sign up with</span>
         </div>
 
         <div class="social-login">
@@ -228,28 +137,37 @@
 
 <footer>
   <div class="footer-links">
-    <a href="/terms">Regulamin</a> <a href="/privacy">Polityka Prywatności</a>
-    <a href="/#contact-section">Kontakt</a> </div>
-  <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. Wszelkie prawa zastrzeżone.</p>
+    <a href="/terms">Terms of Service</a> <a href="/privacy">Privacy Policy</a>
+    <a href="/#contact-section">Contact</a> </div>
+  <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
 </footer>
 
+<!-- Ważne: Kolejność skryptów została zoptymalizowana -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script type="module" src="/static/js/quantum_bg.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 <script>
   /**
-   * Skrypt dla login.html
-   * Inicjalizuje Firebase, obsługuje logowanie/rejestrację,
-   * wysyła token do backendu dla sesji ciasteczkowej, obsługuje OAuth.
+   * Script for login.html
+   * Initializes Firebase, handles login/registration,
+   * sends token to backend for cookie session, handles OAuth.
    */
   document.addEventListener('DOMContentLoaded', () => {
+    // Sprawdź, czy canvas istnieje
+    console.log("Checking canvas element...");
+    const canvas = document.getElementById('quantum-field');
+    if (!canvas) {
+      console.error("Canvas element #quantum-field not found!");
+    } else {
+      console.log("Canvas element found, Three.js background should initialize via quantum_bg.js");
+    }
 
-    // Globalne referencje Firebase (inicjalizowane w initializeLoginAuth)
+    // Global Firebase references (initialized in initializeLoginAuth)
     let firebaseApp = null;
     let firebaseAuth = null;
 
-    // Elementy DOM
+    // DOM Elements
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const loginEmailInput = document.getElementById('login-email');
@@ -266,7 +184,7 @@
     const forgotPasswordLink = document.querySelector('.forgot-password');
     const strengthBar = document.querySelector('#register-form .strength-bar');
 
-    // Funkcja pomocnicza do pobierania wartości ciasteczka
+    // Helper function to get cookie value
     const getCookie = (name) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -274,85 +192,85 @@
       return null;
     };
 
-    // Funkcja do ekstrakcji tokenu CSRF z ukrytych pól formularza
+    // Function to extract CSRF token from hidden form fields
     const extractCSRFFromHTML = () => {
-        // Szukaj ukrytych pól z tokenem CSRF w różnych formatach
+        // Look for hidden fields with CSRF token in various formats
         const csrfField = document.querySelector('input[name="csrf_token"], input[name="csrftoken"], input[name="csrf"], input[name="_csrf"], input[name="_csrf_token"]');
         
         if (csrfField) {
-            console.log("Znaleziono ukryte pole CSRF w HTML:", csrfField.name);
+            console.log("Found hidden CSRF field in HTML:", csrfField.name);
             return csrfField.value;
         }
         
-        // Szukaj tokenu w metadanych (czasami umieszczany w meta tagach)
+        // Look for token in meta tags (sometimes placed in meta tags)
         const csrfMeta = document.querySelector('meta[name="csrf-token"], meta[name="csrf"]');
         if (csrfMeta) {
-            console.log("Znaleziono token CSRF w meta tagu:", csrfMeta.name);
+            console.log("Found CSRF token in meta tag:", csrfMeta.name);
             return csrfMeta.getAttribute('content');
         }
         
-        console.log("Nie znaleziono tokenu CSRF w HTML");
+        console.log("No CSRF token found in HTML");
         return null;
     };
 
-    // Funkcja do pobierania tokenu CSRF przed logowaniem
+    // Function to fetch CSRF token before login
     const fetchCSRFToken = async () => {
         try {
-            // Sprawdź, czy token CSRF jest już dostępny w HTML
+            // Check if CSRF token is already available in HTML
             const htmlToken = extractCSRFFromHTML();
             if (htmlToken) {
-                console.log("Znaleziono token CSRF w HTML:", htmlToken);
+                console.log("Found CSRF token in HTML:", htmlToken);
                 return htmlToken;
             }
             
-            // Sprawdź ciasteczka
+            // Check cookies
             let csrfToken = getCookie("csrftoken");
             if (csrfToken) {
-                console.log("Znaleziono token CSRF w ciasteczku:", csrfToken);
+                console.log("Found CSRF token in cookie:", csrfToken);
                 return csrfToken;
             }
             
-            // Wykonaj żądanie GET do strony logowania, aby pobrać token CSRF
-            console.log("Wykonuję żądanie GET do /login aby pobrać token CSRF");
+            // Perform GET request to login page to fetch CSRF token
+            console.log("Performing GET request to /login to fetch CSRF token");
             const response = await fetch('/login', {
                 method: 'GET',
                 credentials: 'same-origin'
             });
             
             if (response.ok) {
-                console.log("Żądanie GET do /login zakończone sukcesem, sprawdzam ciasteczka");
+                console.log("GET request to /login succeeded, checking cookies");
                 
-                // Po wykonaniu żądania GET, ciasteczko CSRF powinno być ustawione
+                // After GET request, CSRF cookie should be set
                 csrfToken = getCookie("csrftoken");
                 
                 if (csrfToken) {
-                    console.log("CSRF Token po żądaniu GET:", csrfToken);
+                    console.log("CSRF Token after GET request:", csrfToken);
                     return csrfToken;
                 } else {
-                    // Sprawdź również alternatywne nazwy ciasteczek
+                    // Also check alternative cookie names
                     const alternativeNames = ["XSRF-TOKEN", "CSRF-TOKEN", "_csrf", "csrf", "CSRF"];
                     for (const name of alternativeNames) {
                         const token = getCookie(name);
                         if (token) {
-                            console.log(`Znaleziono alternatywny token CSRF w ciasteczku ${name}:`, token);
+                            console.log(`Found alternative CSRF token in cookie ${name}:`, token);
                             return token;
                         }
                     }
                     
-                    console.warn("Nie znaleziono tokenu CSRF w ciasteczkach po żądaniu GET");
+                    console.warn("No CSRF token found in cookies after GET request");
                     return null;
                 }
             } else {
-                console.warn("Nie można pobrać strony logowania:", response.status);
+                console.warn("Cannot fetch login page:", response.status);
                 return null;
             }
         } catch (error) {
-            console.error("Błąd podczas pobierania tokenu CSRF:", error);
+            console.error("Error fetching CSRF token:", error);
             return null;
         }
     };
     
-    // Funkcje pomocnicze do wyświetlania komunikatów i obsługi ładowania
+    // Helper functions for displaying messages and handling loading
     const getActiveMessageAreaId = () => {
       const activeForm = document.querySelector('.auth-form.active');
       return activeForm ? activeForm.id.replace('-form', '-message-area') : 'login-message-area';
@@ -360,24 +278,24 @@
 
     const setButtonLoading = (button, isLoading, loadingText = '', originalText = null) => {
       if (!button) return;
-      const btn = button; // Uniknięcie problemów z przypisaniem wewnątrz funkcji
+      const btn = button; // Avoid issues with assignment inside function
       if (!btn.dataset.originalHTML) {
-         btn.dataset.originalHTML = btn.innerHTML; // Zapisz oryginalny HTML tylko raz
+         btn.dataset.originalHTML = btn.innerHTML; // Save original HTML only once
       }
       const originalHTML = originalText || btn.dataset.originalHTML;
 
       if (isLoading) {
           btn.disabled = true;
           btn.classList.add('loading');
-          // Używamy ::after do spinnera, nie zmieniamy innerHTML, chyba że podano tekst
+          // We use ::after for spinner, don't change innerHTML unless text is provided
           if (loadingText && !btn.classList.contains('social-btn')) {
-             // Możemy dodać tekst obok spinnera, ale to komplikuje CSS
-             // Lepiej polegać na spinnerze w ::after
+             // We could add text next to the spinner, but that complicates CSS
+             // Better to rely on spinner in ::after
           }
       } else {
           btn.disabled = false;
           btn.classList.remove('loading');
-          btn.innerHTML = originalHTML; // Przywróć oryginalny HTML
+          btn.innerHTML = originalHTML; // Restore original HTML
       }
     };
 
@@ -385,20 +303,20 @@
         const targetAreaId = areaId || getActiveMessageAreaId();
         const messageElement = document.getElementById(targetAreaId);
         if (!messageElement) { console.warn(`Message area with ID "${targetAreaId}" not found.`); return; }
-        // Używamy textContent dla bezpieczeństwa (uniknięcie wstrzykiwania HTML)
+        // Use textContent for safety (avoid HTML injection)
         messageElement.textContent = message;
-        messageElement.className = `auth-message ${type}`; // Ustaw klasy
-        messageElement.style.display = 'block'; // Pokaż
+        messageElement.className = `auth-message ${type}`; // Set classes
+        messageElement.style.display = 'block'; // Show
 
-        // Ukryj komunikat o błędzie po pewnym czasie
+        // Hide error message after a while
         if (type === 'error') {
           setTimeout(() => {
-            // Sprawdź, czy komunikat nadal istnieje i jest widoczny
+            // Check if message still exists and is visible
             if (messageElement.style.display === 'block' && messageElement.textContent === message) {
                  messageElement.style.display = 'none';
                  messageElement.textContent = '';
             }
-          }, 7000); // Ukryj po 7 sekundach
+          }, 7000); // Hide after 7 seconds
         }
     };
 
@@ -411,9 +329,9 @@
         if (messageElement) {
             messageElement.innerHTML = '';
             messageElement.style.display = 'none';
-            messageElement.className = 'auth-message'; // Resetuj klasy
+            messageElement.className = 'auth-message'; // Reset classes
         }
-        // Wyczyść też drugi obszar, jeśli areaId nie jest podane
+        // Also clear other area if areaId not provided
         if (!areaId) {
             const otherAreaId = (targetAreaId === 'login-message-area') ? 'register-message-area' : 'login-message-area';
             const otherMessageElement = document.getElementById(otherAreaId);
@@ -425,44 +343,43 @@
         }
     };
 
-    // --- Główna funkcja: Utworzenie sesji backendu ---
+    // --- Main function: Create backend session ---
     const createBackendSession = async (user) => {
         if (!user) {
-             console.error("createBackendSession: brak obiektu użytkownika Firebase.");
-             showError("Wystąpił wewnętrzny błąd (brak danych użytkownika).", getActiveMessageAreaId());
+             console.error("createBackendSession: no Firebase user object.");
+             showError("Internal error (missing user data).", getActiveMessageAreaId());
              return;
         }
 
         console.log("Attempting to create backend session for UID:", user.uid);
         const activeFormButton = document.querySelector('.auth-form.active button[type="submit"]');
         const originalButtonText = activeFormButton ? activeFormButton.dataset.originalHTML : null;
-        if (activeFormButton) setButtonLoading(activeFormButton, true, '', originalButtonText); // Zablokuj przycisk aktywnego formularza
-        // Zablokuj też przyciski społecznościowe
+        if (activeFormButton) setButtonLoading(activeFormButton, true, '', originalButtonText); // Block active form button
+        // Also block social buttons
         document.querySelectorAll('.social-btn').forEach(btn => setButtonLoading(btn, true));
 
-        // NAPRAWIONO: Zastąpiono niezdefiniowane hideLoginError() przez clearMessages()
-        clearMessages(); // Ukryj poprzednie komunikaty
+        clearMessages(); // Hide previous messages
 
         try {
-            // Najpierw pobierz token CSRF
+            // First get CSRF token
             const csrfToken = await fetchCSRFToken();
             
-            // Zawsze pobieraj świeży token przed wysłaniem do backendu
+            // Always get fresh token before sending to backend
             const idToken = await user.getIdToken(true);
             console.log("Got Firebase ID token, sending to backend...");
 
-            // Przygotuj nagłówki z różnymi wariantami tokenu CSRF
+            // Prepare headers with various CSRF token variants
             const headers = { 
                 'Content-Type': 'application/json',
             };
             
-            // Dodaj token CSRF w różnych formatach nagłówka, jeśli istnieje
+            // Add CSRF token in various header formats, if it exists
             if (csrfToken) {
-                // Standardowe i popularne warianty nazwy nagłówka CSRF
-                headers['X-CSRF-Token'] = csrfToken;  // Popularne w wielu frameworkach
-                headers['X-CSRFToken'] = csrfToken;   // Popularne w Django
-                headers['CSRF-Token'] = csrfToken;    // Używane w niektórych implementacjach
-                headers['CSRFToken'] = csrfToken;     // Prosty wariant
+                // Standard and popular CSRF header name variants
+                headers['X-CSRF-Token'] = csrfToken;  // Popular in many frameworks
+                headers['X-CSRFToken'] = csrfToken;   // Popular in Django
+                headers['CSRF-Token'] = csrfToken;    // Used in some implementations
+                headers['CSRFToken'] = csrfToken;     // Simple variant
             } else {
                 console.warn("CSRF token not found in cookies or HTML. Request might be rejected.");
             }
@@ -471,53 +388,53 @@
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({ token: idToken }),
-                credentials: 'same-origin' // Ważne: dołącz ciasteczka do żądania
+                credentials: 'same-origin' // Important: include cookies in request
             });
 
             if (response.ok) {
                 console.log("Backend session created successfully via /auth/firebase-session-login.");
-                // Zapisz informację, że logowanie się powiodło, aby wyświetlić komunikat po przeładowaniu (opcjonalne)
-                sessionStorage.setItem('authActionCompleted', 'true'); // Użyjemy tego w onAuthStateChanged
-                // Przekieruj na stronę główną aplikacji
+                // Save information that login succeeded, to display message after reload (optional)
+                sessionStorage.setItem('authActionCompleted', 'true'); // We'll use this in onAuthStateChanged
+                // Redirect to application main page
                 console.log("Redirecting to /index...");
-                window.location.href = '/index'; // Kluczowe przekierowanie
+                window.location.href = '/index'; // Key redirect
             } else {
-                // Błąd po stronie backendu
-                const errorData = await response.json().catch(() => ({ detail: `Błąd serwera ${response.status}` }));
-                const errorMessage = `Błąd finalizacji logowania (${response.status}): ${errorData.detail || 'Nie można utworzyć sesji backendu.'}`;
+                // Backend error
+                const errorData = await response.json().catch(() => ({ detail: `Server error ${response.status}` }));
+                const errorMessage = `Login finalization error (${response.status}): ${errorData.detail || 'Cannot create backend session.'}`;
                 console.error("Backend session creation failed:", errorMessage);
                 showError(errorMessage, getActiveMessageAreaId());
-                // Wyloguj z Firebase, jeśli backend odrzucił sesję
+                // Sign out from Firebase if backend rejected session
                 if (firebaseAuth) {
                    console.log("Signing out from Firebase due to backend session failure.");
                    await firebaseAuth.signOut();
                 }
-                 // Odblokuj przyciski po błędzie
+                 // Unblock buttons after error
                  if (activeFormButton) setButtonLoading(activeFormButton, false, '', originalButtonText);
                  document.querySelectorAll('.social-btn').forEach(btn => setButtonLoading(btn, false));
             }
         } catch (error) {
             console.error("Error during createBackendSession:", error);
-            showError(`Wystąpił błąd: ${error.message || 'Sprawdź połączenie internetowe.'}`, getActiveMessageAreaId());
-            // Odblokuj przyciski po błędzie
+            showError(`An error occurred: ${error.message || 'Check your internet connection.'}`, getActiveMessageAreaId());
+            // Unblock buttons after error
             if (activeFormButton) setButtonLoading(activeFormButton, false, '', originalButtonText);
             document.querySelectorAll('.social-btn').forEach(btn => setButtonLoading(btn, false));
         }
     };
 
-    // --- Inicjalizacja Firebase i nasłuchiwanie stanu ---
+    // --- Firebase initialization and state listening ---
     const initializeLoginAuth = async () => {
         console.log("Initializing Firebase on login page...");
         try {
             const response = await fetch('/auth/firebase-config');
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ detail: response.statusText }));
-                throw new Error(errorData.detail || `Błąd ${response.status} pobierania konfiguracji Firebase`);
+                throw new Error(errorData.detail || `Error ${response.status} fetching Firebase configuration`);
             }
             const config = await response.json();
 
             if (!config.apiKey || !config.authDomain) {
-                throw new Error('Niekompletne dane konfiguracyjne Firebase od backendu.');
+                throw new Error('Incomplete Firebase configuration data from backend.');
             }
 
             if (firebase.apps.length === 0) {
@@ -528,53 +445,53 @@
             firebaseAuth = firebase.auth();
             console.log("Firebase initialized successfully.");
 
-            // --- Kluczowa Obsługa Stanu Uwierzytelnienia ---
+            // --- Key Authentication State Handling ---
             firebaseAuth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    // Użytkownik jest zalogowany w Firebase (świeżo lub z pamięci)
+                    // User is signed in to Firebase (fresh or from memory)
                     console.log("Firebase onAuthStateChanged detected user:", user.uid);
-                    // Sprawdź, czy już jesteśmy w trakcie tworzenia sesji lub przekierowania
+                    // Check if we're already creating session or redirecting
                     if (sessionStorage.getItem('creatingSession') === 'true') {
                          console.log("Session creation already in progress, skipping redundant call.");
                          return;
                     }
-                    // Ustaw flagę, że rozpoczynamy proces tworzenia sesji backendu
+                    // Set flag that we're starting backend session creation
                     sessionStorage.setItem('creatingSession', 'true');
-                    // Wywołaj funkcję tworzenia sesji backendu
+                    // Call backend session creation function
                     await createBackendSession(user);
-                    // Usuń flagę po zakończeniu (nawet jeśli był błąd i nie było przekierowania)
+                    // Remove flag after completion (even if there was an error and no redirect)
                     sessionStorage.removeItem('creatingSession');
                 } else {
-                    // Użytkownik nie jest zalogowany w Firebase
+                    // User is not signed in to Firebase
                     console.log("Firebase onAuthStateChanged: No user detected.");
-                    // Upewnij się, że przyciski są odblokowane, jeśli nie ma użytkownika
+                    // Make sure buttons are unblocked if no user
                     const activeFormButton = document.querySelector('.auth-form.active button[type="submit"]');
                     if (activeFormButton && activeFormButton.classList.contains('loading')) {
                          setButtonLoading(activeFormButton, false);
                     }
                     document.querySelectorAll('.social-btn.loading').forEach(btn => setButtonLoading(btn, false));
-                    // Wyczyść flagi sesji
+                    // Clear session flags
                     sessionStorage.removeItem('creatingSession');
                     sessionStorage.removeItem('authActionCompleted');
                 }
             });
             // -----------------------------------------------------
 
-            // Po udanej inicjalizacji Firebase, skonfiguruj formularze
+            // After successful Firebase initialization, set up forms
             setupAuthForms();
 
         } catch (error) {
-            console.error('Krytyczny błąd inicjalizacji Firebase:', error);
-            showError(`Krytyczny błąd: Nie można zainicjować systemu logowania (${error.message}). Odśwież stronę.`, 'login-message-area');
-            showError(`Krytyczny błąd: Nie można zainicjować systemu logowania (${error.message}). Odśwież stronę.`, 'register-message-area');
-            // Zablokuj wszystkie przyciski
+            console.error('Critical Firebase initialization error:', error);
+            showError(`Critical error: Cannot initialize login system (${error.message}). Refresh the page.`, 'login-message-area');
+            showError(`Critical error: Cannot initialize login system (${error.message}). Refresh the page.`, 'register-message-area');
+            // Disable all buttons
             if (loginButton) loginButton.disabled = true;
             if (registerButton) registerButton.disabled = true;
             document.querySelectorAll('.social-btn').forEach(btn => btn.disabled = true);
         }
     };
 
-    // --- Konfiguracja obsługi formularzy ---
+    // --- Form handling setup ---
     const setupAuthForms = () => {
         if (loginForm) {
             loginForm.addEventListener('submit', handleLogin);
@@ -588,30 +505,30 @@
             regPasswordInput.addEventListener('input', updatePasswordStrength);
         }
 
-        // Logowanie przez Google
+        // Google Sign-in
         document.querySelectorAll('.social-btn.google').forEach(button => {
             button.addEventListener('click', () => handleOAuthSignIn('google'));
         });
 
-        // Logowanie przez Microsoft
+        // Microsoft Sign-in
         document.querySelectorAll('.social-btn.microsoft').forEach(button => {
             button.addEventListener('click', () => handleOAuthSignIn('microsoft'));
         });
 
-        // Logowanie przez LinkedIn (placeholder)
+        // LinkedIn Sign-in (placeholder)
         document.querySelectorAll('.social-btn.linkedin').forEach(button => {
             button.addEventListener('click', () => {
-                 showError('Logowanie przez LinkedIn nie jest jeszcze zaimplementowane.', getActiveMessageAreaId());
+                 showError('LinkedIn sign-in is not yet implemented.', getActiveMessageAreaId());
             });
         });
 
-        // Link "Nie pamiętasz hasła?"
+        // "Forgot password?" link
         if (forgotPasswordLink) {
             forgotPasswordLink.addEventListener('click', handleForgotPassword);
         }
     };
 
-    // --- Logika obsługi logowania przez Email/Hasło ---
+    // --- Email/Password Login Logic ---
     const handleLogin = async (event) => {
         event.preventDefault();
         const email = loginEmailInput ? loginEmailInput.value.trim() : null;
@@ -619,37 +536,37 @@
         const messageAreaId = 'login-message-area';
         clearMessages(messageAreaId);
 
-        if (!email || !password) { showError('Wprowadź adres email i hasło.', messageAreaId); return; }
-        if (!firebaseAuth) { showError('System logowania nie jest gotowy.', messageAreaId); return; }
+        if (!email || !password) { showError('Please enter email and password.', messageAreaId); return; }
+        if (!firebaseAuth) { showError('Login system is not ready.', messageAreaId); return; }
 
         setButtonLoading(loginButton, true);
 
         try {
             console.log("Attempting Firebase sign in...");
-            // Wywołaj logowanie Firebase - resztę załatwi onAuthStateChanged -> createBackendSession
+            // Call Firebase login - the rest will be handled by onAuthStateChanged -> createBackendSession
             await firebaseAuth.signInWithEmailAndPassword(email, password);
             console.log("Firebase signInWithEmailAndPassword successful, waiting for onAuthStateChanged...");
-            // Nie rób nic więcej, onAuthStateChanged przejmie pałeczkę
+            // Do nothing more, onAuthStateChanged will take over
         } catch (error) {
             console.error('Firebase Login error:', error);
-            let msg = 'Wystąpił błąd podczas logowania.';
+            let msg = 'An error occurred during login.';
             switch (error.code) {
-                 case 'auth/invalid-email': msg = 'Nieprawidłowy format adresu email.'; break;
-                 case 'auth/user-disabled': msg = 'To konto zostało wyłączone.'; break;
+                 case 'auth/invalid-email': msg = 'Invalid email format.'; break;
+                 case 'auth/user-disabled': msg = 'This account has been disabled.'; break;
                  case 'auth/user-not-found':
                  case 'auth/wrong-password':
-                 case 'auth/invalid-credential': // Nowszy kod błędu dla złych danych
-                     msg = 'Nieprawidłowy email lub hasło.'; break;
-                 case 'auth/network-request-failed': msg = 'Błąd sieci. Sprawdź połączenie.'; break;
-                 default: msg = `Błąd logowania (${error.code || 'nieznany'})`;
+                 case 'auth/invalid-credential': // Newer error code for bad credentials
+                     msg = 'Invalid email or password.'; break;
+                 case 'auth/network-request-failed': msg = 'Network error. Check your connection.'; break;
+                 default: msg = `Login error (${error.code || 'unknown'})`;
             }
             showError(msg, messageAreaId);
-            setButtonLoading(loginButton, false); // Odblokuj przycisk po błędzie
+            setButtonLoading(loginButton, false); // Unblock button after error
         }
-        // Nie odblokowujemy przycisku w przypadku sukcesu, bo onAuthStateChanged to zrobi (lub nastąpi przekierowanie)
+        // Don't unblock button on success, onAuthStateChanged will handle it (or redirect will occur)
     };
 
-    // --- Logika obsługi Rejestracji ---
+    // --- Registration Logic ---
     const handleRegister = async (event) => {
         event.preventDefault();
         const name = regNameInput ? regNameInput.value.trim() : null;
@@ -660,11 +577,11 @@
         const messageAreaId = 'register-message-area';
         clearMessages(messageAreaId);
 
-        if (!name || !email || !password || !confirmPassword) { showError('Wypełnij wszystkie pola.', messageAreaId); return; }
-        if (password !== confirmPassword) { showError('Wprowadzone hasła nie są zgodne.', messageAreaId); return; }
-        if (!isStrongPassword(password)) { showError('Hasło nie spełnia wymagań bezpieczeństwa.', messageAreaId); return; }
-        if (!termsAccepted) { showError('Musisz zaakceptować Regulamin i Politykę Prywatności.', messageAreaId); return; }
-        if (!firebaseAuth) { showError('System rejestracji nie jest gotowy.', messageAreaId); return; }
+        if (!name || !email || !password || !confirmPassword) { showError('Please fill in all fields.', messageAreaId); return; }
+        if (password !== confirmPassword) { showError('Passwords do not match.', messageAreaId); return; }
+        if (!isStrongPassword(password)) { showError('Password does not meet security requirements.', messageAreaId); return; }
+        if (!termsAccepted) { showError('You must accept the Terms of Service and Privacy Policy.', messageAreaId); return; }
+        if (!firebaseAuth) { showError('Registration system is not ready.', messageAreaId); return; }
 
         setButtonLoading(registerButton, true);
 
@@ -674,50 +591,50 @@
             const user = userCredential.user;
             console.log("Firebase user created:", user.uid);
 
-            // Ustawiamy displayName
+            // Set displayName
             await user.updateProfile({ displayName: name });
             console.log("Firebase profile updated with displayName.");
 
-            // Sukces - resztę załatwi onAuthStateChanged -> createBackendSession
+            // Success - the rest will be handled by onAuthStateChanged -> createBackendSession
             console.log("Firebase registration successful, waiting for onAuthStateChanged...");
 
         } catch (error) {
             console.error('Firebase Registration error:', error);
-            let msg = 'Wystąpił błąd podczas rejestracji.';
+            let msg = 'An error occurred during registration.';
             switch (error.code) {
-                 case 'auth/email-already-in-use': msg = 'Ten adres email jest już zarejestrowany.'; break;
-                 case 'auth/invalid-email': msg = 'Nieprawidłowy format adresu email.'; break;
-                 case 'auth/operation-not-allowed': msg = 'Rejestracja jest obecnie wyłączona.'; break;
-                 case 'auth/weak-password': msg = 'Hasło jest zbyt słabe.'; break;
-                 default: msg = `Błąd rejestracji (${error.code || 'nieznany'})`;
+                 case 'auth/email-already-in-use': msg = 'This email address is already registered.'; break;
+                 case 'auth/invalid-email': msg = 'Invalid email format.'; break;
+                 case 'auth/operation-not-allowed': msg = 'Registration is currently disabled.'; break;
+                 case 'auth/weak-password': msg = 'Password is too weak.'; break;
+                 default: msg = `Registration error (${error.code || 'unknown'})`;
             }
             showError(msg, messageAreaId);
-            setButtonLoading(registerButton, false); // Odblokuj po błędzie
+            setButtonLoading(registerButton, false); // Unblock after error
         }
-        // Nie odblokowujemy przycisku w przypadku sukcesu
+        // Don't unblock button on success
     };
 
-   // --- Logika obsługi Logowania przez OAuth (Google, Microsoft) ---
+   // --- OAuth Sign-in Logic (Google, Microsoft) ---
     const handleOAuthSignIn = async (providerName) => {
         let provider;
         const buttonSelector = `.auth-form.active .social-btn.${providerName}`;
         const button = document.querySelector(buttonSelector);
 
         if (!button) { console.error(`Button ${buttonSelector} not found.`); return; }
-        if (!firebaseAuth) { showError('System logowania nie jest gotowy.', getActiveMessageAreaId()); return; }
+        if (!firebaseAuth) { showError('Login system is not ready.', getActiveMessageAreaId()); return; }
 
         switch(providerName) {
             case 'google':
                 provider = new firebase.auth.GoogleAuthProvider();
-                // Można dodać scope, np. provider.addScope('profile'); provider.addScope('email');
+                // Can add scopes, e.g. provider.addScope('profile'); provider.addScope('email');
                 break;
             case 'microsoft':
                 provider = new firebase.auth.OAuthProvider('microsoft.com');
-                // provider.setCustomParameters({ tenant: 'YOUR_TENANT_ID' }); // Jeśli potrzebne
-                // provider.addScope('User.Read'); // Przykładowy scope Microsoft Graph
+                // provider.setCustomParameters({ tenant: 'YOUR_TENANT_ID' }); // If needed
+                // provider.addScope('User.Read'); // Example Microsoft Graph scope
                 break;
             default:
-                showError(`Dostawca logowania "${providerName}" nie jest obsługiwany.`, getActiveMessageAreaId());
+                showError(`Provider "${providerName}" is not supported.`, getActiveMessageAreaId());
                 return;
         }
 
@@ -726,62 +643,62 @@
 
         try {
             console.log(`Attempting sign in with ${providerName}...`);
-            // Wywołaj logowanie przez popup Firebase - resztę załatwi onAuthStateChanged -> createBackendSession
+            // Call Firebase popup login - the rest will be handled by onAuthStateChanged -> createBackendSession
             await firebaseAuth.signInWithPopup(provider);
             console.log(`Firebase ${providerName} sign in successful, waiting for onAuthStateChanged...`);
-            // Nie rób nic więcej, onAuthStateChanged przejmie pałeczkę
+            // Do nothing more, onAuthStateChanged will take over
         } catch (error) {
             console.error(`${providerName} Sign-In Error:`, error);
-            let msg = `Wystąpił błąd podczas logowania przez ${providerName}.`;
+            let msg = `An error occurred while signing in with ${providerName}.`;
             switch(error.code) {
-                 case 'auth/account-exists-with-different-credential': msg = 'Konto z tym adresem email już istnieje i jest powiązane z innym sposobem logowania.'; break;
-                 case 'auth/popup-closed-by-user': msg = `Logowanie przez ${providerName} zostało anulowane.`; break;
-                 case 'auth/popup-blocked': msg = `Wyskakujące okienko logowania ${providerName} zostało zablokowane. Odblokuj je i spróbuj ponownie.`; break;
-                 case 'auth/cancelled-popup-request': msg = 'Anulowano kolejne żądanie otwarcia wyskakującego okienka.'; break;
-                 case 'auth/operation-not-allowed': msg = `Logowanie przez ${providerName} nie jest włączone w Firebase.`; break;
-                 case 'auth/unauthorized-domain': msg = `Ta domena nie jest autoryzowana do operacji Firebase.`; break;
-                 default: msg = `Błąd logowania przez ${providerName} (${error.code || 'nieznany'})`;
+                 case 'auth/account-exists-with-different-credential': msg = 'An account with this email already exists and is linked to a different sign-in method.'; break;
+                 case 'auth/popup-closed-by-user': msg = `${providerName} sign-in was cancelled.`; break;
+                 case 'auth/popup-blocked': msg = `${providerName} sign-in popup was blocked. Please unblock it and try again.`; break;
+                 case 'auth/cancelled-popup-request': msg = 'Cancelled additional popup request.'; break;
+                 case 'auth/operation-not-allowed': msg = `${providerName} sign-in is not enabled in Firebase.`; break;
+                 case 'auth/unauthorized-domain': msg = `This domain is not authorized for Firebase operations.`; break;
+                 default: msg = `${providerName} sign-in error (${error.code || 'unknown'})`;
             }
             showError(msg, getActiveMessageAreaId());
-            setButtonLoading(button, false); // Odblokuj po błędzie
+            setButtonLoading(button, false); // Unblock after error
         }
-         // Nie odblokowujemy przycisku w przypadku sukcesu
+         // Don't unblock button on success
     };
 
 
-    // --- Logika obsługi "Nie pamiętasz hasła?" ---
+    // --- "Forgot password?" Logic ---
     const handleForgotPassword = (event) => {
         event.preventDefault();
-        const email = loginEmailInput ? loginEmailInput.value.trim() : null; // Pobierz email z formularza logowania
-        const messageAreaId = 'login-message-area'; // Komunikat w sekcji logowania
+        const email = loginEmailInput ? loginEmailInput.value.trim() : null; // Get email from login form
+        const messageAreaId = 'login-message-area'; // Message in login section
         clearMessages(messageAreaId);
 
-        if (!email) { showError('Wpisz swój adres email w polu powyżej, aby zresetować hasło.', messageAreaId); return; }
-        if (!firebaseAuth) { showError('System resetowania hasła nie jest gotowy.', messageAreaId); return; }
+        if (!email) { showError('Enter your email address in the field above to reset your password.', messageAreaId); return; }
+        if (!firebaseAuth) { showError('Password reset system is not ready.', messageAreaId); return; }
 
         console.log(`Sending password reset email to ${email}...`);
-        // Wyświetl tymczasowy komunikat o ładowaniu
-        showSuccess('Wysyłanie instrukcji resetowania hasła...', messageAreaId);
+        // Show temporary loading message
+        showSuccess('Sending password reset instructions...', messageAreaId);
 
         firebaseAuth.sendPasswordResetEmail(email)
           .then(() => {
             console.log("Password reset email sent successfully.");
-            showSuccess('Link do zresetowania hasła został wysłany na Twój adres email. Sprawdź skrzynkę odbiorczą (również folder spam).', messageAreaId);
+            showSuccess('Password reset link has been sent to your email address. Check your inbox (and spam folder).', messageAreaId);
           })
           .catch((error) => {
             console.error('Password Reset error:', error);
-            let msg = 'Nie udało się wysłać linku do resetowania hasła.';
-            if (error.code === 'auth/invalid-email') { msg += ' Sprawdź poprawność adresu email.'; }
-            else if (error.code === 'auth/user-not-found') { msg = 'Nie znaleziono konta powiązanego z tym adresem email.'; }
-            else { msg += ` (Błąd: ${error.code || 'nieznany'})`; }
+            let msg = 'Failed to send password reset link.';
+            if (error.code === 'auth/invalid-email') { msg += ' Check email format.'; }
+            else if (error.code === 'auth/user-not-found') { msg = 'No account found with this email address.'; }
+            else { msg += ` (Error: ${error.code || 'unknown'})`; }
             showError(msg, messageAreaId);
           });
     };
 
 
-    // --- Logika sprawdzania siły hasła ---
+    // --- Password strength checking logic ---
     const isStrongPassword = (password) => {
-        // Min. 8 znaków, wielka litera, mała litera, cyfra, znak specjalny
+        // Min. 8 chars, uppercase, lowercase, digit, special char
         const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`])[A-Za-z\d@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`]{8,}$/;
         return strongPasswordRegex.test(password);
     };
@@ -792,7 +709,7 @@
 
         if (!password) {
             strengthBar.style.width = '0%';
-            strengthBar.style.backgroundColor = '#ddd'; // Kolor domyślny paska
+            strengthBar.style.backgroundColor = '#ddd'; // Default bar color
             return;
         }
         let strength = 0;
@@ -800,33 +717,33 @@
         if (/[A-Z]/.test(password)) strength++;
         if (/[a-z]/.test(password)) strength++;
         if (/\d/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++; // Sprawdza obecność znaku specjalnego
+        if (/[^A-Za-z0-9]/.test(password)) strength++; // Checks for special character
 
-        // Prosty system punktowy (max 5 punktów) -> procenty
+        // Simple point system (max 5 points) -> percentage
         const percentage = Math.min((strength / 5) * 100, 100);
         strengthBar.style.width = `${percentage}%`;
 
-        // Kolorowanie paska
-        if (strength <= 1) strengthBar.style.backgroundColor = '#FF4B4B';      // Bardzo słabe
-        else if (strength <= 2) strengthBar.style.backgroundColor = '#FFA500'; // Słabe
-        else if (strength <= 3) strengthBar.style.backgroundColor = '#FFD700'; // Średnie
-        else if (strength <= 4) strengthBar.style.backgroundColor = '#90EE90'; // Dobre (poprawiono)
-        else strengthBar.style.backgroundColor = '#4CAF50'; // Bardzo dobre (poprawiono)
+        // Bar coloring
+        if (strength <= 1) strengthBar.style.backgroundColor = '#FF4B4B';      // Very weak
+        else if (strength <= 2) strengthBar.style.backgroundColor = '#FFA500'; // Weak
+        else if (strength <= 3) strengthBar.style.backgroundColor = '#FFD700'; // Medium
+        else if (strength <= 4) strengthBar.style.backgroundColor = '#90EE90'; // Good (corrected)
+        else strengthBar.style.backgroundColor = '#4CAF50'; // Very good (corrected)
     };
 
 
-    // --- Logika przełączania zakładek ---
+    // --- Tab switching logic ---
     const tabButtons = document.querySelectorAll('.tab-btn');
     const authForms = document.querySelectorAll('.auth-form');
 
     tabButtons.forEach(button => {
       button.addEventListener('click', () => {
-        // Odznacz wszystkie przyciski i ukryj formularze
+        // Deselect all buttons and hide forms
         tabButtons.forEach(btn => btn.classList.remove('active'));
         authForms.forEach(form => form.classList.remove('active'));
-        // Wyczyść komunikaty przy zmianie zakładki
+        // Clear messages when switching tabs
         clearMessages();
-        // Zaznacz kliknięty przycisk i pokaż odpowiedni formularz
+        // Mark clicked button and show corresponding form
         button.classList.add('active');
         const targetFormId = button.dataset.target;
         const targetForm = document.getElementById(targetFormId);
@@ -838,10 +755,10 @@
       });
     });
 
-    // --- Inicjalizacja Firebase na końcu ---
+    // --- Firebase initialization at the end ---
     initializeLoginAuth();
 
-  }); // Koniec DOMContentLoaded
+  }); // End of DOMContentLoaded
 </script>
 
 </body>
