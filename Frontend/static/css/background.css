@@ -1,0 +1,17 @@
+/* /static/css/background.css */
+
+/* =========================================================
+   VORTEX ANALYTICA – Shared Animated Background Styles
+   ========================================================= */
+
+   #quantum-field {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Umieszcza canvas za całą resztą treści */
+    pointer-events: none; /* Pozwala na klikanie "przez" canvas */
+    display: block; /* Zapewnia, że element zajmuje przestrzeń */
+    background-color: #0a0a10; /* <<< DODANE: Ustawia ciemne tło bezpośrednio na canvas jako fallback */
+  }
