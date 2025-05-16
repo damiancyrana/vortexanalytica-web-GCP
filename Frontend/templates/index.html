@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/index.css" />
+  <link rel="stylesheet" href="/static/css/news.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     /* Dostosowania dla nowego układu strony */
@@ -664,15 +665,206 @@
     </div>
   </div>
 
-  <div class="main-content" id="contentWrapper">
-    <main>
-      <div class="view-section active" id="feed-view">
-        <div class="empty-content">
-          <!-- Pusta strona zgodnie z wymaganiami -->
+<!-- Corrected implementation for the news feed -->
+<div class="main-content" id="contentWrapper">
+  <main>
+    <div class="view-section active" id="feed-view">
+      <!-- Replace empty-content with news-container -->
+      <div class="news-container">
+        <!-- News item 1 -->
+        <div class="news-item positive">
+          <div class="news-header">
+            <div class="news-title">ECB's de Guindos: I don't think the Eurozone will fall into a recession.</div>
+            <div class="news-date">2025-05-02 16:13:09</div>
+          </div>
+          <div class="news-labels">
+            <span class="news-label">EUR</span>
+            <span class="news-label">Europe</span>
+          </div>
+          <div class="news-effects">
+            <div class="news-effect">
+              <div class="effect-entity">Global Equities (ex-Europe)</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Reduced Eurozone recession risk improves the global growth outlook and risk sentiment, potentially boosting equities outside Europe.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Industrial Metals (e.g., Copper)</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Averting a Eurozone recession supports demand expectations for industrial inputs used in manufacturing and construction.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Luxury Goods Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Improved Eurozone economic outlook supports consumer confidence and spending, benefiting companies reliant on European and global discretionary purchases.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Global Travel & Tourism Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">A more resilient Eurozone economy could sustain outbound travel demand, benefiting airlines, hotels, and related businesses globally.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">USD (vs. major pairs)</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Reduced haven demand and improved relative outlook for a major trading bloc (Eurozone) could slightly weaken the US Dollar.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News item 2 -->
+        <div class="news-item positive">
+          <div class="news-header">
+            <div class="news-title">Trump: India is coming along great, I think we have a deal on tariffs.</div>
+            <div class="news-date">2025-04-29 18:25:26</div>
+          </div>
+          <div class="news-labels">
+            <span class="news-label">India</span>
+            <span class="news-label">US Bonds</span>
+            <span class="news-label">US Indexes</span>
+            <span class="news-label">USD</span>
+          </div>
+          <div class="news-effects">
+            <div class="news-effect">
+              <div class="effect-entity">Emerging Market Equities (excluding India)</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Signals broader easing of protectionism, boosting sentiment towards other emerging markets reliant on global trade.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">US Agricultural Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Potential removal of Indian retaliatory tariffs on US farm goods like almonds or apples could boost exports.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Indian Textiles & Apparel Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Lower US tariffs could significantly boost exports for this labor-intensive Indian sector, improving competitiveness.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">AUD/USD</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Reduced global trade tensions often boost risk-sensitive currencies like the AUD, reflecting improved global growth sentiment.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Industrial Metals (e.g., Copper)</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Improved trade relations contribute marginally to better global growth outlook, potentially increasing demand for industrial commodities.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News item 3 -->
+        <div class="news-item positive">
+          <div class="news-header">
+            <div class="news-title">Mexico's Deputy Foreign Trade Minister will meet with USTR officials this week to reiterate Mexico's commitment to the protection of intellectual property - Statement.</div>
+            <div class="news-date">2025-04-29 19:36:51</div>
+          </div>
+          <div class="news-labels">
+            <span class="news-label">Forex</span>
+            <span class="news-label">US Bonds</span>
+            <span class="news-label">US Indexes</span>
+            <span class="news-label">USD</span>
+          </div>
+          <div class="news-effects">
+            <div class="news-effect">
+              <div class="effect-entity">US Pharmaceutical Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Stronger IP protection in Mexico reduces risks of counterfeit drugs and patent infringement, potentially boosting revenues for US pharma companies operating there.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Mexican IPC Index</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Enhanced IP enforcement can improve foreign investor confidence and attract capital to Mexico, potentially benefiting Mexican equities.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">US Technology Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Better IP safeguards in Mexico could reduce software piracy and IP theft, benefiting US tech companies with operations or sales in the region.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Foreign Direct Investment into Mexico</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Commitment to IP protection is a positive signal for foreign investors, potentially encouraging higher long-term FDI inflows into IP-sensitive industries.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News item 4 -->
+        <div class="news-item medium">
+          <div class="news-header">
+            <div class="news-title">Trump administration is working on modifications to a Biden-era rule that would limit most nations' access to US-designed AI chips resources</div>
+            <div class="news-date">2025-04-29 19:16:03</div>
+          </div>
+          <div class="news-labels">
+            <span class="news-label">US Indexes</span>
+          </div>
+          <div class="news-effects">
+            <div class="news-effect">
+              <div class="effect-entity">Non-US Semiconductor Manufacturers (e.g., TSMC, Samsung)</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Looser US export rules could increase competition but also potentially boost foundry demand from US design firms expanding sales.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Semiconductor Equipment Manufacturers (e.g., ASML, Tokyo Electron)</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Easing export restrictions could boost global AI chip production, increasing demand for specialized manufacturing equipment.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Emerging Market Technology Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Improved access to advanced US AI chips could accelerate innovation and growth in technology sectors within previously restricted nations.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">TWD (Taiwan Dollar)</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Potential shifts in foundry demand and geopolitical perceptions related to Taiwan's central role in chip manufacturing could influence the currency.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- News item 5 -->
+        <div class="news-item negative">
+          <div class="news-header">
+            <div class="news-title">USTR: Europe is not engaging well on tariff talks - PBS.</div>
+            <div class="news-date">2025-04-29 18:08:22</div>
+          </div>
+          <div class="news-labels">
+            <span class="news-label">EUR</span>
+            <span class="news-label">Europe</span>
+            <span class="news-label">US Bonds</span>
+            <span class="news-label">US Indexes</span>
+            <span class="news-label">USD</span>
+          </div>
+          <div class="news-effects">
+            <div class="news-effect">
+              <div class="effect-entity">Global Automotive Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Stalled talks increase risk of tariffs disrupting highly integrated US-EU auto supply chains and cross-border sales.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Inflation Expectations</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Failure to resolve disputes raises the prospect of new tariffs, which would increase import prices and fuel inflation.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Global Shipping/Logistics Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">Increased trade friction and potential tariffs reduce transatlantic trade volumes, negatively impacting shipping demand and logistics companies.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">European Luxury Goods Sector</div>
+              <div class="effect-likelihood">Likelihood: Medium</div>
+              <div class="effect-reasoning">This sector is frequently targeted in US-EU trade disputes; stalled talks increase risk of future tariffs impacting exports.</div>
+            </div>
+            <div class="news-effect">
+              <div class="effect-entity">Aerospace Sector</div>
+              <div class="effect-likelihood">Likelihood: Low</div>
+              <div class="effect-reasoning">Historically sensitive to US-EU trade spats (e.g., Boeing/Airbus); lack of progress renews uncertainty over potential tariffs.</div>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
+</div>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>

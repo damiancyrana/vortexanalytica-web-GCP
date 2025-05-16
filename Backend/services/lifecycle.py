@@ -1,6 +1,6 @@
 """
 Moduł cyklu życia aplikacji (Wersja Produkcyjna - Hybrydowa).
-Inicjalizuje Firebase Admin SDK.
+Inicjalizuje Firebase Admin SDK i serwis Pub/Sub.
 """
 from __future__ import annotations
 
@@ -13,11 +13,17 @@ from firebase_admin import credentials
 
 from Backend.core.config import get_settings, Settings
 from Backend.services.email_service import EmailService
+from Backend.services.pubsub_service import PubSubService
 
 logger = logging.getLogger(__name__)
 
+# Zmienne do przechowywania instancji serwisów globalnie
+_pubsub_service = None
+
 async def app_startup() -> None:
-    """ Inicjalizuje Firebase Admin SDK przy starcie aplikacji. """
+    """ Inicjalizuje serwisy przy starcie aplikacji. """
+    global _pubsub_service
+    
     logger.info("Uruchamianie aplikacji Vortex Analytica (startup event)...")
     try:
         settings = get_settings() # Pobierz konfigurację (ładuje też sekrety)
@@ -70,11 +76,36 @@ async def app_startup() -> None:
         logger.critical(f"Nieznany błąd podczas inicjalizacji Firebase Admin SDK: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Unexpected error initializing Firebase: {e}") from e
 
+    # Inicjalizacja Pub/Sub Service
+    try:
+        logger.info("Inicjalizacja serwisu Pub/Sub...")
+        _pubsub_service = PubSubService(settings)
+        
+        # Uruchom nasłuchiwanie
+        if _pubsub_service.start_listener():
+            logger.info("Serwis Pub/Sub uruchomiony pomyślnie.")
+        else:
+            logger.warning("Nie udało się uruchomić nasłuchiwania Pub/Sub, ale aplikacja kontynuuje działanie.")
+    except Exception as e:
+        logger.error(f"Błąd podczas inicjalizacji serwisu Pub/Sub: {e}", exc_info=True)
+        logger.warning("Aplikacja będzie kontynuować działanie bez serwisu Pub/Sub.")
+
     logger.info(f"Aplikacja uruchomiona pomyślnie w trybie: {settings.environment}")
 
 async def app_shutdown() -> None:
     """ Zwalnia zasoby przy zamykaniu aplikacji. """
+    global _pubsub_service
+    
     logger.info("Zamykanie aplikacji Vortex Analytica (shutdown event)...")
+    
+    # Zatrzymaj serwis Pub/Sub
+    if _pubsub_service:
+        try:
+            logger.info("Zatrzymywanie serwisu Pub/Sub...")
+            _pubsub_service.stop_listener()
+        except Exception as e:
+            logger.warning(f"Błąd podczas zatrzymywania serwisu Pub/Sub: {e}", exc_info=True)
+    
     # Zamknij pulę połączeń SMTP, jeśli EmailService był używany
     try:
         # Spróbuj uzyskać dostęp do instancji EmailService
