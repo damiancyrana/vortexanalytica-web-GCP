@@ -29,21 +29,10 @@ async def get_news(
     news_service = NewsService()
     messages = news_service.get_messages(limit=limit)
     
-    # Przygotuj dane do odpowiedzi
+    # Przygotuj dane do odpowiedzi - używamy _simplify_message z NewsService
     simplified_messages = []
     for msg in messages:
-        narrative_impact = "Unknown"
-        if ("analysis_payload" in msg and 
-            "knowledge_graph_data" in msg["analysis_payload"] and 
-            "narrative_impact" in msg["analysis_payload"]["knowledge_graph_data"]):
-            narrative_impact = msg["analysis_payload"]["knowledge_graph_data"]["narrative_impact"]
-        
-        simplified_messages.append({
-            "news_id": msg.get("news_id", ""),
-            "title": msg.get("title", ""),
-            "time_reported": msg.get("time_reported", ""),
-            "narrative_impact": narrative_impact
-        })
+        simplified_messages.append(news_service._simplify_message(msg))
     
     return {"news": simplified_messages}
 

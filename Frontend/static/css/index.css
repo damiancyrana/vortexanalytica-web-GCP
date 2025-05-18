@@ -2,90 +2,89 @@
 /* == Frontend/static/css/index.css    == */
 /* ======================================== */
 
-/* Main CSS Variables */
 :root {
   /* Core colors */
-  --blue: #00e5ff;
-  --teal: #3fffa1;
+  --blue: #00c6ff;              /* fintech accent */
+  --teal: #3affc3;
   --purple: #b967ff;
-  --text-sec: rgba(240, 240, 245, 0.75);
+  --text-sec: rgba(240, 240, 245, 0.8);
   --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
   --blur: blur(10px);
-  
+
   /* Layout measurements */
   --header-height: 50px;
   --sidebar-width: 250px;
   --footer-height: 45px;
   --content-max-width: 95%;
   --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-  
+
   /* Light Theme Colors */
-  --bg-body-light: #f0f2f5;
+  --bg-body-light: #f4f6fb;
   --bg-content-light: #ffffff;
-  --bg-container-light: #f8f9fa;
-  --text-color-light: #212529;
-  --text-muted-light: #aaaaaa; 
-  --border-color-light: #dee2e6;
-  --header-bg-light: #0a0a10;
+  --bg-container-light: #f9fbfd;
+  --text-color-light: #1e293b;
+  --text-muted-light: #6b7280;
+  --border-color-light: #dfe3ec;
+  --header-bg-light: #0f172a;
   --header-border-light: var(--border-color-light);
-  --footer-bg-light: #e9ecef;
+  --footer-bg-light: #f4f6fb;
   --footer-border-light: var(--border-color-light);
   --item-bg-light: #ffffff;
-  --item-border-light: var(--border-color-light);
-  --control-bg-light: #e9ecef;
-  --link-color-light: #0d6efd;
-  
+  --item-border-light: rgba(31, 48, 76, 0.08);
+  --control-bg-light: #edf1f7;
+  --link-color-light: var(--blue);
+
   /* Premium fintech light theme */
-  --light-bg: #f3f4f8;
-  --light-text: #2a2d3e;
+  --light-bg: #f4f6fb;
+  --light-text: #1e293b;
   --light-text-muted: #6b7280;
-  --light-accent: #00c6ff;
-  --light-border: #d1d5db;
-  --light-sidebar-bg: #e9eef2;
-  --light-sidebar-hover: rgba(0, 198, 255, 0.1);
-  --light-sidebar-active: rgba(0, 198, 255, 0.15);
+  --light-accent: var(--blue);
+  --light-border: #dfe3ec;
+  --light-sidebar-bg: #e9eef5;
+  --light-sidebar-hover: rgba(0, 198, 255, 0.08);
+  --light-sidebar-active: rgba(0, 198, 255, 0.14);
   --light-header-bg: #0f172a;
   --light-header-text: #ffffff;
   --light-btn-bg: #334155;
   --light-btn-text: #ffffff;
-  --light-btn-border: #4b5563;
+  --light-btn-border: #405875;
 
   /* Dark Theme Colors */
-  --bg-dark: #0a0a10;
-  --bg-dark-medium: #111827;
+  --bg-dark: #121620;
+  --bg-dark-medium: #1c2735;
   --text-color-dark: #e2e8f0;
-  --text-muted-dark: #555577;
-  --border-color-dark: rgba(0, 229, 255, 0.15);
-  --header-bg-dark: rgba(10, 10, 16, .7);
-  --header-border-dark: rgba(0, 229, 255, .1);
-  --footer-bg-dark: rgba(10, 10, 16, .9);
-  --footer-border-dark: rgba(0, 229, 255, .1);
-  --item-bg-dark: rgba(26, 31, 54, 0.7);
-  --container-bg-dark: rgba(10, 10, 16, 0.6);
-  --item-border-dark: rgba(0, 229, 255, 0.1);
-  --control-bg-dark: rgba(0, 0, 0, 0.2);
+  --text-muted-dark: #7c8699;
+  --border-color-dark: rgba(0, 229, 255, 0.12);
+  --header-bg-dark: rgba(14, 14, 22, 0.7);
+  --header-border-dark: rgba(0, 229, 255, 0.12);
+  --footer-bg-dark: rgba(14, 14, 22, 0.9);
+  --footer-border-dark: rgba(0, 229, 255, 0.12);
+  --item-bg-dark: rgba(32, 38, 64, 0.7);
+  --container-bg-dark: rgba(20, 24, 36, 0.6);
+  --item-border-dark: rgba(0, 229, 255, 0.12);
+  --control-bg-dark: rgba(0, 0, 0, 0.25);
   --link-color-dark: var(--blue);
-  
+
   /* Dark theme alternatives */
-  --dark-bg: #0a0a10;
+  --dark-bg: #121620;
   --dark-text: #e2e8f0;
-  --dark-text-muted: #aaaaaa;
-  --dark-accent: #00e5ff;
-  --dark-border: rgba(0, 229, 255, 0.15);
-  --dark-sidebar-bg: rgba(10, 10, 16, 0.9);
-  --dark-sidebar-hover: rgba(0, 229, 255, 0.1);
-  --dark-sidebar-active: rgba(0, 229, 255, 0.15);
-  --dark-header-bg: #0a0a10;
+  --dark-text-muted: #8e96a9;
+  --dark-accent: var(--blue);
+  --dark-border: rgba(0, 229, 255, 0.12);
+  --dark-sidebar-bg: rgba(14, 14, 22, 0.9);
+  --dark-sidebar-hover: rgba(0, 229, 255, 0.08);
+  --dark-sidebar-active: rgba(0, 229, 255, 0.14);
+  --dark-header-bg: #0e0e16;
   --dark-header-text: #ffffff;
   --dark-btn-bg: transparent;
   --dark-btn-text: #ffffff;
   --dark-btn-border: rgba(255, 255, 255, 0.2);
-  
+
   /* Logout button variables */
   --logout-dark: var(--bg-dark, #1f2335);
-  --logout-middle: var(--accent-color, #4371f7);
+  --logout-middle: var(--accent-color, #00c6ff);
   --logout-light: var(--text-color-dark, #f4f7ff);
-  
+
   /* Default Theme (Light) */
   --current-bg-body: var(--bg-body-light);
   --current-bg-content: var(--bg-content-light);
@@ -101,11 +100,12 @@
   --current-item-border: var(--item-border-light);
   --current-control-bg: var(--control-bg-light);
   --current-link-color: var(--link-color-light);
-  
+
   /* Common Variables */
   --accent-color: var(--blue);
   --accent-color-hover: var(--teal);
 }
+
 
 /* Global Body Styles */
 html { 

@@ -72,17 +72,39 @@ class NewsService:
     
     def _simplify_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Upraszcza wiadomość do formatu odpowiedniego dla SSE."""
+        # Domyślne wartości
         narrative_impact = "Unknown"
+        interpretation = ""
+        interpretation_tags = []
+        extracted_entities = []
+        
+        # Pobierz dane z knowledge_graph_data, jeśli istnieją
         if ("analysis_payload" in message and 
-            "knowledge_graph_data" in message["analysis_payload"] and 
-            "narrative_impact" in message["analysis_payload"]["knowledge_graph_data"]):
-            narrative_impact = message["analysis_payload"]["knowledge_graph_data"]["narrative_impact"]
+            "knowledge_graph_data" in message["analysis_payload"]):
+            
+            kg_data = message["analysis_payload"]["knowledge_graph_data"]
+            
+            if "narrative_impact" in kg_data:
+                narrative_impact = kg_data["narrative_impact"]
+            
+            if "interpretation" in kg_data:
+                interpretation = kg_data["interpretation"]
+            
+            if "interpretation_tags" in kg_data:
+                interpretation_tags = kg_data["interpretation_tags"]
+            
+            if "extracted_entities" in kg_data:
+                extracted_entities = kg_data["extracted_entities"]
         
         return {
             "news_id": message.get("news_id", ""),
             "title": message.get("title", ""),
             "time_reported": message.get("time_reported", ""),
-            "narrative_impact": narrative_impact
+            "ts": message.get("ts", ""),
+            "narrative_impact": narrative_impact,
+            "interpretation": interpretation,
+            "interpretation_tags": interpretation_tags,
+            "extracted_entities": extracted_entities
         }
     
     async def _notify_subscribers(self, message: Dict[str, Any]) -> None:
