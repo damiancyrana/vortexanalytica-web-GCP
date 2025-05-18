@@ -36,9 +36,9 @@
   overflow-x: hidden; /* Zapobiegamy przewijaniu w poziomie */
   position: relative;
   height: calc(100vh - 120px); /* Ustalona wysokość */
-  min-height: 100; /* Minimum */
+  min-height: 160; /* Minimum */
   margin: 0;
-  gap: 0.5rem;
+  gap: 0.2rem;
   scrollbar-width: thin;
   scrollbar-color: var(--quantum-blue) transparent;
 }
@@ -90,7 +90,7 @@
 
 /* Style dla paragrafów w treści */
 .news-content p {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   max-width: 100%;
   overflow-wrap: anywhere; /* Kluczowa zmiana */
   word-break: break-all; /* Dodatkowe wymuszenie łamania */
@@ -106,12 +106,13 @@
 /* Style dla tagów */
 .news-label {
   display: inline-block;
-  margin-right: 6px;
+  margin-right: 5px;
   background: rgba(24, 36, 70, 0.6);
   backdrop-filter: blur(5px);
   border-radius: 12px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  margin-bottom: 10px;
+  font-size: 0.7rem;
   color: var(--text-primary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
@@ -149,7 +150,7 @@
   flex-direction: column;
   width: 100%;
   overflow: hidden; /* Zapobiega wylewaniu się treści */
-  padding: 1rem;
+  padding: 0.8rem;
   border-left: 3px solid var(--quantum-gold);
   transition: all 0.3s ease;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
