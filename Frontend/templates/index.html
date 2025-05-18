@@ -665,31 +665,14 @@
     </div>
   </div>
 
-<!-- Corrected implementation for the news feed -->
+<!-- Główna zawartość - teraz z pustym kontenerem .news-container -->
 <div class="main-content" id="contentWrapper">
   <main>
     <div class="view-section active" id="feed-view">
-      <!-- Replace empty-content with news-container -->
+      <!-- Pusty kontener na wiadomości - będzie wypełniany przez JavaScript -->
       <div class="news-container">
-        <!-- News item 1 -->
-        <div class="news-item positive">
-          <div class="news-header">
-            <div class="news-title">ECB's de Guindos: I don't think the Eurozone will fall into a recession.</div>
-            <div class="news-date">2025-05-02 16:13:09</div>
-          </div>
-          <div class="news-labels">
-            <span class="news-label">EUR</span>
-            <span class="news-label">Europe</span>
-          </div>
-          <div class="news-effects">
-            <div class="news-effect">
-              <div class="effect-entity">Global Equities (ex-Europe)</div>
-              <div class="effect-likelihood">Likelihood: Medium</div>
-              <div class="effect-reasoning">Reduced Eurozone recession risk improves the global growth outlook and risk sentiment, potentially boosting equities outside Europe.</div>
-            </div>
-
-          </div>
-        </div>
+        <!-- Wiadomości będą dodawane tutaj dynamicznie -->
+        <p style="text-align: center; padding: 20px; color: var(--current-text-muted);">Ładowanie wiadomości...</p>
       </div>
     </div>
   </main>
@@ -778,5 +761,8 @@
       updateBackgroundEffect();
     });
   </script>
+  
+  <!-- Dodany skrypt do obsługi wiadomości PubSub -->
+  <script src="/static/js/news_updater.js"></script>
 </body>
 </html>

@@ -81,8 +81,8 @@ async def app_startup() -> None:
         logger.info("Inicjalizacja serwisu Pub/Sub...")
         _pubsub_service = PubSubService(settings)
         
-        # Uruchom nasłuchiwanie
-        if _pubsub_service.start_listener():
+        # Uruchom nasłuchiwanie asynchronicznie
+        if await _pubsub_service.start_listener_async():
             logger.info("Serwis Pub/Sub uruchomiony pomyślnie.")
         else:
             logger.warning("Nie udało się uruchomić nasłuchiwania Pub/Sub, ale aplikacja kontynuuje działanie.")
@@ -92,6 +92,7 @@ async def app_startup() -> None:
 
     logger.info(f"Aplikacja uruchomiona pomyślnie w trybie: {settings.environment}")
 
+    
 async def app_shutdown() -> None:
     """ Zwalnia zasoby przy zamykaniu aplikacji. """
     global _pubsub_service

@@ -3,6 +3,7 @@ Moduł tras strony głównej (Wersja Produkcyjna - Hybrydowa).
 Używa sesji ciasteczkowej. /index wymaga sesji, API też.
 """
 from __future__ import annotations
+from Backend.services.news_service import NewsService
 
 import logging
 from typing import Dict, Any
@@ -62,3 +63,32 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
              ]
          }
          return data
+    
+    @app.get("/api/news", summary="Pobiera najnowsze wiadomości")
+    async def get_news(
+        limit: int = 10,
+        current_user_session: Dict[str, Any] = Depends(get_current_active_user)
+    ) -> Dict[str, Any]:
+        """Pobiera najnowsze wiadomości dla zalogowanego użytkownika."""
+        logger.info(f"Pobieranie wiadomości dla użytkownika z sesji: {current_user_session.get('user_id')}")
+        
+        news_service = NewsService()
+        messages = news_service.get_messages(limit=limit)
+        
+        # Przygotuj dane do odpowiedzi - tylko wymagane pola
+        simplified_messages = []
+        for msg in messages:
+            narrative_impact = "Unknown"
+            if ("analysis_payload" in msg and 
+                "knowledge_graph_data" in msg["analysis_payload"] and 
+                "narrative_impact" in msg["analysis_payload"]["knowledge_graph_data"]):
+                narrative_impact = msg["analysis_payload"]["knowledge_graph_data"]["narrative_impact"]
+            
+            simplified_messages.append({
+                "news_id": msg.get("news_id", ""),
+                "title": msg.get("title", ""),
+                "time_reported": msg.get("time_reported", ""),
+                "narrative_impact": narrative_impact
+            })
+        
+        return {"news": simplified_messages}
