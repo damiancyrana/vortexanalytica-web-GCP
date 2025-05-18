@@ -63,16 +63,24 @@
   </div>
 
 
-<div class="main-content" id="contentWrapper">
-  <main>
-    <div class="view-section active" id="feed-view">
-
-      <div class="news-container">
-
-        <p style="text-align: center; padding: 20px; color: var(--current-text-muted);">Loading messages...</p>
+  <div class="main-content" id="contentWrapper">
+    <main>
+      <div class="view-section active" id="feed-view">
+        <div class="news-container">
+          <div class="quantum-loading">
+            <div class="quantum-spinner">
+              <div class="quantum-ring ring-1"></div>
+              <div class="quantum-ring ring-2"></div>
+              <div class="quantum-ring ring-3"></div>
+              <div class="quantum-sphere"></div>
+            </div>
+            <div>no new messages detected...</div>
+          </div>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+    
+  </div>
 </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
