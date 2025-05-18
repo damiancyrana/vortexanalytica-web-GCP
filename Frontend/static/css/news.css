@@ -24,21 +24,21 @@
 
 /* Poprawiona definicja kontenera wiadomości */
 .news-container {
-  flex: 1.4;
+  flex: 0.7;
+  width: 70%;  /* rozmiar szerokość */
   display: flex;
   flex-direction: column;
   background: transparent;
-  border-radius: 0.8rem;
+  border-radius: 0.7rem;
   border: none;
   box-shadow: none;
   overflow-y: auto; /* Jawnie ustawiamy przewijanie w pionie */
   overflow-x: hidden; /* Zapobiegamy przewijaniu w poziomie */
   position: relative;
   height: calc(100vh - 120px); /* Ustalona wysokość */
-  min-height: 400px; /* Minimum */
+  min-height: 100; /* Minimum */
   margin: 0;
-  padding: 0 0.8rem; /* Usunięto padding górny i dolny, aby nie wpływał na przewijanie */
-  gap: 1rem;
+  gap: 0.5rem;
   scrollbar-width: thin;
   scrollbar-color: var(--quantum-blue) transparent;
 }
@@ -70,13 +70,37 @@
   font-style: italic;
 }
 
+/* Poprawiony styl dla treści wiadomości, aby zapobiec ucięciu */
 .news-content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin: 10px 0;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  margin: 5px 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left; /* Zmieniono z justify na left dla lepszego łamania */
+  overflow-wrap: anywhere; /* Kluczowa zmiana: anywhere zamiast break-word */
+  word-wrap: break-word;
+  word-break: break-all; /* Dodatkowe wymuszenie łamania w dowolnym miejscu */
+  hyphens: auto;
+  max-width: 100%;
+  padding-right: 5px; /* Dodany dodatkowy odstęp z prawej */
+  box-sizing: border-box;
+}
+
+/* Style dla paragrafów w treści */
+.news-content p {
+  margin-bottom: 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere; /* Kluczowa zmiana */
+  word-break: break-all; /* Dodatkowe wymuszenie łamania */
+  white-space: normal; /* Upewnienie się, że tekst normalnie się zawija */
+}
+
+/* Style dla elementów interpretacji */
+.news-content p strong {
+  display: inline-block;
+  margin-right: 5px;
 }
 
 /* Style dla tagów */
@@ -91,6 +115,9 @@
   color: var(--text-primary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .news-label:hover {
@@ -112,6 +139,7 @@
   border-radius: 3px;
 }
 
+/* Poprawione style dla elementów wiadomości */
 .news-item {
   background: rgba(11, 11, 19, 0.95);
   border-radius: 6px;
@@ -120,11 +148,13 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  overflow: visible;
+  overflow: hidden; /* Zapobiega wylewaniu się treści */
   padding: 1rem;
   border-left: 3px solid var(--quantum-gold);
   transition: all 0.3s ease;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  max-width: 100%; /* Upewniamy się, że nie przekracza szerokości kontenera */
 }
 
 .news-item:hover {
@@ -198,38 +228,52 @@
 
 .news-header {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* Style dla tytułu - teraz pod datą */
 .news-title {
-  font-weight: 600;
-  font-size: 0.9rem;
-  line-height: 1.35;
-  color: var(--text-primary);
-  word-break: break-word;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: var(--current-text-color);
+  width: 100%;
+  overflow-wrap: anywhere; /* Kluczowa zmiana: anywhere zamiast break-word */
+  word-wrap: break-word;
+  word-break: break-all; /* Dodatkowe wymuszenie łamania w dowolnym miejscu */
+  hyphens: auto;
+  box-sizing: border-box;
 }
 
 .news-date {
-  font-size: 0.7rem;
-  color: var(--text-dim);
+  font-size: 0.8rem;
+  color: var(--current-text-color);
   white-space: nowrap;
-  margin-left: 8px;
-  font-family: monospace;
+  order: -1;
+  padding-bottom: 2px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .news-labels {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 0.8rem;
-  margin-bottom: 0.8rem;
+  margin-top: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .news-effects {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .news-effect {
@@ -239,6 +283,8 @@
   border-left: 2px solid var(--quantum-gold);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Animacja insight boxa */
@@ -304,6 +350,8 @@
   margin-bottom: 0.4rem;
   position: relative;
   z-index: 1;
+  overflow-wrap: anywhere; /* Kluczowa zmiana: anywhere zamiast break-word */
+  word-wrap: break-word;
 }
 
 .effect-likelihood {
@@ -331,6 +379,8 @@
   color: var(--text-secondary);
   position: relative;
   z-index: 1;
+  overflow-wrap: anywhere; /* Kluczowa zmiana: anywhere zamiast break-word */
+  word-wrap: break-word;
 }
 
 /* Poprawiona animacja ładowania, aby nie przeszkadzała w przewijaniu */
@@ -502,15 +552,25 @@
   .news-container {
     height: calc(100vh - 150px);
     min-height: 300px;
+    width: 85%;
   }
   
   .news-item {
     padding: 0.8rem;
   }
   
-  .news-title {
-    font-size: 0.8rem;
+  .news-header {
+    gap: 3px;
   }
+  
+  .news-date {
+    font-size: 0.65rem;
+  }
+  
+  .news-title {
+    font-size: 0.9rem;
+  }
+
   
   .news-effect {
     padding: 0.6rem;
@@ -530,6 +590,7 @@
     height: calc(100vh - 180px);
     min-height: 250px;
     padding: 0 0.4rem;
+    width: 95%;
   }
   
   .news-header {

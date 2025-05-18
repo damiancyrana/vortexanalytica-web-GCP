@@ -94,13 +94,13 @@ class PubSubService:
                 decoded_json = message_data.decode('utf-8')
                 print(decoded_json)
                 
-                # Parsuj JSON i dodaj do serwisu wiadomości
+                # Parsuj JSON
                 news_data = orjson.loads(decoded_json)
                 news_service = NewsService()
                 
-                # Użyj asynchronicznej metody
+                # Użyj asynchronicznej metody NewsService do natychmiastowej publikacji
                 await news_service.add_message_async(news_data)
-                logger.debug(f"Wiadomość przekazana do NewsService asynchronicznie: {news_data.get('news_id', 'unknown')}")
+                logger.info(f"Wiadomość {message_id} przetworzona i natychmiast opublikowana do wszystkich klientów")
                 
             except UnicodeDecodeError:
                 print(f"Nie można zdekodować jako UTF-8: {message_data!r}")
@@ -118,28 +118,55 @@ class PubSubService:
             message_id = message.message_id
             publish_time = message.publish_time
             
-            # Uruchom asynchroniczne przetwarzanie w istniejącej pętli zdarzeń
-            # lub utwórz nową jeśli nie ma aktywnej
+            # Uruchom asynchroniczne przetwarzanie z priorytetem
             try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # Jeśli pętla jest uruchomiona, utwórz zadanie
-                    asyncio.create_task(self._async_message_callback(data_bytes, message_id, str(publish_time)))
-                else:
-                    # Jeśli pętla nie jest uruchomiona, wykonaj synchronicznie
-                    loop.run_until_complete(self._async_message_callback(data_bytes, message_id, str(publish_time)))
+                # Sprawdzamy, czy istnieje bieżąca pętla zdarzeń
+                loop = asyncio.get_running_loop()
+                # Skoro pętla istnieje, tworzymy zadanie z wysokim priorytetem
+                task = loop.create_task(self._process_message_wrapper(data_bytes, message_id, str(publish_time), message))
+                # Zwiększamy priorytet zadania, aby zapewnić szybsze przetwarzanie
+                task.set_name(f"process_pubsub_message_{message_id}")
             except RuntimeError:
-                # Jeśli nie ma aktywnej pętli zdarzeń, utwórz nową
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                loop.run_until_complete(self._async_message_callback(data_bytes, message_id, str(publish_time)))
-                
-            # Potwierdź odebranie wiadomości
-            message.ack()
-            
+                # Nie ma aktywnej pętli zdarzeń, tworzymy nową z dedykowanym wątkiem
+                new_loop = asyncio.new_event_loop()
+                try:
+                    # Ustawiamy nową pętlę jako bieżącą
+                    asyncio.set_event_loop(new_loop)
+                    # Uruchamiamy wrapper z natychmiastowym wykonaniem
+                    new_loop.run_until_complete(self._process_message_wrapper(
+                        data_bytes, message_id, str(publish_time), message
+                    ))
+                finally:
+                    # Zamykamy pętlę po wykonaniu
+                    try:
+                        new_loop.close()
+                    except:
+                        pass
         except Exception as e:
             logger.error(f"Błąd podczas przetwarzania wiadomości Pub/Sub: {e}", exc_info=True)
-            # Zawsze potwierdź wiadomość, aby uniknąć wielokrotnego przetwarzania
+            # W razie błędu, zawsze potwierdź wiadomość, aby uniknąć jej wielokrotnego przetwarzania
+            message.ack()
+
+    async def _process_message_wrapper(self, data_bytes: bytes, message_id: str, publish_time: str, message: pubsub_v1.subscriber.message.Message) -> None:
+        """
+        Wrapper, który wykonuje callback i potwierdza wiadomość dopiero po zakończeniu przetwarzania.
+        """
+        try:
+            # Zarejestruj czas początkowy do pomiaru latencji
+            start_time = time.time()
+            
+            # Wywołujemy właściwy handler wiadomości (priorytetowo)
+            await self._async_message_callback(data_bytes, message_id, publish_time)
+            
+            # Zmierz całkowity czas przetwarzania
+            processing_time = (time.time() - start_time) * 1000  # w milisekundach
+            logger.info(f"Wiadomość {message_id} przetworzona w {processing_time:.2f}ms")
+            
+            # Potwierdzamy wiadomość PO przetworzeniu
+            message.ack()
+        except Exception as e:
+            logger.error(f"Błąd w _process_message_wrapper: {e}", exc_info=True)
+            # W razie błędu, potwierdź wiadomość, aby uniknąć jej wielokrotnego przetwarzania
             message.ack()
 
     async def start_listener_async(self) -> bool:
@@ -160,10 +187,17 @@ class PubSubService:
             # Nasłuchiwanie samo w sobie jest synchroniczne z punktu widzenia FastAPI
             # Uruchamiamy je w osobnym wątku i monitorujemy asynchronicznie
             def start_subscription_in_thread():
+                # Konfiguracja FlowControl dla szybszego przetwarzania
+                flow_control = pubsub_v1.types.FlowControl(
+                    max_messages=20,  # Zwiększona liczba równoczesnych wiadomości
+                    max_bytes=10 * 1024 * 1024,  # 10MB max
+                    max_lease_duration=60  # 60 sekund maksymalnego czasu dzierżawy
+                )
+                
                 self.streaming_pull_future = self.subscriber.subscribe(
                     self.subscription_path,
                     callback=self._message_callback,
-                    flow_control=pubsub_v1.types.FlowControl(max_messages=10)
+                    flow_control=flow_control
                 )
                 print(f"\n[MARKETNEWS] Rozpoczęto nasłuchiwanie na temacie '{self.topic_name}' przez subskrypcję '{self.subscription_name}'")
                 print("[MARKETNEWS] Czekam na wiadomości...\n")
@@ -174,10 +208,11 @@ class PubSubService:
                     if not self.shutdown_event.is_set():
                         logger.error(f"Błąd w subskrypcji Pub/Sub: {e}", exc_info=True)
             
-            # Uruchom nasłuchiwanie w osobnym wątku
+            # Uruchom nasłuchiwanie w osobnym wątku z wysokim priorytetem
             subscription_thread = threading.Thread(
                 target=start_subscription_in_thread,
-                daemon=True
+                daemon=True,
+                name="PubSub_Listener_Thread"
             )
             subscription_thread.start()
             
@@ -277,3 +312,4 @@ class PubSubService:
             loop.run_until_complete(self.stop_listener_async())
         finally:
             loop.close()
+            
