@@ -251,23 +251,6 @@ function setupSSEConnection() {
     }
 }
 
-// Czyści wszystkie wiadomości w kontenerze
-function clearNewsMessages() {
-    const newsContainer = document.querySelector('.news-container');
-    if (!newsContainer) {
-        console.error("Kontener wiadomości nie znaleziony.");
-        return;
-    }
-    
-    // Usuń wszystkie wiadomości
-    const messages = container.querySelectorAll('.news-item');
-    messages.forEach(message => message.remove());
-    
-    // Dodaj komunikat o wyczyszczeniu
-    newsContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--current-text-muted);">Oczekiwanie na nowe wiadomości...</p>';
-    
-    console.log("Wiadomości wyczyszczone, oczekiwanie na nowe wiadomości.");
-}
 
 // Inicjalizacja tylko połączenia SSE przy załadowaniu strony
 document.addEventListener('DOMContentLoaded', function() {
