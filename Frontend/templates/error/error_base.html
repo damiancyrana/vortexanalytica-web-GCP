@@ -7,99 +7,250 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-
     <link rel="stylesheet" href="/static/css/landing_page.css" />
+    
     <style>
-        /* Dodatkowe style specyficzne dla stron błędów */
+        /* Grid-Based Error Page Styles */
+        :root {
+            --error-grid-gap: 24px;
+            --error-padding: 32px;
+            --error-border-radius: 16px;
+            --error-transition: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: grid;
+            place-items: center;
             min-height: 100vh;
             background: var(--bg-dark);
             color: var(--text-main);
-            padding: 20px;
+            padding: var(--error-padding);
+            margin: 0;
+            font-family: 'Exo 2', sans-serif;
         }
+        
         .error-container {
+            display: grid;
+            gap: var(--error-grid-gap);
+            justify-items: center;
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
+            border-radius: var(--error-border-radius);
             padding: 3rem 2rem;
             backdrop-filter: var(--blur);
             text-align: center;
             max-width: 600px;
             width: 100%;
+            transition: all var(--error-transition);
         }
+        
         .error-icon {
             font-size: 4rem;
-            color: var(--pink); /* Kolor ikony błędu */
-            margin-bottom: 1.5rem;
+            color: var(--pink);
+            margin-bottom: 0;
         }
+        
         .error-code {
             font-size: 5rem;
             font-weight: 700;
             color: var(--text-dim);
             line-height: 1;
-            margin-bottom: 0.5rem;
+            margin: 0;
         }
+        
         .error-title {
             font-size: 1.8rem;
             font-weight: 600;
             color: var(--text-main);
-            margin-bottom: 1rem;
+            margin: 0;
         }
+        
         .error-message {
             color: var(--text-sec);
-            margin-bottom: 2rem;
             line-height: 1.7;
+            margin: 0;
         }
+        
         .error-actions {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-auto-flow: column;
             gap: 1rem;
-            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
         }
+        
         .error-btn {
-            display: inline-flex;
+            display: grid;
+            grid-auto-flow: column;
             align-items: center;
-            gap: .5rem;
-            padding: .8rem 1.5rem;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 6px;
             text-decoration: none;
             font-weight: 500;
-            transition: all var(--t-fast);
+            transition: all var(--error-transition);
             border: 1px solid var(--card-border);
             background: var(--bg-light);
             color: var(--text-main);
+            justify-content: center;
+            white-space: nowrap;
         }
-        .error-btn i {
-            font-size: 1rem;
-        }
+        
         .error-btn:hover {
             background: var(--bg-medium);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,229,255,.1);
+            box-shadow: 0 4px 10px rgba(0, 229, 255, 0.1);
         }
-         .error-btn.secondary {
+        
+        .error-btn.secondary {
             background: transparent;
             color: var(--text-sec);
         }
+        
         .error-btn.secondary:hover {
             background: var(--bg-light);
-             color: var(--text-main);
+            color: var(--text-main);
         }
 
-         /* Responsywność dla kontenera błędu */
-         @media (max-width: 600px) {
-            .error-container { padding: 2rem 1rem; }
-            .error-icon { font-size: 3rem; }
-            .error-code { font-size: 4rem; }
-            .error-title { font-size: 1.5rem; }
-            .error-message { font-size: 0.95rem; }
-            .error-actions { flex-direction: column; gap: 0.8rem; }
-            .error-btn { width: 80%; justify-content: center; }
-         }
+        /* Desktop (1400px+) */
+        @media (min-width: 1400px) {
+            :root {
+                --error-padding: 40px;
+                --error-grid-gap: 32px;
+            }
+            
+            .error-container {
+                padding: 4rem 3rem;
+            }
+            
+            .error-icon {
+                font-size: 5rem;
+            }
+            
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 2.2rem;
+            }
+            
+            .error-message {
+                font-size: 1.1rem;
+            }
+            
+            .error-btn {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+        }
 
+        /* Laptop (1024-1399px) */
+        @media (min-width: 1024px) and (max-width: 1399px) {
+            :root {
+                --error-padding: 32px;
+                --error-grid-gap: 24px;
+            }
+            
+            .error-container {
+                padding: 3.5rem 2.5rem;
+            }
+        }
+
+        /* Tablet (768-1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            :root {
+                --error-padding: 24px;
+                --error-grid-gap: 20px;
+            }
+            
+            .error-container {
+                padding: 2.5rem 2rem;
+            }
+            
+            .error-actions {
+                grid-auto-flow: row;
+                gap: 0.8rem;
+            }
+            
+            .error-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-self: center;
+            }
+        }
+
+        /* Mobile (≤767px) */
+        @media (max-width: 767px) {
+            :root {
+                --error-padding: 20px;
+                --error-grid-gap: 16px;
+            }
+            
+            .error-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .error-icon {
+                font-size: 3rem;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .error-message {
+                font-size: 0.95rem;
+            }
+            
+            .error-actions {
+                grid-auto-flow: row;
+                gap: 0.8rem;
+                width: 100%;
+            }
+            
+            .error-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Small Mobile (≤380px) */
+        @media (max-width: 380px) {
+            :root {
+                --error-padding: 16px;
+                --error-grid-gap: 12px;
+            }
+            
+            .error-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .error-icon {
+                font-size: 2.5rem;
+            }
+            
+            .error-code {
+                font-size: 3.5rem;
+            }
+            
+            .error-title {
+                font-size: 1.3rem;
+            }
+            
+            .error-message {
+                font-size: 0.9rem;
+            }
+            
+            .error-btn {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>

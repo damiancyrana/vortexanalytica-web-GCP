@@ -96,7 +96,7 @@ function addNewsMessageToContainer(message, container, addToTop = true) {
             </div>
             
             <div class="news-content">
-                <p><strong>Interpretation:</strong> ${escapeHtml(message.interpretation || 'N/A')}</p>
+                <p>${escapeHtml(message.interpretation)}</p>
             </div>
             
             <div class="news-labels">
