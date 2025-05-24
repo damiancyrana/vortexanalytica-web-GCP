@@ -53,7 +53,7 @@ async def stream_news(
         # Powiadomienie początkowe
         yield "data: {\"type\": \"connected\", \"message\": \"SSE connection established\"}\n\n"
         
-        # Zwróć najnowsze wiadomości natychmiast
+        # Zwróć najnowsze wiadomości natychmiast z Redis
         news_service = NewsService()
         recent_messages = news_service.get_messages(limit=5)
         for msg in recent_messages:
@@ -110,3 +110,88 @@ async def stream_news(
             "X-Accel-Buffering": "no"  # Wyłącza buforowanie dla Nginx
         }
     )
+
+@router.get("/stats")
+async def get_news_stats(
+    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
+) -> Dict[str, Any]:
+    """Zwraca statystyki wiadomości w Redis."""
+    news_service = NewsService()
+    
+    total_count = news_service.get_messages_count()
+    
+    return {
+        "total_messages": total_count,
+        "storage_type": "Redis",
+        "user_id": current_user_session.get('user_id')
+    }
+
+@router.post("/admin/cleanup")
+async def cleanup_old_messages(
+    max_age_hours: int = 24,
+    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
+) -> Dict[str, Any]:
+    """
+    Endpoint administracyjny do czyszczenia starych wiadomości.
+    UWAGA: W rzeczywistej aplikacji dodaj sprawdzanie uprawnień administratora!
+    """
+    # TODO: Dodaj sprawdzanie czy użytkownik ma uprawnienia administratora
+    # Obecnie każdy zalogowany użytkownik może użyć tego endpointa
+    
+    user_id = current_user_session.get('user_id')
+    logger.warning(f"Użytkownik {user_id} uruchomił czyszczenie starych wiadomości (max_age: {max_age_hours}h)")
+    
+    news_service = NewsService()
+    
+    # Konwertuj godziny na sekundy
+    max_age_seconds = max_age_hours * 3600
+    
+    # Pobierz statystyki przed czyszczeniem
+    count_before = news_service.get_messages_count()
+    
+    # Wykonaj czyszczenie
+    deleted_count = news_service.cleanup_old_messages(max_age_seconds=max_age_seconds)
+    
+    # Pobierz statystyki po czyszczeniu
+    count_after = news_service.get_messages_count()
+    
+    return {
+        "messages_before": count_before,
+        "messages_after": count_after,
+        "deleted_count": deleted_count,
+        "max_age_hours": max_age_hours,
+        "performed_by": user_id
+    }
+
+@router.delete("/admin/clear-all")
+async def clear_all_messages(
+    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
+) -> Dict[str, Any]:
+    """
+    Endpoint administracyjny do usunięcia WSZYSTKICH wiadomości.
+    UWAGA: Bardzo niebezpieczny endpoint! W rzeczywistości dodaj silne zabezpieczenia!
+    """
+    # TODO: Dodaj bardzo restrykcyjne sprawdzanie uprawnień!
+    # TODO: Dodaj potwierdzenie (np. wymagaj specjalnego tokena)
+    
+    user_id = current_user_session.get('user_id')
+    logger.critical(f"UWAGA: Użytkownik {user_id} próbuje usunąć WSZYSTKIE wiadomości!")
+    
+    # W celach bezpieczeństwa - tymczasowo wyłączone
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Endpoint tymczasowo wyłączony ze względów bezpieczeństwa. Skontaktuj się z administratorem."
+    )
+    
+    # Kod do odkomentowania gdy będą właściwe zabezpieczenia:
+    # news_service = NewsService()
+    # count_before = news_service.get_messages_count()
+    # 
+    # success = news_service.clear_all_messages()
+    # 
+    # return {
+    #     "success": success,
+    #     "messages_deleted": count_before,
+    #     "performed_by": user_id,
+    #     "timestamp": datetime.utcnow().isoformat()
+    # }

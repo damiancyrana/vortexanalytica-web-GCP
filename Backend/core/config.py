@@ -3,6 +3,7 @@ Moduł konfiguracji aplikacji Vortex Analytica (Wersja Produkcyjna)
 Dostosowany do Pydantic v2.x
 Klucz Firebase ładowany z Secret Managera.
 Klucz Sesji (SESSION_SECRET_KEY) ładowany WYŁĄCZNIE z Secret Managera.
+Redis dodany dla trwałego przechowywania wiadomości.
 """
 from __future__ import annotations
 
@@ -58,6 +59,21 @@ class Settings(BaseSettings):
     SESSION_COOKIE_SECURE: bool = True # Na produkcji ZAWSZE True
     SESSION_COOKIE_HTTPONLY: bool = True # ZAWSZE True
     SESSION_COOKIE_SAMESITE: str = "lax" # "lax" jest dobrym kompromisem, "strict" bezpieczniejszy, ale może psuć niektóre przepływy
+
+    # Konfiguracja Redis
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
+    REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
+    REDIS_PASSWORD: Optional[str] = os.getenv("REDIS_PASSWORD", None)
+    REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
+    REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)  # URL połączenia Redis (alternatywa)
+    REDIS_MAX_CONNECTIONS: int = int(os.getenv("REDIS_MAX_CONNECTIONS", "20"))
+    REDIS_SOCKET_CONNECT_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
+    REDIS_SOCKET_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
+    
+    # Konfiguracja wiadomości w Redis
+    NEWS_REDIS_KEY: str = "vortex:news:messages"  # Klucz Redis dla wiadomości
+    NEWS_MAX_MESSAGES: int = int(os.getenv("NEWS_MAX_MESSAGES", "100"))  # Maksymalna liczba wiadomości
+    NEWS_MESSAGE_TTL: int = int(os.getenv("NEWS_MESSAGE_TTL", "86400"))  # TTL w sekundach (24h)
 
     # Domyślne ustawienia odpowiedzi HTTP
     default_response_class: Any = None
@@ -217,3 +233,4 @@ def get_settings() -> Settings:
     except Exception as e:
         logger.critical(f"Krytyczny błąd podczas inicjalizacji konfiguracji aplikacji: {e}", exc_info=True)
         raise SystemExit(f"Application cannot start due to configuration/secret error: {e}")
+    

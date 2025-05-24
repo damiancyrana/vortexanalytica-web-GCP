@@ -1,6 +1,6 @@
 """
 Moduł cyklu życia aplikacji (Wersja Produkcyjna - Hybrydowa).
-Inicjalizuje Firebase Admin SDK i serwis Pub/Sub.
+Inicjalizuje Firebase Admin SDK, serwis Pub/Sub oraz Redis.
 """
 from __future__ import annotations
 
@@ -14,15 +14,17 @@ from firebase_admin import credentials
 from Backend.core.config import get_settings, Settings
 from Backend.services.email_service import EmailService
 from Backend.services.pubsub_service import PubSubService
+from Backend.services.news_service import NewsService
 
 logger = logging.getLogger(__name__)
 
 # Zmienne do przechowywania instancji serwisów globalnie
 _pubsub_service = None
+_news_service = None
 
 async def app_startup() -> None:
     """ Inicjalizuje serwisy przy starcie aplikacji. """
-    global _pubsub_service
+    global _pubsub_service, _news_service
     
     logger.info("Uruchamianie aplikacji Vortex Analytica (startup event)...")
     try:
@@ -76,6 +78,24 @@ async def app_startup() -> None:
         logger.critical(f"Nieznany błąd podczas inicjalizacji Firebase Admin SDK: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Unexpected error initializing Firebase: {e}") from e
 
+    # Inicjalizacja NewsService z Redis
+    try:
+        logger.info("Inicjalizacja NewsService z Redis...")
+        _news_service = NewsService()
+        
+        # Test podstawowych operacji Redis
+        test_count = _news_service.get_messages_count()
+        logger.info(f"Połączenie z Redis sprawdzone. Wiadomości w bazie: {test_count}")
+        
+        # Opcjonalne: wyczyść stare wiadomości przy starcie
+        cleaned_count = _news_service.cleanup_old_messages(max_age_seconds=7 * 24 * 3600)  # 7 dni
+        if cleaned_count > 0:
+            logger.info(f"Wyczyszczono {cleaned_count} starych wiadomości przy starcie")
+            
+    except Exception as e:
+        logger.critical(f"Krytyczny błąd podczas inicjalizacji NewsService z Redis: {e}", exc_info=True)
+        raise SystemExit(f"Application startup failed: Could not initialize NewsService with Redis: {e}") from e
+
     # Inicjalizacja Pub/Sub Service
     try:
         logger.info("Inicjalizacja serwisu Pub/Sub...")
@@ -95,7 +115,7 @@ async def app_startup() -> None:
     
 async def app_shutdown() -> None:
     """ Zwalnia zasoby przy zamykaniu aplikacji. """
-    global _pubsub_service
+    global _pubsub_service, _news_service
     
     logger.info("Zamykanie aplikacji Vortex Analytica (shutdown event)...")
     
@@ -106,6 +126,14 @@ async def app_shutdown() -> None:
             _pubsub_service.stop_listener()
         except Exception as e:
             logger.warning(f"Błąd podczas zatrzymywania serwisu Pub/Sub: {e}", exc_info=True)
+    
+    # Zamknij połączenia Redis w NewsService
+    if _news_service:
+        try:
+            logger.info("Zamykanie połączeń Redis w NewsService...")
+            _news_service.close_connections()
+        except Exception as e:
+            logger.warning(f"Błąd podczas zamykania połączeń Redis: {e}", exc_info=True)
     
     # Zamknij pulę połączeń SMTP, jeśli EmailService był używany
     try:
