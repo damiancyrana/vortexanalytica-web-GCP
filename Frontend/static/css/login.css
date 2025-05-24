@@ -1,8 +1,3 @@
-/* =========================================================
-   VORTEX ANALYTICA – Login Page (single-page, mobile ready)
-   ========================================================= */
-
-/* ---------- Imports & Variables ---------- */
 :root {
   --bg-dark: #1a1f2e;
   --blue-accent: #4e8cff;
@@ -18,10 +13,9 @@
   --social-microsoft-hover: rgba(0, 120, 215, .3);
   --social-google-bg: rgba(219, 68, 55, .2);
   --social-google-hover: rgba(219, 68, 55, .3);
-  --header-height: 49px; /* Reduced by 25% from 65px */
+  --header-height: 49px;
 }
 
-/* ---------- no scrolling globally ---------- */
 html, body{
   height:100vh;
   overflow:hidden;
@@ -31,7 +25,6 @@ html, body{
   position: relative;
 }
 
-/* ===== ANIMATED BACKGROUND CANVAS ===== */
 #quantum-field{
   position:fixed;
   top:0;
@@ -43,7 +36,6 @@ html, body{
   display:block;
 }
 
-/* ---------- section fills entire window ---------- */
 .login-section{
   display:flex;
   justify-content:center;
@@ -56,46 +48,43 @@ html, body{
   box-sizing: border-box;
 }
 
-/* ---------- login card ---------- */
 .login-container {
   background-color: rgba(26, 31, 54, 0.7);
   border: 1px solid var(--border-light);
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  width: 80%; /* Reduced from 90% */
-  max-width: 400px; /* Further reduced from 450px */
-  padding: 25px; /* Further reduced from 30px */
+  width: 80%;
+  max-width: 400px;
+  padding: 25px;
   position: relative;
   z-index: 2;
   margin: auto;
   overflow: hidden;
   transition: padding 0.3s ease, max-width 0.3s ease, max-height 0.3s ease;
   backdrop-filter: blur(5px);
-  max-height: 85vh; /* Reduced from 90vh */
+  max-height: 85vh;
 }
 
-/* ---------- header ---------- */
 .login-header{text-align:center;margin-bottom:25px}
 .login-header h1{
-  font-family:'Exo 2',sans-serif;font-weight:600;font-size:24px; /* Reduced from 28px */
-  color: var(--text-light);margin-bottom:6px; /* Reduced from 8px */
+  font-family:'Exo 2',sans-serif;font-weight:600;font-size:24px;
+  color: var(--text-light);margin-bottom:6px;
   transition: font-size 0.3s ease;
 }
 .login-header p{
-  color: var(--text-light-muted);font-size:14px; /* Reduced from 16px */
+  color: var(--text-light-muted);font-size:14px;
   transition: font-size 0.3s ease;
 }
 
-/* ---------- tabs ---------- */
 .auth-tabs{
-  display:flex;margin-bottom:25px; /* Reduced from 30px */
+  display:flex;margin-bottom:25px;
   border-bottom:1px solid var(--border-light);
 }
 .tab-btn{
   flex:1;background:transparent;border:none;
   color: var(--text-light-dim);
-  font-family:'Exo 2',sans-serif;font-size:15px;font-weight:500; /* Reduced from 16px */
-  padding:10px 8px; /* Reduced from 12px 10px */
+  font-family:'Exo 2',sans-serif;font-size:15px;font-weight:500;
+  padding:10px 8px;
   cursor:pointer;transition:.3s;
   white-space: nowrap;
 }
@@ -104,20 +93,18 @@ html, body{
   color: var(--text-light);border-bottom:2px solid var(--blue-accent);
 }
 
-/* ---------- forms ---------- */
 .auth-form{
   display:none;
-  width: 100%; /* Make sure form takes full width */
+  width: 100%;
 }
 .auth-form.active{display:block;animation:fadeIn .5s ease-out}
 
-.form-group{margin-bottom:20px} /* Reduced from 24px */
+.form-group{margin-bottom:20px}
 .form-group label{
-  display:block;margin-bottom:6px;font-size:13px; /* Reduced from 8px, 14px */
+  display:block;margin-bottom:6px;font-size:13px;
   color: var(--text-light-muted);
 }
 
-/* field with icon */
 .input-with-icon{position:relative}
 .input-with-icon i{
   position:absolute;left:15px;top:50%;transform:translateY(-50%);
@@ -125,10 +112,10 @@ html, body{
   z-index: 1;
 }
 .input-with-icon input{
-  width:100%;padding:12px 12px 12px 42px;border-radius:6px; /* Reduced from 14px */
+  width:100%;padding:12px 12px 12px 42px;border-radius:6px;
   border:1px solid var(--border-light);
   background: var(--input-bg);color: var(--text-light);
-  font-family:'Exo 2',sans-serif;font-size:14px;transition:.3s; /* Reduced from 15px */
+  font-family:'Exo 2',sans-serif;font-size:14px;transition:.3s;
   box-sizing: border-box;
 }
 .input-with-icon input:focus{
@@ -138,23 +125,21 @@ html, body{
 }
 .input-with-icon input::placeholder{color: var(--text-light-dim)}
 
-/* password strength */
 .password-strength-meter{
-  height:4px;background:rgba(255,255,255,.1); /* Reduced from 6px */
-  margin-top:6px;border-radius:4px;overflow:hidden; /* Reduced from 8px */
+  height:4px;background:rgba(255,255,255,.1);
+  margin-top:6px;border-radius:4px;overflow:hidden;
 }
 .strength-bar{
   height:100%;width:0;
   background:linear-gradient(to right,#ff4d4d,#ffcc00,#00cc66);
   transition:width .3s;
 }
-.password-hints{margin-top:6px;font-size:12px;color: var(--text-light-dim)} /* Reduced from 8px, 14px */
+.password-hints{margin-top:6px;font-size:12px;color: var(--text-light-dim)}
 
-/* ---------- options ---------- */
 .form-options{
   display:flex;justify-content:flex-end;
   align-items:center;
-  margin-bottom:20px;font-size:13px; /* Reduced from 24px, 14px */
+  margin-bottom:20px;font-size:13px;
 }
 
 .forgot-password{
@@ -162,17 +147,16 @@ html, body{
 }
 .forgot-password:hover{color:#79a8ff;text-decoration:underline}
 
-/* ---------- buttons ---------- */
 .auth-button{
   width:100%;
-  max-width: 100%; /* Ensure button doesn't exceed container width */
-  padding: 12px; /* Reduced from 14px */
+  max-width: 100%;
+  padding: 12px;
   border:none;
   border-radius:6px;
   background:linear-gradient(135deg,#4e8cff,#3366cc);
   color: var(--text-light);
   font-family:'Exo 2',sans-serif;
-  font-size:15px; /* Reduced from 16px */
+  font-size:15px;
   font-weight:600;
   cursor:pointer;
   transition:.3s;
@@ -180,7 +164,7 @@ html, body{
   justify-content:center;
   align-items:center;
   box-sizing: border-box;
-  margin: 0 auto; /* Center the button */
+  margin: 0 auto;
 }
 .auth-button i{margin-right:8px}
 .auth-button:hover{
@@ -190,38 +174,36 @@ html, body{
 }
 .auth-button:active{transform:translateY(0)}
 
-/* separator */
 .separator{
-  display:flex;align-items:center;text-align:center;margin:20px 0; /* Reduced from 24px */
+  display:flex;align-items:center;text-align:center;margin:20px 0;
 }
 .separator::before,
 .separator::after{
   content:'';flex:1;border-bottom:1px solid var(--border-light);
 }
 .separator span{
-  padding:0 10px;color: var(--text-light-dim);font-size:13px; /* Reduced from 14px */
+  padding:0 10px;color: var(--text-light-dim);font-size:13px;
 }
 
-/* social login */
 .social-login{
   display:flex;
-  gap:10px; /* Reduced from 12px */
+  gap:10px;
   flex-wrap: wrap;
-  justify-content: space-between; /* Changed from center */
-  width: 100%; /* Ensure container takes full width */
+  justify-content: space-between;
+  width: 100%;
 }
 .social-btn{
-  flex-grow: 0.25; /* Scale up to 50% of container */
-  flex-basis: calc(50% - 5px); /* ~50% width minus gap */
-  min-width: auto; /* Remove min-width */
-  max-width: calc(50% - 5px); /* Limit to ~50% */
-  padding: 10px 5px; /* Reduced from 12px */
+  flex-grow: 0.25;
+  flex-basis: calc(50% - 5px);
+  min-width: auto;
+  max-width: calc(50% - 5px);
+  padding: 10px 5px;
   border:1px solid var(--border-light);
   border-radius:6px;
   background: var(--input-bg);
   color: var(--text-light);
   font-family:'Exo 2',sans-serif;
-  font-size:12px; /* Reduced from 14px */
+  font-size:12px;
   cursor:pointer;
   transition:.3s;
   display:flex;
@@ -229,10 +211,10 @@ html, body{
   align-items:center;
   box-sizing: border-box;
   white-space: nowrap;
-  overflow: hidden; /* Prevent overflow */
-  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.social-btn i{margin-right:6px} /* Reduced from 8px */
+.social-btn i{margin-right:6px}
 
 .social-btn.microsoft{background: var(--social-microsoft-bg)}
 .social-btn.microsoft:hover{background: var(--social-microsoft-hover)}
@@ -249,18 +231,11 @@ html, body{
     background: rgba(100, 100, 100, 0.1);
 }
 
-/* ---------- animation ---------- */
 @keyframes fadeIn{
   from{opacity:0;transform:translateY(10px)}
   to  {opacity:1;transform:translateY(0)}
 }
 
-
-/* ======================================== */
-/* ==        RESPONSIVENESS             == */
-/* ======================================== */
-
-/* --- Low height devices (e.g. 1024x600 landscape) --- */
 @media (max-height: 650px) and (min-width: 601px) {
   .login-section {
     align-items: flex-start;
@@ -272,30 +247,27 @@ html, body{
     overflow-y: auto;
     margin-top: 0;
     margin-bottom: 0;
-    padding: 20px 25px 40px 25px; /* Reduced */
+    padding: 20px 25px 40px 25px;
   }
   body > footer {
      display: none;
   }
 }
 
-
-/* --- Medium mobile screens/small tablets (e.g. 540x720) --- */
 @media (min-width: 577px) and (max-width: 768px){
   .login-container{
-      max-width: 450px; /* Was 480px */
-      padding: 25px 30px 40px 30px; /* Reduced from 35px 35px 50px 35px */
+      max-width: 450px;
+      padding: 25px 30px 40px 30px;
       width: 85%;
       max-height: 88vh;
       overflow-y: auto;
   }
-  .tab-btn{font-size:14px} /* Reduced from 15px */
+  .tab-btn{font-size:14px}
   .social-btn {
-      font-size: 12px; /* Reduced size */
+      font-size: 12px;
   }
 }
 
-/* --- Small smartphones (≤ 576 px) - includes 360x740, 375x667 --- */
 @media (max-width:576px){
   .login-section {
       padding: 15px;
@@ -303,7 +275,7 @@ html, body{
       padding-top: 2vh;
   }
   .login-container{
-      padding: 20px 15px 40px 15px; /* Reduced from 25px 15px 60px 15px */
+      padding: 20px 15px 40px 15px;
       width: 95%;
       max-width: none;
       margin-top: 0;
@@ -315,43 +287,42 @@ html, body{
   .login-header p{font-size:14px; margin-bottom: 20px;}
   .auth-tabs { margin-bottom: 20px; }
   .tab-btn{padding:10px 5px; font-size:13px}
-  .form-group { margin-bottom: 16px; } /* Reduced from 18px */
-  .input-with-icon input { padding: 10px 10px 10px 38px; font-size: 14px; } /* Reduced */
-  .password-hints { font-size: 11px; } /* Reduced from 12px */
+  .form-group { margin-bottom: 16px; }
+  .input-with-icon input { padding: 10px 10px 10px 38px; font-size: 14px; }
+  .password-hints { font-size: 11px; }
   .form-options{
-      flex-direction:column;align-items:flex-start;gap:10px; /* Reduced from 12px */
-      margin-bottom: 16px; /* Reduced from 18px */
+      flex-direction:column;align-items:flex-start;gap:10px;
+      margin-bottom: 16px;
   }
-  .checkbox-container { font-size: 12px; } /* Reduced from 13px */
+  .checkbox-container { font-size: 12px; }
   .checkmark { width: 16px; height: 16px; }
   .checkbox-container .checkmark:after { left: 5px; top: 2px; width: 4px; height: 8px;}
-  .forgot-password { font-size: 12px; } /* Reduced from 13px */
+  .forgot-password { font-size: 12px; }
 
-  .auth-button{font-size:14px;padding:10px} /* Reduced from 12px */
-  .separator { margin: 16px 0; } /* Reduced from 18px */
+  .auth-button{font-size:14px;padding:10px}
+  .separator { margin: 16px 0; }
   .separator span { font-size: 12px; }
   .social-login{
-      flex-direction:column; /* Buttons one below another */
-      gap: 8px; /* Reduced from 10px */
+      flex-direction:column;
+      gap: 8px;
   }
   .social-btn {
-      padding: 8px; /* Reduced from 10px */
-      font-size: 12px; /* Reduced from 13px */
+      padding: 8px;
+      font-size: 12px;
       flex-grow: 1; 
       flex-basis: 100%;
       max-width: 100%;
-      min-width: 0; /* Reset min-width */
+      min-width: 0;
    }
   .social-login .social-btn:last-child {
       margin-bottom: 0;
   }
 }
 
-/* --- Very narrow screens (< 360px) --- */
 @media (max-width: 359px) {
     .login-section { padding: 10px; padding-top: 1vh; }
     .login-container {
-        padding: 15px 10px 40px 10px; /* Reduced from 20px 10px 50px 10px */
+        padding: 15px 10px 40px 10px;
         max-height: 90vh;
     }
     .login-header h1 { font-size: 18px; }
@@ -360,11 +331,10 @@ html, body{
     .input-with-icon input { padding: 10px 10px 10px 35px; font-size: 13px;}
     .input-with-icon i { left: 12px; }
     .auth-button { font-size: 13px; padding: 10px; }
-    .social-btn { font-size: 12px; padding: 8px; } /* Reduced from 9px */
+    .social-btn { font-size: 12px; padding: 8px; }
     .social-btn i { font-size: 1.1em; margin-right: 5px;}
 }
 
-/* --- Fix for checkbox on very small screens --- */
 @media (max-width: 330px) {
     .form-options .checkbox-container a {
        white-space: normal;
@@ -375,9 +345,8 @@ html, body{
     }
 }
 
-/* Additional styles for scrollbar inside container (WebKit) */
 .login-container::-webkit-scrollbar {
-  width: 5px; /* Reduced from 6px */
+  width: 5px;
 }
 .login-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
@@ -392,16 +361,15 @@ html, body{
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Authentication messages */
 .auth-message {
   margin-top: 15px;
-  padding: 8px 12px; /* Reduced from 10px 15px */
+  padding: 8px 12px;
   border-radius: 5px;
   text-align: center;
-  display: none; /* Hidden by default */
-  font-size: 0.85rem; /* Reduced from 0.9rem */
+  display: none;
+  font-size: 0.85rem;
   line-height: 1.4;
-  word-wrap: break-word; /* Ensures long messages wrap */
+  word-wrap: break-word;
 }
 
 .auth-message.error {
@@ -409,7 +377,6 @@ html, body{
   border: 1px solid rgba(255, 0, 0, 0.3);
   color: #e20909;
 }
-/* Dark theme corrections (if exists) */
 [data-theme="dark"] .auth-message.error {
     background-color: rgba(239, 68, 68, 0.2);
     border-color: rgba(239, 68, 68, 0.4);
@@ -427,7 +394,6 @@ html, body{
     color: #86efac;
 }
 
-/* Password strength indicator */
 .password-strength-meter {
   height: 4px;
   background-color: #ddd;
@@ -446,29 +412,27 @@ html, body{
   transition: width 0.3s, background-color 0.3s;
 }
 
-/* Loading button style (including social) */
 .auth-button.loading,
 .social-btn.loading {
-  position: relative; /* Required for spinner positioning */
+  position: relative;
   cursor: wait;
   opacity: 0.7;
-  color: transparent !important; /* Hide text/icon */
-  pointer-events: none; /* Prevent multiple clicks */
+  color: transparent !important;
+  pointer-events: none;
 }
-.social-btn.loading i:first-child { /* Hide original social icon */
+.social-btn.loading i:first-child {
   display: none;
 }
 
 .auth-button.loading::after,
-.social-btn.loading::after { /* Spinner */
-  content: "\f110"; /* Font Awesome spinner icon */
+.social-btn.loading::after {
+  content: "\f110";
   font-family: "Font Awesome 6 Free";
   font-weight: 500;
   display: inline-block;
   animation: fa-spin 1s infinite linear;
-  color: var(--button-text-color, #fff); /* Use CSS variable or default color */
-  font-size: 1em; /* Match spinner size */
-  /* Position spinner in center of button */
+  color: var(--button-text-color, #fff);
+  font-size: 1em;
   position: absolute;
   left: 50%;
   top: 50%;

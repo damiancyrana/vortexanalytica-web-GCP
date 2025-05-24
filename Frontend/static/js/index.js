@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.classList.add('active')
         document.querySelectorAll('.view-section').forEach(s => {
           const a = s.id === `${v}-view`
-          s.style.display = a ? (v === 'feed' ? 'grid' : v === 'overview' ? 'flex' : 'block') : 'none'
+          s.style.display = a ? 'flex' : 'none'
           a && v === 'overview' && (s.style.flexDirection = 'column')
           s.classList.toggle('active', a)
         })
@@ -168,4 +168,3 @@ document.addEventListener('DOMContentLoaded', () => {
   events()
   window.addEventListener('beforeunload', () => { clearInterval(tokenTimer); clearInterval(sessTimer) })
 })
-

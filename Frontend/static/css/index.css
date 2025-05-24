@@ -1,24 +1,17 @@
-/* ======================================== */
-/* == Frontend/static/css/index.css    == */
-/* ======================================== */
-
 :root {
-  /* Core colors */
-  --blue: #00c6ff;              /* fintech accent */
+  --blue: #00c6ff;
   --teal: #3affc3;
   --purple: #b967ff;
   --text-sec: rgba(240, 240, 245, 0.8);
   --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
   --blur: blur(10px);
 
-  /* Layout measurements */
   --header-height: 50px;
   --sidebar-width: 250px;
   --footer-height: 45px;
   --content-max-width: 95%;
   --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 
-  /* Light Theme Colors */
   --bg-body-light: #f4f6fb;
   --bg-content-light: #ffffff;
   --bg-container-light: #f9fbfd;
@@ -34,7 +27,6 @@
   --control-bg-light: #edf1f7;
   --link-color-light: var(--blue);
 
-  /* Premium fintech light theme */
   --light-bg: #f4f6fb;
   --light-text: #1e293b;
   --light-text-muted: #6b7280;
@@ -49,7 +41,6 @@
   --light-btn-text: #ffffff;
   --light-btn-border: #405875;
 
-  /* Dark Theme Colors */
   --bg-dark: #121620;
   --bg-dark-medium: #1c2735;
   --text-color-dark: #e2e8f0;
@@ -65,7 +56,6 @@
   --control-bg-dark: rgba(0, 0, 0, 0.25);
   --link-color-dark: var(--blue);
 
-  /* Dark theme alternatives */
   --dark-bg: #121620;
   --dark-text: #e2e8f0;
   --dark-text-muted: #8e96a9;
@@ -80,12 +70,10 @@
   --dark-btn-text: #ffffff;
   --dark-btn-border: rgba(255, 255, 255, 0.2);
 
-  /* Logout button variables */
   --logout-dark: var(--bg-dark, #1f2335);
   --logout-middle: var(--accent-color, #00c6ff);
   --logout-light: var(--text-color-dark, #f4f7ff);
 
-  /* Default Theme (Light) */
   --current-bg-body: var(--bg-body-light);
   --current-bg-content: var(--bg-content-light);
   --current-bg-container: var(--bg-container-light);
@@ -101,13 +89,10 @@
   --current-control-bg: var(--control-bg-light);
   --current-link-color: var(--link-color-light);
 
-  /* Common Variables */
   --accent-color: var(--blue);
   --accent-color-hover: var(--teal);
 }
 
-
-/* Global Body Styles */
 html { 
   height: 100%; 
   overflow: hidden; 
@@ -127,7 +112,6 @@ body {
   font-size: 15px;
 }
 
-/* Base theme setups */
 body.dark-theme {
   background: radial-gradient(circle at center, #003641 0%, #00212b 40%, #00111a 70%, #000a0f 100%);
   --current-bg-body: var(--bg-dark);
@@ -149,7 +133,6 @@ body.dark-theme {
   --logout-light: var(--text-color-dark);
 }
 
-/* Quantum Field Canvas Style */
 #quantum-field {
   position: fixed;
   top: 0;
@@ -167,7 +150,6 @@ body.dark-theme #quantum-field {
   opacity: 0.5;
 }
 
-/* Header */
 header {
   position: fixed;
   inset: 0 0 auto;
@@ -207,7 +189,6 @@ body:not(.dark-theme) header {
   gap: 1.2rem;
 }
 
-/* Logo */
 .logo {
   display: flex;
   align-items: center;
@@ -234,7 +215,6 @@ body:not(.dark-theme) header {
   align-items: center;
 }
 
-/* Navigation */
 .nav-buttons {
   display: flex;
   gap: 1.5rem;
@@ -298,7 +278,6 @@ body:not(.dark-theme) header {
   width: 100%;
 }
 
-/* User Controls */
 .user-controls {
   display: flex;
   align-items: center;
@@ -325,7 +304,6 @@ body:not(.dark-theme) #user-display-name {
   color: var(--light-accent);
 }
 
-/* Header Buttons */
 .header-btn {
   padding: 6px 14px;
   background-color: var(--dark-btn-bg);
@@ -362,7 +340,6 @@ body:not(.dark-theme) .header-btn:hover {
   background-color: rgba(0, 198, 255, 0.2);
 }
 
-/* Main Content Area */
 .main-content {
   flex-grow: 1;
   overflow: hidden;
@@ -390,7 +367,6 @@ body:not(.dark-theme) .header-btn:hover {
   height: 100%;
 }
 
-/* Empty Content */
 .empty-content {
   display: flex;
   justify-content: center;
@@ -404,7 +380,6 @@ body:not(.dark-theme) .empty-content {
   color: var(--light-text-muted);
 }
 
-/* View Sections */
 .view-section {
   flex-grow: 1;
   overflow: hidden;
@@ -413,7 +388,7 @@ body:not(.dark-theme) .empty-content {
 }
 
 .view-section.active {
-  display: grid;
+  display: flex;
 }
 
 #overview-view.active {
@@ -421,9 +396,8 @@ body:not(.dark-theme) .empty-content {
   flex-direction: column;
 }
 
-/* Feed View Grid */
 #feed-view {
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 15px;
   flex-grow: 1;
   overflow: hidden;
@@ -432,7 +406,6 @@ body:not(.dark-theme) .empty-content {
   border: none;
 }
 
-/* Sidebar Styles */
 .sidebar {
   position: fixed;
   left: 0;
@@ -509,7 +482,6 @@ body:not(.dark-theme) .sidebar-menu a.active {
   text-align: center;
 }
 
-/* Menu Toggle */
 .menu-toggle {
   background: none;
   border: none;
@@ -526,7 +498,6 @@ body:not(.dark-theme) .menu-toggle {
   color: var(--light-accent);
 }
 
-/* Theme Switch in Sidebar */
 .sidebar-theme-toggle {
   padding: 12px 20px;
   display: flex;
@@ -601,7 +572,6 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
-/* Message Containers */
 .messages-container,
 .narrative-clusters-container {
   border-radius: 8px;
@@ -628,7 +598,6 @@ body:not(.dark-theme) .narrative-clusters-container {
   backdrop-filter: blur(4px);
 }
 
-/* Message Headers */
 .messages-header {
   display: flex;
   justify-content: space-between;
@@ -700,7 +669,6 @@ body.dark-theme .messages-header {
   border-color: var(--accent-color);
 }
 
-/* Message List */
 .message-list {
   flex-grow: 1;
   overflow-y: auto;
@@ -711,7 +679,6 @@ body.dark-theme .messages-header {
   transition: padding var(--t-fast), gap var(--t-fast);
 }
 
-/* Message Items */
 .message-item {
   border-radius: 5px;
   padding: 10px;
@@ -817,7 +784,6 @@ body:not(.dark-theme) .message-item:hover {
   color: #e67e22;
 }
 
-/* Strength Bar */
 .strength-bar-container {
   height: 3px;
   border-radius: 1.5px;
@@ -845,7 +811,6 @@ body.dark-theme .strength-bar {
   box-shadow: 0 0 4px rgba(from var(--accent-color) r g b / 0.4);
 }
 
-/* Animation */
 .fade-in {
   animation: fadeIn 0.4s ease-in;
 }
@@ -861,7 +826,6 @@ body.dark-theme .strength-bar {
   }
 }
 
-/* Footer */
 footer {
   width: 100%;
   background-color: var(--current-footer-bg);
@@ -946,7 +910,6 @@ footer .theme-toggle-btn:hover {
   color: var(--accent-color);
 }
 
-/* Logout Button Styles */
 .logoutButton {
   --figure-duration: 100;
   --transform-figure: none;
@@ -1204,11 +1167,6 @@ body:not(.dark-theme) .logoutButton::after {
   to { opacity: 0 }
 }
 
-/* ======================================== */
-/* ==        RESPONSIVENESS             == */
-/* ======================================== */
-
-/* Landscape tablet with short height */
 @media (max-width: 1100px) and (max-height: 650px) and (orientation: landscape) {
   :root {
     --header-height: 50px;
@@ -1271,7 +1229,6 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* Mobile Layout */
 @media (max-width: 900px) {
   .header-right-group {
     gap: 1rem;
@@ -1302,7 +1259,6 @@ body:not(.dark-theme) .logoutButton::after {
     bottom: 3px;
   }
   
-  /* Scroll Snap Setup for Premium UX */
   .main-content {
     padding: 0;
     overflow: hidden;
@@ -1317,7 +1273,6 @@ body:not(.dark-theme) .logoutButton::after {
     scroll-snap-type: y mandatory;
     gap: 0;
     background-color: transparent;
-    grid-template-columns: 1fr;
   }
   
   .messages-container,
@@ -1387,7 +1342,6 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* Small Tablets/Phones */
 @media (max-width: 768px) {
   :root {
     --header-height: 55px;
@@ -1475,7 +1429,6 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* Small Phones */
 @media (max-width: 600px) {
   :root {
     --footer-height: auto;
@@ -1607,7 +1560,6 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* Very Narrow Phones */
 @media (max-width: 380px) {
   :root {
     --header-height: 50px;
