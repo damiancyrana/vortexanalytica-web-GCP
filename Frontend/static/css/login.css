@@ -1,5 +1,5 @@
 :root {
-  --bg-dark: #1a1f2e;
+  --bg-dark: #0a0a10; /* Changed from #1a1f2e to match quantum field background */
   --blue-accent: #4e8cff;
   --text-light: #fff;
   --text-light-muted: rgba(255, 255, 255, .7);
@@ -13,14 +13,14 @@
   --social-microsoft-hover: rgba(0, 120, 215, .3);
   --social-google-bg: rgba(219, 68, 55, .2);
   --social-google-hover: rgba(219, 68, 55, .3);
-  --header-height: 49px;
+  --header-height: 50px;
 }
 
 html, body{
   height:100vh;
   overflow:hidden;
   font-family:'Exo 2', sans-serif;
-  background-color: var(--bg-dark);
+  background-color: transparent; /* Changed to transparent */
   color: var(--text-light);
   position: relative;
 }
@@ -34,6 +34,7 @@ html, body{
   z-index:-1;
   pointer-events:none;
   display:block;
+  background-color: #0a0a10; /* Add fallback background */
 }
 
 .login-section{
@@ -46,6 +47,7 @@ html, body{
   position:relative;
   z-index: 1;
   box-sizing: border-box;
+  background: transparent; /* Ensure section is transparent */
 }
 
 .login-container {
@@ -53,16 +55,16 @@ html, body{
   border: 1px solid var(--border-light);
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 400px;
-  padding: 25px;
+  width: 90%; /* Adjusted for flexibility, constrained by max-width */
+  max-width: 500px; /* Increased for larger screens */
+  padding: 25px; /* Base padding, media queries will adjust */
   position: relative;
   z-index: 2;
-  margin: auto;
-  overflow: hidden;
+  margin: auto; /* Keeps it centered */
+  overflow-y: auto; /* Changed from hidden to allow scroll */
   transition: padding 0.3s ease, max-width 0.3s ease, max-height 0.3s ease;
   backdrop-filter: blur(5px);
-  max-height: 85vh;
+  max-height: 90vh; /* Standardized to a larger common value */
 }
 
 .login-header{text-align:center;margin-bottom:25px}
@@ -243,11 +245,11 @@ html, body{
     padding-bottom: 2vh;
   }
   .login-container {
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90vh; /* This is consistent with new base */
+    overflow-y: auto; /* This is consistent with new base */
     margin-top: 0;
     margin-bottom: 0;
-    padding: 20px 25px 40px 25px;
+    padding: 20px 25px 40px 25px; /* Specific padding */
   }
   body > footer {
      display: none;
@@ -256,11 +258,11 @@ html, body{
 
 @media (min-width: 577px) and (max-width: 768px){
   .login-container{
-      max-width: 450px;
-      padding: 25px 30px 40px 30px;
-      width: 85%;
-      max-height: 88vh;
-      overflow-y: auto;
+      max-width: 450px; /* Overrides base 500px for this range */
+      padding: 25px 30px 40px 30px; /* Specific padding */
+      width: 85%; /* Specific width */
+      max-height: 88vh; /* Specific max-height */
+      overflow-y: auto; /* Consistent */
   }
   .tab-btn{font-size:14px}
   .social-btn {
@@ -275,13 +277,13 @@ html, body{
       padding-top: 2vh;
   }
   .login-container{
-      padding: 20px 15px 40px 15px;
-      width: 95%;
-      max-width: none;
+      padding: 20px 15px 40px 15px; /* Specific padding */
+      width: 95%; /* Specific width */
+      max-width: none; /* Allows full 95% width */
       margin-top: 0;
       margin-bottom: 20px;
-      overflow-y: auto;
-      max-height: 88vh;
+      overflow-y: auto; /* Consistent */
+      max-height: 88vh; /* Specific max-height */
   }
   .login-header h1{font-size:20px; margin-bottom: 5px;}
   .login-header p{font-size:14px; margin-bottom: 20px;}
@@ -309,7 +311,7 @@ html, body{
   .social-btn {
       padding: 8px;
       font-size: 12px;
-      flex-grow: 1; 
+      flex-grow: 1;
       flex-basis: 100%;
       max-width: 100%;
       min-width: 0;
@@ -322,8 +324,8 @@ html, body{
 @media (max-width: 359px) {
     .login-section { padding: 10px; padding-top: 1vh; }
     .login-container {
-        padding: 15px 10px 40px 10px;
-        max-height: 90vh;
+        padding: 15px 10px 40px 10px; /* Specific padding */
+        max-height: 90vh; /* Consistent */
     }
     .login-header h1 { font-size: 18px; }
     .login-header p { font-size: 13px; }

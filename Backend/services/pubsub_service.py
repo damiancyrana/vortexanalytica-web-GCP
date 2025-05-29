@@ -48,9 +48,9 @@ class PubSubService:
         logger.info("Inicjalizacja PubSubService...")
 
         self.project_id = settings.PROJECT_ID
-        self.full_topic_path = "projects/vortexanalytica/topics/marketnews"
-        self.topic_name = "marketnews"
-        self.subscription_name = "marketnews-sub"
+        self.full_topic_path = "projects/vortexanalytica/topics/chronoengine-marketnews-enriched-standard"
+        self.topic_name = "chronoengine-marketnews-enriched-standard"
+        self.subscription_name = "chronoengine-marketnews-enriched-standard-sub"
         self.shutdown_event = threading.Event()
 
         try:

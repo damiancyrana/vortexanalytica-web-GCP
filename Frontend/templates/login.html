@@ -1,153 +1,258 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="en">
+<head>
   <meta charset="utf-8" />
-  <title>Vortex Analytica — Login and Registration</title> <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-        content="Vortex Analytica: Sign in to access AI-powered market analytics" /> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <title>Vortex Analytica — Login and Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Vortex Analytica: Sign in to access AI-powered market analytics" />
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-
-  <link rel="stylesheet" href="/static/css/landing_page.css" /> <link rel="stylesheet" href="/static/css/login.css" /> <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- Three.js MUST be loaded before quantum_bg.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  
+  <!-- Critical styles for quantum background first -->
+  <style>
+    /* Reset and ensure transparent backgrounds */
+    * {
+      box-sizing: border-box;
+    }
+    
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: transparent !important;
+      background-color: transparent !important;
+      position: relative;
+    }
+    
+    /* Essential quantum field styles */
+    #quantum-field {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: -1 !important;
+      pointer-events: none !important;
+      display: block !important;
+      background-color: #0a0a10; /* Fallback dark background */
+    }
+    
+    /* CSS Variables needed by quantum_bg.js */
+    :root {
+      --blue: #00c6ff;
+      --teal: #3affc3;
+      --purple: #b967ff;
+      --bg-dark: #0a0a10;
+    }
+    
+    /* Header styles */
+    header {
+      position: fixed;
+      top: 0; 
+      left: 0; 
+      right: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 16, .96);
+      backdrop-filter: blur(12px);
+      padding: 0.7rem 1.8rem;
+      height: 50px;
+      min-height: 50px;
+      border-bottom: 1px solid rgba(0, 229, 255, .13);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo-text {
+      font-size: 1.18rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #00c6ff, #3affc3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      line-height: 1.08;
+      display: block;
+      user-select: none;
+      text-decoration: none;
+      font-family: 'Exo 2', sans-serif;
+    }
+    
+    /* Main container adjustment */
+    .main-container {
+      margin-top: 50px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+  
+  <!-- Include login styles after -->
+  <link rel="stylesheet" href="/static/css/login.css" />
 </head>
-<body data-theme="light"> <canvas id="quantum-field"></canvas>
+<body>
+  <!-- Canvas MUST be first in body -->
+  <canvas id="quantum-field"></canvas>
 
-<header>
-  <div class="logo">
-    <a href="/" class="logo-text">Vortex Analytica</a> </div>
-  <nav id="mainNav">
-    </nav>
-</header>
+  <header>
+    <div class="logo">
+      <a href="/" class="logo-text">Vortex Analytica</a>
+    </div>
+    <nav id="mainNav"></nav>
+  </header>
 
-<div class="main-container">
-  <section class="login-section">
-    <div class="login-container">
-      <div class="login-header">
-        <h1>Welcome to Vortex Analytica</h1> <p>Sign in to access market analytics dashboard</p> </div>
-
-      <div class="auth-tabs">
-        <button class="tab-btn active" data-target="login-form">Sign In</button>
-        <button class="tab-btn" data-target="register-form">Create Account</button>
-      </div>
-
-      <form id="login-form" class="auth-form active" novalidate> <div class="form-group">
-          <label for="login-email">Email</label>
-          <div class="input-with-icon">
-            <i class="fa fa-envelope"></i>
-            <input type="email" id="login-email" name="email" required placeholder="Email address">
-          </div>
+  <div class="main-container">
+    <section class="login-section">
+      <div class="login-container">
+        <div class="login-header">
+          <h1>Welcome to Vortex Analytica</h1>
+          <p>Sign in to access market analytics dashboard</p>
         </div>
 
-        <div class="form-group">
-          <label for="login-password">Password</label>
-          <div class="input-with-icon">
-            <i class="fa fa-lock"></i>
-            <input type="password" id="login-password" name="password" required placeholder="Your password">
-          </div>
+        <div class="auth-tabs">
+          <button class="tab-btn active" data-target="login-form">Sign In</button>
+          <button class="tab-btn" data-target="register-form">Create Account</button>
         </div>
 
-        <div class="form-options">
-          <a href="#" class="forgot-password">Forgot password?</a>
-        </div>
-
-        <div id="login-message-area" class="auth-message"></div>
-
-        <button type="submit" class="auth-button" id="login-button"> <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
-
-        <div class="separator">
-          <span>or continue with</span>
-        </div>
-
-        <div class="social-login">
-          <button type="button" class="social-btn microsoft">
-            <i class="fab fa-microsoft"></i> Microsoft
-          </button>
-          <button type="button" class="social-btn google">
-            <i class="fab fa-google"></i> Google
-          </button>
-        </div>
-      </form>
-
-      <form id="register-form" class="auth-form" novalidate> <div class="form-group">
-          <label for="reg-name">Full Name</label>
-          <div class="input-with-icon">
-            <i class="fa fa-user"></i>
-            <input type="text" id="reg-name" name="name" required placeholder="Your full name">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-email">Email</label>
-          <div class="input-with-icon">
-            <i class="fa fa-envelope"></i>
-            <input type="email" id="reg-email" name="email" required placeholder="Email address">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-password">Password</label>
-          <div class="input-with-icon">
-            <i class="fa fa-lock"></i>
-            <input type="password" id="reg-password" name="password" required placeholder="Create password" aria-describedby="password-hints">
-            <div class="password-strength-meter">
-              <div class="strength-bar"></div>
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active" novalidate>
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <div class="input-with-icon">
+              <i class="fa fa-envelope"></i>
+              <input type="email" id="login-email" name="email" required placeholder="Email address">
             </div>
           </div>
-          <div class="password-hints" id="password-hints">
-            <small>Min. 8 characters, uppercase & lowercase letters, number, special character.</small>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-with-icon">
+              <i class="fa fa-lock"></i>
+              <input type="password" id="login-password" name="password" required placeholder="Your password">
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="reg-confirm-password">Confirm Password</label>
-          <div class="input-with-icon">
-            <i class="fa fa-lock"></i>
-            <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Confirm your password">
+          <div class="form-options">
+            <a href="#" class="forgot-password">Forgot password?</a>
           </div>
-        </div>
 
-        <div class="form-options">
-          <label class="checkbox-container">
-            <input type="checkbox" id="reg-terms" name="terms" required> <span class="checkmark"></span>
-            I accept the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
-          </label>
-        </div>
+          <div id="login-message-area" class="auth-message"></div>
 
-         <div id="register-message-area" class="auth-message"></div>
-
-        <button type="submit" class="auth-button" id="register-button"> <i class="fas fa-user-plus"></i> Create Account
-        </button>
-
-        <div class="separator">
-          <span>or sign up with</span>
-        </div>
-
-        <div class="social-login">
-           <button type="button" class="social-btn microsoft">
-            <i class="fab fa-microsoft"></i> Microsoft
+          <button type="submit" class="auth-button" id="login-button">
+            <i class="fas fa-sign-in-alt"></i> Sign In
           </button>
-          <button type="button" class="social-btn google">
-            <i class="fab fa-google"></i> Google
+
+          <div class="separator">
+            <span>or continue with</span>
+          </div>
+
+          <div class="social-login">
+            <button type="button" class="social-btn microsoft">
+              <i class="fab fa-microsoft"></i> Microsoft
+            </button>
+            <button type="button" class="social-btn google">
+              <i class="fab fa-google"></i> Google
+            </button>
+          </div>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="reg-name">Full Name</label>
+            <div class="input-with-icon">
+              <i class="fa fa-user"></i>
+              <input type="text" id="reg-name" name="name" required placeholder="Your full name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <div class="input-with-icon">
+              <i class="fa fa-envelope"></i>
+              <input type="email" id="reg-email" name="email" required placeholder="Email address">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <div class="input-with-icon">
+              <i class="fa fa-lock"></i>
+              <input type="password" id="reg-password" name="password" required placeholder="Create password" aria-describedby="password-hints">
+              <div class="password-strength-meter">
+                <div class="strength-bar"></div>
+              </div>
+            </div>
+            <div class="password-hints" id="password-hints">
+              <small>Min. 8 characters, uppercase & lowercase letters, number, special character.</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-confirm-password">Confirm Password</label>
+            <div class="input-with-icon">
+              <i class="fa fa-lock"></i>
+              <input type="password" id="reg-confirm-password" name="confirm-password" required placeholder="Confirm your password">
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-container">
+              <input type="checkbox" id="reg-terms" name="terms" required>
+              <span class="checkmark"></span>
+              I accept the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+            </label>
+          </div>
+
+          <div id="register-message-area" class="auth-message"></div>
+
+          <button type="submit" class="auth-button" id="register-button">
+            <i class="fas fa-user-plus"></i> Create Account
           </button>
-        </div>
-      </form>
+
+          <div class="separator">
+            <span>or sign up with</span>
+          </div>
+
+          <div class="social-login">
+            <button type="button" class="social-btn microsoft">
+              <i class="fab fa-microsoft"></i> Microsoft
+            </button>
+            <button type="button" class="social-btn google">
+              <i class="fab fa-google"></i> Google
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/#contact-section">Contact</a>
     </div>
-  </section>
-</div>
+    <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
+  </footer>
 
-<footer>
-  <div class="footer-links">
-    <a href="/terms">Terms of Service</a> <a href="/privacy">Privacy Policy</a>
-    <a href="/#contact-section">Contact</a> </div>
-  <p class="copy">&copy; <script>document.write(new Date().getFullYear())</script> Vortex Analytica. All rights reserved.</p>
-</footer>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script type="module" src="/static/js/quantum_bg.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-<script src="/static/js/login.js"></script>
-
+  <!-- Load quantum background IMMEDIATELY after Three.js -->
+  <script type="module" src="/static/js/quantum_bg.js"></script>
+  
+  <!-- Then load other scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="/static/js/login.js"></script>
 </body>
 </html>
