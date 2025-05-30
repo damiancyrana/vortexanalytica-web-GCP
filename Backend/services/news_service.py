@@ -1,6 +1,6 @@
 """
 Serwis do obsługi wiadomości z Redis z obsługą SSE.
-Zastępuje przechowywanie w pamięci RAM na trwałe przechowywanie w Redis.
+Obsługuje zarówno standardowe jak i krytyczne wiadomości.
 """
 from __future__ import annotations
 
@@ -26,9 +26,14 @@ class NewsService:
     _redis_pool: Optional[ConnectionPool] = None
     _redis_client: Optional[redis.Redis] = None
     
-    # SSE subscribers (nadal w pamięci, bo to tymczasowe połączenia)
-    _subscribers: Set[Callable[[str], Awaitable[None]]] = set()
+    # SSE subscribers (separate for standard and critical)
+    _standard_subscribers: Set[Callable[[str], Awaitable[None]]] = set()
+    _critical_subscribers: Set[Callable[[str], Awaitable[None]]] = set()
     _sse_lock = asyncio.Lock()
+    
+    # Last critical message cache
+    _last_critical_message: Optional[Dict[str, Any]] = None
+    _last_critical_timestamp: Optional[float] = None
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -49,7 +54,6 @@ class NewsService:
         try:
             settings = get_settings()
             
-            # Sprawdź czy jest REDIS_URL (ma priorytet)
             if settings.REDIS_URL:
                 logger.info(f"Łączenie z Redis przy użyciu URL: {settings.REDIS_URL}")
                 self._redis_pool = ConnectionPool.from_url(
@@ -58,10 +62,9 @@ class NewsService:
                     socket_connect_timeout=settings.REDIS_SOCKET_CONNECT_TIMEOUT,
                     socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
                     retry_on_timeout=True,
-                    decode_responses=True  # Automatyczne dekodowanie UTF-8
+                    decode_responses=True
                 )
             else:
-                # Użyj konfiguracji host/port/password
                 logger.info(f"Łączenie z Redis: {settings.REDIS_HOST}:{settings.REDIS_PORT}, DB: {settings.REDIS_DB}")
                 self._redis_pool = ConnectionPool(
                     host=settings.REDIS_HOST,
@@ -72,13 +75,10 @@ class NewsService:
                     socket_connect_timeout=settings.REDIS_SOCKET_CONNECT_TIMEOUT,
                     socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
                     retry_on_timeout=True,
-                    decode_responses=True  # Automatyczne dekodowanie UTF-8
+                    decode_responses=True
                 )
             
-            # Utwórz klienta Redis
             self._redis_client = redis.Redis(connection_pool=self._redis_pool)
-            
-            # Test połączenia
             self._redis_client.ping()
             logger.info("Pomyślnie połączono z Redis i przetestowano połączenie.")
             
@@ -93,7 +93,7 @@ class NewsService:
         return self._redis_client
 
     async def add_message_async(self, message: Dict[str, Any]) -> None:
-        """Asynchroniczna metoda dodająca nową wiadomość do Redis i powiadamiająca subskrybentów."""
+        """Asynchroniczna metoda dodająca nową wiadomość standardową do Redis i powiadamiająca subskrybentów."""
         # Validation
         if not all(key in message for key in ["news_id", "title", "time_reported"]):
             logger.warning(f"Otrzymano niepełną wiadomość: {message}")
@@ -108,21 +108,16 @@ class NewsService:
             settings = get_settings()
             redis_client = self._get_redis_client()
             
-            # Dodaj timestamp dla sortowania (używamy time_reported lub aktualny czas)
+            # Dodaj timestamp dla sortowania
             try:
-                # Spróbuj sparsować time_reported jako timestamp
                 if message.get("time_reported"):
-                    # Zakładamy że time_reported to string w formacie ISO lub timestamp
                     if isinstance(message["time_reported"], str):
                         try:
-                            # Spróbuj sparsować jako ISO datetime
                             dt = datetime.fromisoformat(message["time_reported"].replace('Z', '+00:00'))
                             score = dt.timestamp()
                         except (ValueError, TypeError):
-                            # Jeśli nie da się sparsować, użyj aktualnego czasu
                             score = time.time()
                     else:
-                        # Jeśli to już liczba, użyj jej
                         score = float(message["time_reported"])
                 else:
                     score = time.time()
@@ -132,54 +127,92 @@ class NewsService:
             # Serializuj wiadomość do JSON
             message_json = json.dumps(message, ensure_ascii=False, default=str)
             
-            # Dodaj do sorted set w Redis (score = timestamp, value = JSON wiadomości)
+            # Dodaj do sorted set w Redis
             redis_client.zadd(settings.NEWS_REDIS_KEY, {message_json: score})
             
-            # Ogranicz liczbę wiadomości (zachowaj tylko najnowsze)
+            # Ogranicz liczbę wiadomości
             total_messages = redis_client.zcard(settings.NEWS_REDIS_KEY)
             if total_messages > settings.NEWS_MAX_MESSAGES:
-                # Usuń najstarsze wiadomości (najmniejszy score)
                 excess_count = total_messages - settings.NEWS_MAX_MESSAGES
                 redis_client.zremrangebyrank(settings.NEWS_REDIS_KEY, 0, excess_count - 1)
             
-            logger.info(f"Dodano nową wiadomość do Redis: {message['news_id']} - {message['title']}")
+            logger.info(f"Dodano nową wiadomość standardową do Redis: {message['news_id']} - {message['title']}")
             
         except Exception as e:
             logger.error(f"Błąd podczas dodawania wiadomości do Redis: {e}", exc_info=True)
-            # Nie przerywamy działania, tylko logujemy błąd
             return
         
         # Prepare simplified message dla SSE
         simplified_message = self._simplify_message(message)
         
-        # Notify subscribers
-        await self._notify_subscribers(simplified_message)
+        # Notify standard subscribers
+        await self._notify_subscribers(simplified_message, is_critical=False)
+    
+    async def add_critical_message_async(self, message: Dict[str, Any]) -> None:
+        """Asynchroniczna metoda dodająca krytyczną wiadomość i powiadamiająca dedykowanych subskrybentów."""
+        # Validation
+        if not all(key in message for key in ["news_id", "title", "time_reported"]):
+            logger.warning(f"Otrzymano niepełną wiadomość krytyczną: {message}")
+            return
+        
+        try:
+            # Cache the critical message
+            self._last_critical_message = message
+            self._last_critical_timestamp = time.time()
+            
+            logger.info(f"Dodano nową wiadomość KRYTYCZNĄ: {message['news_id']} - {message['title']}")
+            
+            # Prepare critical message dla SSE
+            critical_data = self._prepare_critical_message(message)
+            
+            # Notify critical subscribers
+            await self._notify_subscribers(critical_data, is_critical=True)
+            
+        except Exception as e:
+            logger.error(f"Błąd podczas przetwarzania krytycznej wiadomości: {e}", exc_info=True)
+    
+    def _prepare_critical_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Przygotowuje krytyczną wiadomość do wyświetlenia."""
+        analysis = message.get("analysis_payload", {})
+        
+        return {
+            "type": "critical",
+            "news_id": message.get("news_id", ""),
+            "title": message.get("title", ""),
+            "time_reported": message.get("time_reported", ""),
+            "symbol": analysis.get("symbol", ""),
+            "signal": analysis.get("signal", "HOLD"),
+            "confidence": analysis.get("confidence", 0),
+            "timestamp": time.time()
+        }
     
     def add_message(self, message: Dict[str, Any]) -> None:
-        """Synchroniczna metoda dodająca wiadomość - tworzy zadanie asyncio."""
-        # Generate one-time event loop for synchronous calls
+        """Synchroniczna metoda dodająca wiadomość - rozróżnia typ i wywołuje odpowiednią metodę async."""
+        is_critical = message.get("is_critical", False)
+        
         try:
-            # Sprawdź czy jest aktywna pętla zdarzeń
             loop = asyncio.get_running_loop()
-            # Jeśli tak, utwórz zadanie
-            loop.create_task(self.add_message_async(message))
+            if is_critical:
+                loop.create_task(self.add_critical_message_async(message))
+            else:
+                loop.create_task(self.add_message_async(message))
         except RuntimeError:
-            # Nie ma aktywnej pętli, utwórz nową
             loop = asyncio.new_event_loop()
             try:
-                loop.run_until_complete(self.add_message_async(message))
+                if is_critical:
+                    loop.run_until_complete(self.add_critical_message_async(message))
+                else:
+                    loop.run_until_complete(self.add_message_async(message))
             finally:
                 loop.close()
     
     def _simplify_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Upraszcza wiadomość do formatu odpowiedniego dla SSE."""
-        # Domyślne wartości
         narrative_impact = "Unknown"
         interpretation = ""
         interpretation_tags = []
         extracted_entities = []
         
-        # Pobierz dane z knowledge_graph_data, jeśli istnieją
         if ("analysis_payload" in message and 
             "knowledge_graph_data" in message["analysis_payload"]):
             
@@ -208,9 +241,11 @@ class NewsService:
             "extracted_entities": extracted_entities
         }
     
-    async def _notify_subscribers(self, message: Dict[str, Any]) -> None:
-        """Powiadamia wszystkich subskrybentów o nowej wiadomości."""
-        if not self._subscribers:
+    async def _notify_subscribers(self, message: Dict[str, Any], is_critical: bool = False) -> None:
+        """Powiadamia odpowiednich subskrybentów o nowej wiadomości."""
+        subscribers = self._critical_subscribers if is_critical else self._standard_subscribers
+        
+        if not subscribers:
             return
             
         message_json = json.dumps(message, ensure_ascii=False, default=str)
@@ -219,51 +254,65 @@ class NewsService:
         async with self._sse_lock:
             expired_subscribers = set()
             
-            for callback in self._subscribers:
+            for callback in subscribers:
                 try:
                     await callback(message_sse)
                 except Exception as e:
-                    logger.warning(f"Błąd podczas powiadamiania subskrybenta: {e}")
+                    logger.warning(f"Błąd podczas powiadamiania subskrybenta {'krytycznego' if is_critical else 'standardowego'}: {e}")
                     expired_subscribers.add(callback)
             
-            # Usuń nieaktywnych subskrybentów
             for expired in expired_subscribers:
-                self._subscribers.remove(expired)
+                subscribers.remove(expired)
             
-            logger.debug(f"Powiadomiono {len(self._subscribers)} aktywnych subskrybentów o nowej wiadomości.")
+            logger.debug(f"Powiadomiono {len(subscribers)} aktywnych subskrybentów {'krytycznych' if is_critical else 'standardowych'} o nowej wiadomości.")
 
-    async def subscribe(self, callback: Callable[[str], Awaitable[None]]) -> None:
+    async def subscribe(self, callback: Callable[[str], Awaitable[None]], is_critical: bool = False) -> None:
         """Dodaje funkcję callback do listy subskrybentów SSE."""
         async with self._sse_lock:
-            self._subscribers.add(callback)
-            logger.info(f"Nowy subskrybent SSE. Łącznie: {len(self._subscribers)}")
+            if is_critical:
+                self._critical_subscribers.add(callback)
+                logger.info(f"Nowy subskrybent SSE krytyczny. Łącznie: {len(self._critical_subscribers)}")
+            else:
+                self._standard_subscribers.add(callback)
+                logger.info(f"Nowy subskrybent SSE standardowy. Łącznie: {len(self._standard_subscribers)}")
     
-    async def unsubscribe(self, callback: Callable[[str], Awaitable[None]]) -> None:
+    async def unsubscribe(self, callback: Callable[[str], Awaitable[None]], is_critical: bool = False) -> None:
         """Usuwa funkcję callback z listy subskrybentów SSE."""
         async with self._sse_lock:
-            if callback in self._subscribers:
-                self._subscribers.remove(callback)
-                logger.info(f"Subskrybent SSE odłączony. Pozostało: {len(self._subscribers)}")
+            subscribers = self._critical_subscribers if is_critical else self._standard_subscribers
+            if callback in subscribers:
+                subscribers.remove(callback)
+                logger.info(f"Subskrybent SSE {'krytyczny' if is_critical else 'standardowy'} odłączony. Pozostało: {len(subscribers)}")
+
+    def get_last_critical_message(self) -> Optional[Dict[str, Any]]:
+        """Zwraca ostatnią krytyczną wiadomość jeśli jest aktualna (mniej niż godzina)."""
+        if not self._last_critical_message or not self._last_critical_timestamp:
+            return None
+        
+        # Sprawdź czy wiadomość nie jest starsza niż godzina
+        if time.time() - self._last_critical_timestamp > 3600:  # 1 godzina
+            self._last_critical_message = None
+            self._last_critical_timestamp = None
+            return None
+        
+        return self._prepare_critical_message(self._last_critical_message)
 
     def get_messages(self, limit: int = 20) -> List[Dict[str, Any]]:
-        """Pobiera ostatnie wiadomości z Redis."""
+        """Pobiera ostatnie wiadomości standardowe z Redis."""
         try:
             settings = get_settings()
             redis_client = self._get_redis_client()
             
-            # Pobierz najnowsze wiadomości (największy score = najnowsze)
-            # ZREVRANGE zwraca od największego do najmniejszego score
             raw_messages = redis_client.zrevrange(
                 settings.NEWS_REDIS_KEY, 
                 0, 
-                limit - 1,  # Redis jest 0-indexed
-                withscores=False  # Nie potrzebujemy scores
+                limit - 1,
+                withscores=False
             )
             
             messages = []
             for raw_message in raw_messages:
                 try:
-                    # Deserializuj JSON
                     message = json.loads(raw_message)
                     messages.append(message)
                 except json.JSONDecodeError as e:
@@ -275,7 +324,7 @@ class NewsService:
             
         except Exception as e:
             logger.error(f"Błąd podczas pobierania wiadomości z Redis: {e}", exc_info=True)
-            return []  # Zwróć pustą listę w przypadku błędu
+            return []
 
     def get_messages_count(self) -> int:
         """Zwraca liczbę wiadomości w Redis."""
@@ -301,27 +350,17 @@ class NewsService:
             return False
 
     def cleanup_old_messages(self, max_age_seconds: int = 86400) -> int:
-        """
-        Usuwa wiadomości starsze niż max_age_seconds.
-        
-        Args:
-            max_age_seconds: Maksymalny wiek wiadomości w sekundach (domyślnie 24h)
-            
-        Returns:
-            Liczba usuniętych wiadomości
-        """
+        """Usuwa wiadomości starsze niż max_age_seconds."""
         try:
             settings = get_settings()
             redis_client = self._get_redis_client()
             
-            # Oblicz timestamp graniczny
             cutoff_timestamp = time.time() - max_age_seconds
             
-            # Usuń wiadomości ze score mniejszym niż cutoff_timestamp
             deleted_count = redis_client.zremrangebyscore(
                 settings.NEWS_REDIS_KEY, 
-                0,  # min score
-                cutoff_timestamp  # max score
+                0,
+                cutoff_timestamp
             )
             
             if deleted_count > 0:

@@ -37,6 +37,7 @@ async def get_news(
     return {"news": simplified_messages}
 
 
+
 @router.get("/stream")
 async def stream_news(
     request: Request,
@@ -68,7 +69,7 @@ async def stream_news(
             return
         
         # Dodaj do subskrybentów
-        await news_service.subscribe(send_events)
+        await news_service.subscribe(send_events, is_critical=False)
         
         try:
             # Heartbeat co 30 sekund
@@ -89,7 +90,7 @@ async def stream_news(
         finally:
             # Anuluj heartbeat i wypisz subskrybenta
             heartbeat_task.cancel()
-            await news_service.unsubscribe(send_events)
+            await news_service.unsubscribe(send_events, is_critical=False)
             logger.info(f"Zamknięto strumień SSE dla użytkownika: {user_id}")
     
     # Pomocnicza funkcja do wysyłania heartbeat
@@ -110,6 +111,97 @@ async def stream_news(
             "X-Accel-Buffering": "no"  # Wyłącza buforowanie dla Nginx
         }
     )
+
+
+@router.get("/critical/stream")
+async def stream_critical_news(
+    request: Request,
+    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
+) -> StreamingResponse:
+    """
+    Endpoint SSE dla krytycznych wiadomości rynkowych.
+    Przesyła tylko najważniejsze sygnały w czasie rzeczywistym.
+    """
+    user_id = current_user_session.get('user_id')
+    logger.info(f"Otwieranie krytycznego strumienia SSE dla użytkownika: {user_id}")
+    
+    async def event_generator():
+        # Powiadomienie początkowe
+        yield "data: {\"type\": \"connected\", \"message\": \"Critical SSE connection established\"}\n\n"
+        
+        # Sprawdź czy jest ostatnia krytyczna wiadomość
+        news_service = NewsService()
+        last_critical = news_service.get_last_critical_message()
+        if last_critical:
+            yield f"data: {json.dumps(last_critical)}\n\n"
+        
+        # Utwórz funkcję callbacku dla nowych krytycznych wiadomości
+        send_queue = asyncio.Queue()
+        
+        async def send_events(data: str):
+            await send_queue.put(data)
+            return
+        
+        # Dodaj do subskrybentów krytycznych
+        await news_service.subscribe(send_events, is_critical=True)
+        
+        try:
+            # Heartbeat co 30 sekund
+            heartbeat_task = asyncio.create_task(send_heartbeats(send_queue))
+            
+            # Timer do czyszczenia starych wiadomości
+            cleanup_task = asyncio.create_task(cleanup_old_critical(send_queue))
+            
+            # Czekaj na wiadomości lub rozłączenie
+            while not await request.is_disconnected():
+                try:
+                    # Czekaj na dane z kolejki z timeout
+                    data = await asyncio.wait_for(send_queue.get(), timeout=3.0)
+                    yield data
+                except asyncio.TimeoutError:
+                    # Sprawdź rozłączenie co 3 sekundy
+                    continue
+                except Exception as e:
+                    logger.error(f"Błąd podczas obsługi kolejki krytycznej SSE: {e}", exc_info=True)
+                    break
+        finally:
+            # Anuluj zadania i wypisz subskrybenta
+            heartbeat_task.cancel()
+            cleanup_task.cancel()
+            await news_service.unsubscribe(send_events, is_critical=True)
+            logger.info(f"Zamknięto krytyczny strumień SSE dla użytkownika: {user_id}")
+    
+    # Pomocnicza funkcja do wysyłania heartbeat
+    async def send_heartbeats(queue):
+        try:
+            while True:
+                await asyncio.sleep(30)
+                await queue.put("data: {\"type\": \"heartbeat\"}\n\n")
+        except asyncio.CancelledError:
+            pass
+    
+    # Pomocnicza funkcja do czyszczenia starych wiadomości krytycznych
+    async def cleanup_old_critical(queue):
+        try:
+            while True:
+                await asyncio.sleep(60)  # Sprawdzaj co minutę
+                # Wyślij sygnał do usunięcia jeśli wiadomość jest za stara
+                news_service = NewsService()
+                if not news_service.get_last_critical_message():
+                    await queue.put("data: {\"type\": \"clear_critical\"}\n\n")
+        except asyncio.CancelledError:
+            pass
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"  # Wyłącza buforowanie dla Nginx
+        }
+    )
+
 
 @router.get("/stats")
 async def get_news_stats(

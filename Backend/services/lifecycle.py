@@ -97,19 +97,19 @@ async def app_startup() -> None:
         raise SystemExit(f"Application startup failed: Could not initialize NewsService with Redis: {e}") from e
 
     # Inicjalizacja Pub/Sub Service
+
     try:
         logger.info("Inicjalizacja serwisu Pub/Sub...")
         _pubsub_service = PubSubService(settings)
         
-        # Uruchom nasłuchiwanie asynchronicznie
+        # Uruchom nasłuchiwanie asynchronicznie dla obu topiców
         if await _pubsub_service.start_listener_async():
-            logger.info("Serwis Pub/Sub uruchomiony pomyślnie.")
+            logger.info("Serwis Pub/Sub uruchomiony pomyślnie (standard + critical).")
         else:
             logger.warning("Nie udało się uruchomić nasłuchiwania Pub/Sub, ale aplikacja kontynuuje działanie.")
     except Exception as e:
         logger.error(f"Błąd podczas inicjalizacji serwisu Pub/Sub: {e}", exc_info=True)
         logger.warning("Aplikacja będzie kontynuować działanie bez serwisu Pub/Sub.")
-
     logger.info(f"Aplikacja uruchomiona pomyślnie w trybie: {settings.environment}")
 
     
