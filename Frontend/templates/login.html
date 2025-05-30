@@ -239,7 +239,55 @@
       </div>
     </section>
   </div>
+ <!-- Email Verification Modal -->
+  <div id="email-verification-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <div class="modal-header">
+        <i class="fas fa-envelope-open-text"></i>
+        <h2>Verify Your Email</h2>
+      </div>
+      <div class="modal-body">
+        <p>We've sent a verification email to your email address.</p>
+        <p>Please check your inbox and click the verification link to activate your account.</p>
+        <div id="verification-message-area" class="auth-message"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="resend-verification-btn" class="auth-button secondary">
+          <i class="fas fa-redo"></i> Resend Verification Email
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Password Reset Modal -->
+  <div id="password-reset-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <div class="modal-header">
+        <i class="fas fa-key"></i>
+        <h2>Reset Your Password</h2>
+      </div>
+      <div class="modal-body">
+        <p>Enter your email address and we'll send you a link to reset your password.</p>
+        <form id="reset-password-form">
+          <div class="form-group">
+            <label for="reset-email">Email Address</label>
+            <div class="input-with-icon">
+              <i class="fa fa-envelope"></i>
+              <input type="email" id="reset-email" name="reset-email" required placeholder="Your email address">
+            </div>
+          </div>
+          <div id="reset-message-area" class="auth-message"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="reset-password-btn" class="auth-button">
+          <i class="fas fa-paper-plane"></i> Send Reset Link
+        </button>
+      </div>
+    </div>
+  </div>
   <footer>
     <div class="footer-links">
       <a href="/terms">Terms of Service</a>

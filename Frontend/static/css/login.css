@@ -16,6 +16,165 @@
   --header-height: 50px;
 }
 
+[data-theme="dark"] .auth-button.loading::after,
+[data-theme="dark"] .social-btn.loading::after {
+    color: var(--button-text-color-dark, #eee);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: rgba(26, 31, 54, 0.95);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 0;
+  width: 90%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: var(--text-light-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.close-modal:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+}
+
+.modal-header {
+  text-align: center;
+  padding: 30px 20px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modal-header i {
+  font-size: 3rem;
+  color: var(--blue-accent);
+  margin-bottom: 15px;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.modal-body p {
+  color: var(--text-light-muted);
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.modal-body .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-footer {
+  padding: 20px 30px 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth-button.secondary {
+  background: transparent;
+  border: 1px solid var(--blue-accent);
+  color: var(--blue-accent);
+}
+
+.auth-button.secondary:hover {
+  background: rgba(78, 140, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(78, 140, 255, 0.2);
+}
+
+.auth-button.secondary:active {
+  transform: translateY(0);
+}
+
+/* Responsive modal styles */
+@media (max-width: 576px) {
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-header {
+    padding: 25px 15px 15px;
+  }
+  
+  .modal-header i {
+    font-size: 2.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .modal-footer {
+    padding: 15px 20px 25px;
+  }
+}
+
+/* Additional message area styling for modals */
+.modal .auth-message {
+  margin-top: 15px;
+  margin-bottom: 0;
+}
+
 html, body{
   height:100vh;
   overflow:hidden;

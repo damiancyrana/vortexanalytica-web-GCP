@@ -22,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
     registerButton: document.getElementById('register-button'),
     registerMessage: document.getElementById('register-message-area'),
     forgotPassword: document.querySelector('.forgot-password'),
-    strengthBar: document.querySelector('#register-form .strength-bar')
+    strengthBar: document.querySelector('#register-form .strength-bar'),
+    emailVerificationModal: document.getElementById('email-verification-modal'),
+    resendVerificationBtn: document.getElementById('resend-verification-btn'),
+    passwordResetModal: document.getElementById('password-reset-modal'),
+    resetEmailInput: document.getElementById('reset-email'),
+    resetPasswordBtn: document.getElementById('reset-password-btn'),
+    closeModalBtns: document.querySelectorAll('.close-modal')
   }
 
   // CSRF utilities
@@ -95,6 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
           area.className = 'auth-message'
         }
       })
+    },
+    
+    showModal: (modalId) => {
+      const modal = document.getElementById(modalId)
+      if (modal) {
+        modal.style.display = 'flex'
+        document.body.style.overflow = 'hidden'
+      }
+    },
+    
+    hideModal: (modalId) => {
+      const modal = document.getElementById(modalId)
+      if (modal) {
+        modal.style.display = 'none'
+        document.body.style.overflow = 'auto'
+      }
     }
   }
 
@@ -123,10 +145,49 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.style.backgroundColor = colors[Math.max(0, strength - 1)] || '#ddd'
   }
 
+  // Email verification functions
+  const sendVerificationEmail = async (user) => {
+    try {
+      await user.sendEmailVerification({
+        url: 'https://vortexanalytica.com/login',
+        handleCodeInApp: false
+      })
+      ui.showModal('email-verification-modal')
+      return true
+    } catch (error) {
+      console.error('Error sending verification email:', error)
+      const errors = {
+        'auth/too-many-requests': 'Too many requests. Please try again later',
+        'auth/invalid-email': 'Invalid email address.',
+        'auth/user-not-found': 'User not found.'
+      }
+      ui.showError(errors[error.code] || 'Failed to send verification email', 'register-message-area')
+      return false
+    }
+  }
+
+  const checkEmailVerification = async (user) => {
+    try {
+      await user.reload()
+      return user.emailVerified
+    } catch (error) {
+      console.error('Error checking email verification:', error)
+      return false
+    }
+  }
+
   // Create backend session after Firebase auth
   const createBackendSession = async user => {
     if (!user) {
       ui.showError('Authentication error', ui.getActiveMessageArea())
+      return
+    }
+    
+    // Check if email is verified
+    if (!user.emailVerified) {
+      ui.showError('Please verify your email before logging in. Check your inbox', 'login-message-area')
+      ui.setLoading(elements.loginButton, false)
+      await firebaseAuth.signOut()
       return
     }
     
@@ -191,7 +252,31 @@ document.addEventListener('DOMContentLoaded', () => {
       ui.setLoading(elements.loginButton, true)
       
       try {
-        await firebaseAuth.signInWithEmailAndPassword(email, password)
+        const result = await firebaseAuth.signInWithEmailAndPassword(email, password)
+        
+        // Check if email is verified
+        if (!result.user.emailVerified) {
+          ui.showError('Please verify your email before logging in. Check your inbox', 'login-message-area')
+          
+          // Offer to resend verification email
+          const resendBtn = document.createElement('button')
+          resendBtn.textContent = 'Resend verification email'
+          resendBtn.className = 'auth-button secondary'
+          resendBtn.style.marginTop = '10px'
+          resendBtn.onclick = async () => {
+            await sendVerificationEmail(result.user)
+          }
+          
+          const messageArea = document.getElementById('login-message-area')
+          messageArea.appendChild(resendBtn)
+          
+          await firebaseAuth.signOut()
+          ui.setLoading(elements.loginButton, false)
+          return
+        }
+        
+        await createBackendSession(result.user)
+        
       } catch (error) {
         const errors = {
           'auth/invalid-email': 'Invalid email format',
@@ -246,6 +331,18 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const { user } = await firebaseAuth.createUserWithEmailAndPassword(email, password)
         await user.updateProfile({ displayName: name })
+        
+        // Send verification email
+        await sendVerificationEmail(user)
+        
+        // Sign out the user until they verify their email
+        await firebaseAuth.signOut()
+        
+        ui.setLoading(elements.registerButton, false)
+        
+        // Switch to login tab
+        document.querySelector('.tab-btn[data-target="login-form"]').click()
+        
       } catch (error) {
         const errors = {
           'auth/email-already-in-use': 'This email is already registered',
@@ -276,7 +373,18 @@ document.addEventListener('DOMContentLoaded', () => {
       ui.setLoading(button, true)
       
       try {
-        await firebaseAuth.signInWithPopup(providers[provider]())
+        const result = await firebaseAuth.signInWithPopup(providers[provider]())
+        
+        // OAuth providers usually verify email automatically
+        if (!result.user.emailVerified) {
+          await sendVerificationEmail(result.user)
+          await firebaseAuth.signOut()
+          ui.setLoading(button, false)
+          return
+        }
+        
+        await createBackendSession(result.user)
+        
       } catch (error) {
         const errors = {
           'auth/account-exists-with-different-credential': 'Account exists with different sign-in method',
@@ -293,30 +401,79 @@ document.addEventListener('DOMContentLoaded', () => {
     
     forgotPassword: event => {
       event.preventDefault()
-      const email = elements.loginEmail?.value.trim()
+      ui.showModal('password-reset-modal')
       
-      ui.clearMessages()
+      // Pre-fill email if available
+      const email = elements.loginEmail?.value.trim()
+      if (email && elements.resetEmailInput) {
+        elements.resetEmailInput.value = email
+      }
+    },
+    
+    resetPassword: async event => {
+      event.preventDefault()
+      
+      const email = elements.resetEmailInput?.value.trim()
+      const resetMessage = document.getElementById('reset-message-area')
       
       if (!email) {
-        ui.showError('Enter your email address above', 'login-message-area')
+        ui.showError('Please enter your email address', 'reset-message-area')
         return
       }
       
       if (!firebaseAuth) {
-        ui.showError('Password reset system is not ready', 'login-message-area')
+        ui.showError('Password reset system is not ready', 'reset-message-area')
         return
       }
       
-      ui.showSuccess('Sending password reset instructions...', 'login-message-area')
+      ui.setLoading(elements.resetPasswordBtn, true)
+      resetMessage.style.display = 'none'
       
-      firebaseAuth.sendPasswordResetEmail(email)
-        .then(() => ui.showSuccess('Password reset link sent. Check your email', 'login-message-area'))
-        .catch(error => {
-          const msg = error.code === 'auth/user-not-found' 
-            ? 'No account found with this email' 
-            : `Failed to send reset link (${error.code || 'unknown'})`
-          ui.showError(msg, 'login-message-area')
+      try {
+        await firebaseAuth.sendPasswordResetEmail(email, {
+          url: window.location.origin + '/login',
+          handleCodeInApp: false
         })
+        
+        ui.showSuccess('Password reset link sent! Check your email.', 'reset-message-area')
+        
+        // Auto-close modal after 3 seconds
+        setTimeout(() => {
+          ui.hideModal('password-reset-modal')
+          elements.resetEmailInput.value = ''
+          resetMessage.style.display = 'none'
+        }, 3000)
+        
+      } catch (error) {
+        const errors = {
+          'auth/invalid-email': 'Invalid email format',
+          'auth/user-not-found': 'No account found with this email',
+          'auth/too-many-requests': 'Too many requests. Please try again later.'
+        }
+        ui.showError(errors[error.code] || `Failed to send reset link (${error.code || 'unknown'})`, 'reset-message-area')
+      } finally {
+        ui.setLoading(elements.resetPasswordBtn, false)
+      }
+    },
+    
+    resendVerification: async () => {
+      const currentUser = firebaseAuth?.currentUser
+      
+      if (!currentUser) {
+        ui.showError('Please log in first', 'login-message-area')
+        ui.hideModal('email-verification-modal')
+        return
+      }
+      
+      ui.setLoading(elements.resendVerificationBtn, true)
+      
+      const success = await sendVerificationEmail(currentUser)
+      
+      if (success) {
+        ui.showSuccess('Verification email sent! Check your inbox.', 'verification-message-area')
+      }
+      
+      ui.setLoading(elements.resendVerificationBtn, false)
     }
   }
 
@@ -337,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Handle auth state changes
       firebaseAuth.onAuthStateChanged(async user => {
-        if (user) {
+        if (user && user.emailVerified) {
           if (sessionStorage.getItem('creatingSession') === 'true') return
           sessionStorage.setItem('creatingSession', 'true')
           await createBackendSession(user)
@@ -378,6 +535,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Forgot password
     elements.forgotPassword?.addEventListener('click', authHandlers.forgotPassword)
+    
+    // Reset password button
+    elements.resetPasswordBtn?.addEventListener('click', authHandlers.resetPassword)
+    
+    // Resend verification button
+    elements.resendVerificationBtn?.addEventListener('click', authHandlers.resendVerification)
+    
+    // Close modal buttons
+    elements.closeModalBtns?.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal')
+        if (modal) {
+          ui.hideModal(modal.id)
+        }
+      })
+    })
+    
+    // Close modal on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          ui.hideModal(modal.id)
+        }
+      })
+    })
     
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(button => {
