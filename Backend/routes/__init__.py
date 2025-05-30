@@ -1,8 +1,8 @@
 """
-Pakiet zawierający wszystkie trasy aplikacji. (Wersja Produkcyjna - Hybrydowa)
+Pakiet zawierający wszystkie trasy aplikacji. (Wersja Produkcyjna)
 """
 from __future__ import annotations
-from Backend.routes.news import router as news_router
+
 import logging
 from fastapi import FastAPI
 from fastapi.templating import Jinja2Templates
@@ -11,6 +11,7 @@ from Backend.core.config import Settings
 from Backend.routes.landing import register_landing_routes
 from Backend.routes.auth import register_auth_routes
 from Backend.routes.contact import register_contact_routes
+from Backend.routes.news import router as news_router
 
 logger = logging.getLogger(__name__)
 
@@ -26,3 +27,5 @@ def register_routes(app: FastAPI, templates: Jinja2Templates, settings: Settings
     except Exception as e:
         logger.critical(f"Krytyczny błąd podczas rejestrowania tras: {e}", exc_info=True)
         raise RuntimeError("Failed to register application routes.") from e
+    
+    

@@ -44,17 +44,59 @@
     </div>
   </header>
 
-  <div class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <span style="font-size: 14px; font-weight: 600; color: var(--dark-accent);">Menu</span>
+    </div>
+    <button class="sidebar-pin-btn" id="sidebar-pin-btn" title="Pin sidebar">
+      <i class="fas fa-thumbtack"></i>
+    </button>
+  </div>
+  
+  <div class="sidebar-content">
     <ul class="sidebar-menu">
       <li>
         <a href="#" class="active" data-view="feed">
-          <i class="fas fa-rss"></i> Feed
+          <i class="fas fa-rss"></i>
+          <span class="sidebar-menu-text">Real-time news</span>
+          <span class="sidebar-tooltip">Real-time news</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-view="satellite-analysis">
+         <i class="fa-solid fa-satellite"></i>
+
+
+          <span class="sidebar-menu-text">Satellite Analysis</span>
+          <span class="sidebar-tooltip">Satellite Analysis</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" data-view="settings">
+          <i class="fas fa-cog"></i>
+          <span class="sidebar-menu-text">Settings</span>
+          <span class="sidebar-tooltip">Settings</span>
         </a>
       </li>
     </ul>
+  </div>
+  
+  <div class="sidebar-footer">
+    <div class="sidebar-theme-toggle" id="sidebar-theme-toggle">
+      <i class="fas fa-moon" id="theme-icon"></i>
+      <span>Dark theme</span>
+    </div>
+  </div>
+</div>
+
+<!-- Add overlay for mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <div class="sidebar-theme-toggle">
-      <i class="fas fa-sun"></i>
+      <i class="fa-solid fa-lightbulb"></i>
+
+
       <span>Change theme</span>
       <label class="theme-switch">
         <input type="checkbox" id="theme-toggle-checkbox" checked>
@@ -82,6 +124,7 @@
 
   <script type="module" src="/static/js/quantum_bg_no_particles.js"></script>
   <script src="/static/js/index.js"></script>
+  <script src="/static/js/news_base.js"></script>
   <script src="/static/js/side_menu.js"></script>
   <script src="/static/js/news_updater.js"></script>
   <script src="/static/js/critical_news.js"></script>

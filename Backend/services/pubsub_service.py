@@ -45,6 +45,9 @@ class PubSubService:
     # Monitoring tasks for each subscription
     _standard_monitoring_task: Optional[asyncio.Task] = None
     _critical_monitoring_task: Optional[asyncio.Task] = None
+    
+    # Store the main event loop reference
+    _main_loop: Optional[asyncio.AbstractEventLoop] = None
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -154,25 +157,35 @@ class PubSubService:
                 message_id = message.message_id
                 publish_time = message.publish_time
                 
-                # Uruchom asynchroniczne przetwarzanie
-                try:
-                    loop = asyncio.get_running_loop()
+                # Schedule processing in the main event loop
+                if self._main_loop and not self._main_loop.is_closed():
+                    asyncio.run_coroutine_threadsafe(
+                        self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical),
+                        self._main_loop
+                    )
+                else:
+                    # Fallback: try to get the running loop or create a new one
+                    try:
+                        loop = asyncio.get_running_loop()
+                    except RuntimeError:
+                        # No running loop in this thread
+                        logger.warning("No running event loop in PubSub callback thread, creating task in new thread")
+                        # Create a new thread to run the async task
+                        def run_async():
+                            asyncio.run(
+                                self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical)
+                            )
+                        
+                        thread = threading.Thread(target=run_async, daemon=True)
+                        thread.start()
+                        return
+                    
+                    # We have a running loop, create task
                     task = loop.create_task(
                         self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical)
                     )
                     task.set_name(f"process_{'critical' if is_critical else 'standard'}_pubsub_message_{message_id}")
-                except RuntimeError:
-                    new_loop = asyncio.new_event_loop()
-                    try:
-                        asyncio.set_event_loop(new_loop)
-                        new_loop.run_until_complete(
-                            self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical)
-                        )
-                    finally:
-                        try:
-                            new_loop.close()
-                        except:
-                            pass
+                    
             except Exception as e:
                 logger.error(f"Błąd podczas przetwarzania wiadomości Pub/Sub: {e}", exc_info=True)
                 message.ack()
@@ -197,7 +210,10 @@ class PubSubService:
         if not self._initialized or not self.subscriber:
             logger.error("Próba uruchomienia nasłuchiwania na niezainicjalizowanym PubSubService.")
             return False
-            
+        
+        # Store the current event loop
+        self._main_loop = asyncio.get_running_loop()
+        
         self.shutdown_event.clear()
         
         # Sprawdź obie subskrypcje
@@ -285,25 +301,6 @@ class PubSubService:
             logger.error(f"Błąd podczas uruchamiania nasłuchiwania Pub/Sub: {e}", exc_info=True)
             return False
 
-    def start_listener(self) -> bool:
-        """Synchroniczna wersja uruchamiania nasłuchiwania."""
-        try:
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                return loop.run_until_complete(self.start_listener_async())
-            
-            if loop.is_running():
-                loop.create_task(self.start_listener_async())
-                return True
-            else:
-                return loop.run_until_complete(self.start_listener_async())
-        except Exception as e:
-            logger.error(f"Błąd podczas uruchamiania nasłuchiwania: {e}", exc_info=True)
-            return False
-
     async def _monitor_subscription_async(self, subscription_type: str) -> None:
         """Asynchronicznie monitoruje stan subskrypcji."""
         try:
@@ -335,6 +332,9 @@ class PubSubService:
             
         logger.info("Zatrzymuję nasłuchiwanie Pub/Sub...")
         self.shutdown_event.set()
+        
+        # Clear the main loop reference
+        self._main_loop = None
         
         # Anuluj zadania monitorujące
         for task in [self._standard_monitoring_task, self._critical_monitoring_task]:
@@ -368,11 +368,4 @@ class PubSubService:
                 logger.warning(f"Błąd podczas zamykania klienta Pub/Sub: {e}")
                 
         print("\n[MARKETNEWS] Zakończono nasłuchiwanie.")
-
-    def stop_listener(self) -> None:
-        """Synchroniczna wersja zatrzymywania nasłuchiwania."""
-        loop = asyncio.new_event_loop()
-        try:
-            loop.run_until_complete(self.stop_listener_async())
-        finally:
-            loop.close()
+        

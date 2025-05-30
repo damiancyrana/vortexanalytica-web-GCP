@@ -1,11 +1,10 @@
 """
-Moduł cyklu życia aplikacji (Wersja Produkcyjna - Hybrydowa).
+Moduł cyklu życia aplikacji (Wersja Produkcyjna).
 Inicjalizuje Firebase Admin SDK, serwis Pub/Sub oraz Redis.
 """
 from __future__ import annotations
 
-import logging
-import json
+import logging, json
 from json import JSONDecodeError
 
 import firebase_admin
@@ -22,15 +21,15 @@ logger = logging.getLogger(__name__)
 _pubsub_service = None
 _news_service = None
 
+
 async def app_startup() -> None:
     """ Inicjalizuje serwisy przy starcie aplikacji. """
     global _pubsub_service, _news_service
     
-    logger.info("Uruchamianie aplikacji Vortex Analytica (startup event)...")
+    logger.info("Uruchamianie aplikacji Vortex Analytica...")
     try:
-        settings = get_settings() # Pobierz konfigurację (ładuje też sekrety)
+        settings = get_settings()
     except Exception as e:
-        # Błąd krytyczny już zalogowany w get_settings, tutaj tylko potwierdzamy zatrzymanie
         logger.critical("Zatrzymanie aplikacji z powodu błędu konfiguracji.")
         raise SystemExit(f"Application cannot start due to configuration error on startup: {e}")
 
@@ -49,8 +48,8 @@ async def app_startup() -> None:
             try:
                 firebase_credentials_dict = json.loads(firebase_key_json_str)
             except JSONDecodeError as json_err:
-                logger.critical(f"Nieprawidłowy format klucza Firebase (niepoprawny JSON): {json_err}")
-                raise ValueError(f"Invalid Firebase key format (not a valid JSON): {json_err}")
+                logger.critical(f"Nieprawidłowy format klucza Firebase: {json_err}")
+                raise ValueError(f"Invalid Firebase key format: {json_err}")
             
             # Walidacja minimalnych wymaganych pól w kluczu Firebase
             required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email']
@@ -70,7 +69,7 @@ async def app_startup() -> None:
             firebase_admin.initialize_app(cred)
             logger.info("Firebase Admin SDK zainicjalizowany pomyślnie.")
         else:
-             logger.info("Firebase Admin SDK jest już zainicjalizowane (możliwe ponowne ładowanie uvicorn).")
+             logger.info("Firebase Admin SDK jest już zainicjalizowane.")
     except (JSONDecodeError, ValueError, FileNotFoundError, TypeError) as e:
         logger.critical(f"Krytyczny błąd podczas inicjalizacji Firebase Admin SDK: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Could not initialize Firebase Admin SDK: {e}") from e
@@ -83,12 +82,12 @@ async def app_startup() -> None:
         logger.info("Inicjalizacja NewsService z Redis...")
         _news_service = NewsService()
         
-        # Test podstawowych operacji Redis
-        test_count = _news_service.get_messages_count()
+        # Test podstawowych operacji Redis (asynchroniczny)
+        test_count = await _news_service.get_messages_count()
         logger.info(f"Połączenie z Redis sprawdzone. Wiadomości w bazie: {test_count}")
         
         # Opcjonalne: wyczyść stare wiadomości przy starcie
-        cleaned_count = _news_service.cleanup_old_messages(max_age_seconds=7 * 24 * 3600)  # 7 dni
+        cleaned_count = await _news_service.cleanup_old_messages(max_age_seconds=7 * 24 * 3600)  # 7 dni
         if cleaned_count > 0:
             logger.info(f"Wyczyszczono {cleaned_count} starych wiadomości przy starcie")
             
@@ -97,7 +96,6 @@ async def app_startup() -> None:
         raise SystemExit(f"Application startup failed: Could not initialize NewsService with Redis: {e}") from e
 
     # Inicjalizacja Pub/Sub Service
-
     try:
         logger.info("Inicjalizacja serwisu Pub/Sub...")
         _pubsub_service = PubSubService(settings)
@@ -110,6 +108,7 @@ async def app_startup() -> None:
     except Exception as e:
         logger.error(f"Błąd podczas inicjalizacji serwisu Pub/Sub: {e}", exc_info=True)
         logger.warning("Aplikacja będzie kontynuować działanie bez serwisu Pub/Sub.")
+    
     logger.info(f"Aplikacja uruchomiona pomyślnie w trybie: {settings.environment}")
 
     
@@ -117,13 +116,13 @@ async def app_shutdown() -> None:
     """ Zwalnia zasoby przy zamykaniu aplikacji. """
     global _pubsub_service, _news_service
     
-    logger.info("Zamykanie aplikacji Vortex Analytica (shutdown event)...")
+    logger.info("Zamykanie aplikacji Vortex Analytica...")
     
     # Zatrzymaj serwis Pub/Sub
     if _pubsub_service:
         try:
             logger.info("Zatrzymywanie serwisu Pub/Sub...")
-            _pubsub_service.stop_listener()
+            await _pubsub_service.stop_listener_async()
         except Exception as e:
             logger.warning(f"Błąd podczas zatrzymywania serwisu Pub/Sub: {e}", exc_info=True)
     
@@ -131,13 +130,12 @@ async def app_shutdown() -> None:
     if _news_service:
         try:
             logger.info("Zamykanie połączeń Redis w NewsService...")
-            _news_service.close_connections()
+            await _news_service.close_connections()
         except Exception as e:
             logger.warning(f"Błąd podczas zamykania połączeń Redis: {e}", exc_info=True)
     
     # Zamknij pulę połączeń SMTP, jeśli EmailService był używany
     try:
-        # Spróbuj uzyskać dostęp do instancji EmailService
         email_service = EmailService._instance
         if email_service and hasattr(email_service, 'close_all_connections'):
             logger.info("Zamykanie połączeń EmailService...")

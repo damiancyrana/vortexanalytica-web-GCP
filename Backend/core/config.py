@@ -1,9 +1,5 @@
 """
 Moduł konfiguracji aplikacji Vortex Analytica (Wersja Produkcyjna)
-Dostosowany do Pydantic v2.x
-Klucz Firebase ładowany z Secret Managera.
-Klucz Sesji (SESSION_SECRET_KEY) ładowany WYŁĄCZNIE z Secret Managera.
-Redis dodany dla trwałego przechowywania wiadomości.
 """
 from __future__ import annotations
 
@@ -23,63 +19,62 @@ logger = logging.getLogger(__name__)
 class Settings(BaseSettings):
     """ Klasa konfiguracji aplikacji. """
     # Stałe aplikacji
-    PROJECT_ID: Final[str] = os.getenv("GOOGLE_CLOUD_PROJECT", "vortexanalytica") # Pobierz z env, jeśli dostępne
+    PROJECT_ID: Final[str] = os.getenv("GOOGLE_CLOUD_PROJECT", "vortexanalytica")
     MAIL_TO: Final[str] = os.getenv("MAIL_TO", "vortexanalytica@gmail.com")
 
     # Podstawowe ustawienia
     app_name: str = "Vortex Analytica"
-    environment: str = "production" # Zawsze produkcja
+    environment: str = "production"
     log_level: str = os.getenv("LOG_LEVEL", "INFO").upper()
-    base_url: Optional[AnyHttpUrl] = Field(None) # Wczytaj z env, jeśli potrzebne (np. BASE_URL=...)
+    base_url: Optional[AnyHttpUrl] = Field(None)
 
-    # Ścieżki do katalogów (mogą wymagać dostosowania w kontenerze)
+    # Ścieżki do katalogów
     base_dir: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    # Cache dla serwisów (inicjalizowany w property)
+    # Cache dla serwisów
     _secret_manager: Optional[SecretManagerServiceClient] = None
     
     # Cache dla sekretów z TTL
     _secrets_cache: Dict[str, Dict[str, Any]] = {}
-    _secrets_ttl: int = 3600  # Czas życia cache w sekundach (1h)
+    _secrets_ttl: int = 3600  # 1 godzina
 
-    # Zmienne uwierzytelniane (cache z Secret Managera)
+    # Zmienne uwierzytelniane
     smtp_user: Optional[str] = Field(None)
     smtp_pass: Optional[str] = Field(None)
     firebase_api_key: Optional[str] = Field(None)
     firebase_auth_domain: Optional[str] = Field(None)
     firebase_service_account_secret_id: str = "firebase-service-account-key-json"
 
-    # Konfiguracja sesji - klucz ładowany z Secret Managera
-    SESSION_SECRET_KEY: Optional[str] = Field(None) # Ładowany w load_secrets
-    SESSION_SECRET_KEY_NAME: str = "SESSION_SECRET_KEY" # Nazwa sekretu w Secret Manager
+    # Konfiguracja sesji
+    SESSION_SECRET_KEY: Optional[str] = Field(None)
+    SESSION_SECRET_KEY_NAME: str = "SESSION_SECRET_KEY"
     SESSION_COOKIE_NAME: str = "vortex_session"
     SESSION_COOKIE_MAX_AGE: int = 14 * 24 * 60 * 60  # 14 dni
     SESSION_COOKIE_PATH: str = "/"
-    SESSION_COOKIE_DOMAIN: Optional[str] = Field(None) # Ustaw, jeśli potrzebujesz dla subdomen
-    SESSION_COOKIE_SECURE: bool = True # Na produkcji ZAWSZE True
-    SESSION_COOKIE_HTTPONLY: bool = True # ZAWSZE True
-    SESSION_COOKIE_SAMESITE: str = "lax" # "lax" jest dobrym kompromisem, "strict" bezpieczniejszy, ale może psuć niektóre przepływy
+    SESSION_COOKIE_DOMAIN: Optional[str] = Field(None)
+    SESSION_COOKIE_SECURE: bool = True
+    SESSION_COOKIE_HTTPONLY: bool = True
+    SESSION_COOKIE_SAMESITE: str = "lax"
 
-    # Konfiguracja Redis
-    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
-    REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
-    REDIS_PASSWORD: Optional[str] = os.getenv("REDIS_PASSWORD", None)
-    REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
-    REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)  # URL połączenia Redis (alternatywa)
-    REDIS_MAX_CONNECTIONS: int = int(os.getenv("REDIS_MAX_CONNECTIONS", "20"))
-    REDIS_SOCKET_CONNECT_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
-    REDIS_SOCKET_TIMEOUT: int = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
+    # Konfiguracja Redis (produkcja wymaga zmiennych środowiskowych)
+    REDIS_HOST: str = Field(default=None, env="REDIS_HOST")
+    REDIS_PORT: int = Field(default=6379, env="REDIS_PORT")
+    REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
+    REDIS_DB: int = Field(default=0, env="REDIS_DB")
+    REDIS_URL: Optional[str] = Field(default=None, env="REDIS_URL")
+    REDIS_MAX_CONNECTIONS: int = Field(default=20, env="REDIS_MAX_CONNECTIONS")
+    REDIS_SOCKET_CONNECT_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_CONNECT_TIMEOUT")
+    REDIS_SOCKET_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_TIMEOUT")
     
     # Konfiguracja wiadomości w Redis
-    NEWS_REDIS_KEY: str = "vortex:news:messages"  # Klucz Redis dla wiadomości
-    NEWS_MAX_MESSAGES: int = int(os.getenv("NEWS_MAX_MESSAGES", "100"))  # Maksymalna liczba wiadomości
-    NEWS_MESSAGE_TTL: int = int(os.getenv("NEWS_MESSAGE_TTL", "86400"))  # TTL w sekundach (24h)
+    NEWS_REDIS_KEY: str = "vortex:news:messages"
+    NEWS_MAX_MESSAGES: int = Field(default=100, env="NEWS_MAX_MESSAGES")
+    NEWS_MESSAGE_TTL: int = Field(default=86400, env="NEWS_MESSAGE_TTL")  # 24h
 
     # Domyślne ustawienia odpowiedzi HTTP
     default_response_class: Any = None
 
     model_config = {
-        "env_file": ".env", # Dla lokalnego developmentu
         "env_file_encoding": "utf-8",
         "case_sensitive": True,
         "extra": "ignore"
@@ -89,24 +84,33 @@ class Settings(BaseSettings):
         """ Ustawienia po inicjalizacji Pydantic. """
         from fastapi.responses import HTMLResponse
         self.default_response_class = HTMLResponse
-        # Zawsze używaj Secure=True (tryb produkcyjny)
-        self.SESSION_COOKIE_SECURE = True
+        
+        # Walidacja Redis w produkcji
+        if not self.REDIS_URL and not self.REDIS_HOST:
+            raise ValueError("REDIS_URL lub REDIS_HOST musi być ustawiony w produkcji")
 
     @property
-    def templates_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "templates")
+    def templates_dir(self) -> str: 
+        return os.path.join(self.base_dir, "Frontend", "templates")
+    
     @property
-    def static_dir(self) -> str: return os.path.join(self.base_dir, "Frontend", "static")
+    def static_dir(self) -> str: 
+        return os.path.join(self.base_dir, "Frontend", "static")
+    
     @property
-    def is_development(self) -> bool: return False  # Zawsze False - tylko produkcja
+    def is_development(self) -> bool: 
+        return False
+    
     @property
-    def is_production(self) -> bool: return True  # Zawsze True - tylko produkcja
+    def is_production(self) -> bool: 
+        return True
+    
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
         """ Zwraca klienta Secret Managera, inicjalizując go raz. """
         if getattr(self, '_secret_manager', None) is None:
             logger.info("Inicjalizacja klienta Google Secret Manager...")
             try:
-                # Klient użyje domyślnych poświadczeń środowiska (np. konta usługi Cloud Run)
                 self._secret_manager = SecretManagerServiceClient()
                 logger.info("Klient Secret Manager zainicjalizowany.")
             except Exception as e:
@@ -117,35 +121,24 @@ class Settings(BaseSettings):
     def get_secret(self, secret_id: str, force_refresh: bool = False) -> str:
         """ 
         Pobiera najnowszą wersję sekretu z GCP Secret Manager z mechanizmem pamięci podręcznej. 
-        
-        Args:
-            secret_id: Identyfikator sekretu w Secret Manager.
-            force_refresh: Wymusza pobranie sekretu z Secret Manager niezależnie od stanu cache.
-            
-        Returns:
-            Wartość sekretu jako ciąg znaków.
         """
         if not secret_id:
             logger.error("Próba pobrania sekretu bez podania ID.")
             raise ValueError("Secret ID cannot be empty.")
         if not self.PROJECT_ID:
-             logger.error("PROJECT_ID nie jest ustawiony w konfiguracji. Nie można pobrać sekretu.")
+             logger.error("PROJECT_ID nie jest ustawiony w konfiguracji.")
              raise ValueError("PROJECT_ID must be set to fetch secrets.")
 
         now = time.time()
         
-        # Sprawdź czy sekret jest w cache i czy nie wygasł
+        # Sprawdź cache
         if not force_refresh and secret_id in self._secrets_cache:
             cache_entry = self._secrets_cache[secret_id]
             if now - cache_entry['timestamp'] < self._secrets_ttl:
-                logger.debug(f"Pobieranie sekretu '{secret_id}' z pamięci podręcznej.")
                 return cache_entry['value']
-            else:
-                logger.debug(f"Sekret '{secret_id}' wygasł w pamięci podręcznej (TTL: {self._secrets_ttl}s).")
 
         # Pobierz nową wartość z Secret Manager
         name = f"projects/{self.PROJECT_ID}/secrets/{secret_id}/versions/latest"
-        logger.debug(f"Pobieranie sekretu z Secret Manager: {name}")
         try:
             client = self.secret_manager_client
             response = client.access_secret_version(name=name)
@@ -160,35 +153,27 @@ class Settings(BaseSettings):
                 'timestamp': now
             }
             
-            logger.debug(f"Pomyślnie pobrano sekret '{secret_id}' i dodano do pamięci podręcznej.")
             return secret_value
         except (NotFound, PermissionDenied) as e:
-             logger.error(f"Nie można uzyskać dostępu do sekretu '{secret_id}' (NotFound lub PermissionDenied): {e}")
+             logger.error(f"Nie można uzyskać dostępu do sekretu '{secret_id}': {e}")
              raise ValueError(f"Could not access secret '{secret_id}'. Check name and permissions.") from e
         except Exception as e:
             logger.error(f"Nieoczekiwany błąd podczas pobierania sekretu '{secret_id}': {e}", exc_info=True)
             raise RuntimeError(f"Failed to fetch secret '{secret_id}'.") from e
             
     def clear_secrets_cache(self, secret_id: Optional[str] = None) -> None:
-        """
-        Czyści pamięć podręczną sekretów.
-        
-        Args:
-            secret_id: Jeśli podano, czyści tylko konkretny sekret. W przeciwnym razie czyści całą pamięć podręczną.
-        """
+        """Czyści pamięć podręczną sekretów."""
         if secret_id:
             if secret_id in self._secrets_cache:
                 del self._secrets_cache[secret_id]
-                logger.debug(f"Usunięto sekret '{secret_id}' z pamięci podręcznej.")
         else:
             self._secrets_cache.clear()
-            logger.debug("Wyczyszczono całą pamięć podręczną sekretów.")
 
     def load_secrets(self) -> None:
-        """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety (SMTP, Firebase API, Session Key)."""
+        """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety."""
         logger.info("Rozpoczynanie ładowania sekretów...")
         secrets_to_load = {
-            "SESSION_SECRET_KEY": (self.SESSION_SECRET_KEY_NAME, True), # Wymagany
+            "SESSION_SECRET_KEY": (self.SESSION_SECRET_KEY_NAME, True),
             "smtp_user": ("smtp-user", False),
             "smtp_pass": ("smtp-pass", False),
             "firebase_api_key": ("Identity-Platform-apiKey", False),
@@ -199,22 +184,20 @@ class Settings(BaseSettings):
              current_value = getattr(self, attr_name, None)
              if current_value is None:
                 try:
-                    # Pobierz z sekretu (używa mechanizmu cache)
                     secret_value = self.get_secret(secret_id)
                     setattr(self, attr_name, secret_value)
                     logger.info(f"Załadowano sekret dla '{attr_name}' z '{secret_id}'.")
                     if attr_name == "SESSION_SECRET_KEY" and len(secret_value) < 32:
-                        logger.critical(f"Załadowany {secret_id} jest zbyt krótki! Bezpieczeństwo zagrożone.")
+                        logger.critical(f"Załadowany {secret_id} jest zbyt krótki!")
                         raise ValueError(f"Loaded secret '{secret_id}' is too short (minimum 32 bytes).")
                 except Exception as e:
                      log_level = logging.CRITICAL if is_required else logging.WARNING
                      log_func = logger.critical if is_required else logger.warning
                      log_func(f"Nie udało się załadować {'WYMAGANEGO' if is_required else 'opcjonalnego'} sekretu dla '{attr_name}' z '{secret_id}': {e}")
                      if is_required:
-                         all_loaded = False # Oznacz, że wystąpił błąd krytyczny
-                         # Nie rzucamy tutaj błędu, aby spróbować załadować inne, logujemy na końcu
+                         all_loaded = False
         if not all_loaded:
-             logger.critical("Nie udało się załadować wszystkich wymaganych sekretów. Aplikacja nie może bezpiecznie wystartować.")
+             logger.critical("Nie udało się załadować wszystkich wymaganych sekretów.")
              raise ValueError("Failed to load one or more required secrets from Secret Manager.")
         logger.info("Zakończono ładowanie sekretów.")
 
@@ -222,11 +205,11 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     """ Tworzy i zwraca obiekt konfiguracji. Ładuje sekrety. """
-    logger.info("Inicjalizacja konfiguracji aplikacji (get_settings)...")
+    logger.info("Inicjalizacja konfiguracji aplikacji...")
     try:
         settings = Settings()
-        settings.load_secrets() # Ładujemy WSZYSTKIE sekrety tutaj
-        if not settings.SESSION_SECRET_KEY: # Ostateczne sprawdzenie
+        settings.load_secrets()
+        if not settings.SESSION_SECRET_KEY:
             raise ValueError("SESSION_SECRET_KEY nie został pomyślnie załadowany z Secret Manager.")
         logger.info("Konfiguracja aplikacji zainicjalizowana pomyślnie.")
         return settings

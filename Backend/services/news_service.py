@@ -4,14 +4,11 @@ Obsługuje zarówno standardowe jak i krytyczne wiadomości.
 """
 from __future__ import annotations
 
-import logging
-import asyncio
-import json
-import time
+import logging, asyncio, json, time
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Set, Callable, Awaitable
-import redis
-from redis.connection import ConnectionPool
+import redis.asyncio as redis
+from redis.asyncio.connection import ConnectionPool
 
 from Backend.core.config import Settings, get_settings
 
@@ -22,7 +19,7 @@ class NewsService:
     _instance = None
     _initialized = False
     
-    # Redis connection pool
+    # Redis async connection pool
     _redis_pool: Optional[ConnectionPool] = None
     _redis_client: Optional[redis.Redis] = None
     
@@ -45,12 +42,17 @@ class NewsService:
         if self._initialized:
             return
         logger.info("Inicjalizacja NewsService z Redis...")
-        self._initialize_redis()
         self._initialized = True
-        logger.info("NewsService z Redis zainicjalizowany.")
+        # Redis będzie inicjalizowany asynchronicznie przy pierwszym użyciu
+        logger.info("NewsService zainicjalizowany.")
 
-    def _initialize_redis(self) -> None:
-        """Inicjalizuje połączenie z Redis."""
+    async def _ensure_redis_initialized(self) -> None:
+        """Upewnia się, że Redis jest zainicjalizowany."""
+        if self._redis_client is None:
+            await self._initialize_redis()
+    
+    async def _initialize_redis(self) -> None:
+        """Inicjalizuje asynchroniczne połączenie z Redis."""
         try:
             settings = get_settings()
             
@@ -79,15 +81,16 @@ class NewsService:
                 )
             
             self._redis_client = redis.Redis(connection_pool=self._redis_pool)
-            self._redis_client.ping()
+            await self._redis_client.ping()
             logger.info("Pomyślnie połączono z Redis i przetestowano połączenie.")
             
         except Exception as e:
             logger.critical(f"Nie można zainicjalizować połączenia z Redis: {e}", exc_info=True)
             raise RuntimeError(f"Failed to initialize Redis connection: {e}") from e
 
-    def _get_redis_client(self) -> redis.Redis:
+    async def _get_redis_client(self) -> redis.Redis:
         """Zwraca klienta Redis z obsługą błędów."""
+        await self._ensure_redis_initialized()
         if not self._redis_client:
             raise RuntimeError("Redis client nie jest zainicjalizowany")
         return self._redis_client
@@ -106,7 +109,7 @@ class NewsService:
         
         try:
             settings = get_settings()
-            redis_client = self._get_redis_client()
+            redis_client = await self._get_redis_client()
             
             # Dodaj timestamp dla sortowania
             try:
@@ -128,13 +131,13 @@ class NewsService:
             message_json = json.dumps(message, ensure_ascii=False, default=str)
             
             # Dodaj do sorted set w Redis
-            redis_client.zadd(settings.NEWS_REDIS_KEY, {message_json: score})
+            await redis_client.zadd(settings.NEWS_REDIS_KEY, {message_json: score})
             
             # Ogranicz liczbę wiadomości
-            total_messages = redis_client.zcard(settings.NEWS_REDIS_KEY)
+            total_messages = await redis_client.zcard(settings.NEWS_REDIS_KEY)
             if total_messages > settings.NEWS_MAX_MESSAGES:
                 excess_count = total_messages - settings.NEWS_MAX_MESSAGES
-                redis_client.zremrangebyrank(settings.NEWS_REDIS_KEY, 0, excess_count - 1)
+                await redis_client.zremrangebyrank(settings.NEWS_REDIS_KEY, 0, excess_count - 1)
             
             logger.info(f"Dodano nową wiadomość standardową do Redis: {message['news_id']} - {message['title']}")
             
@@ -185,26 +188,6 @@ class NewsService:
             "confidence": analysis.get("confidence", 0),
             "timestamp": time.time()
         }
-    
-    def add_message(self, message: Dict[str, Any]) -> None:
-        """Synchroniczna metoda dodająca wiadomość - rozróżnia typ i wywołuje odpowiednią metodę async."""
-        is_critical = message.get("is_critical", False)
-        
-        try:
-            loop = asyncio.get_running_loop()
-            if is_critical:
-                loop.create_task(self.add_critical_message_async(message))
-            else:
-                loop.create_task(self.add_message_async(message))
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            try:
-                if is_critical:
-                    loop.run_until_complete(self.add_critical_message_async(message))
-                else:
-                    loop.run_until_complete(self.add_message_async(message))
-            finally:
-                loop.close()
     
     def _simplify_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Upraszcza wiadomość do formatu odpowiedniego dla SSE."""
@@ -263,8 +246,6 @@ class NewsService:
             
             for expired in expired_subscribers:
                 subscribers.remove(expired)
-            
-            logger.debug(f"Powiadomiono {len(subscribers)} aktywnych subskrybentów {'krytycznych' if is_critical else 'standardowych'} o nowej wiadomości.")
 
     async def subscribe(self, callback: Callable[[str], Awaitable[None]], is_critical: bool = False) -> None:
         """Dodaje funkcję callback do listy subskrybentów SSE."""
@@ -297,13 +278,13 @@ class NewsService:
         
         return self._prepare_critical_message(self._last_critical_message)
 
-    def get_messages(self, limit: int = 20) -> List[Dict[str, Any]]:
+    async def get_messages(self, limit: int = 20) -> List[Dict[str, Any]]:
         """Pobiera ostatnie wiadomości standardowe z Redis."""
         try:
             settings = get_settings()
-            redis_client = self._get_redis_client()
+            redis_client = await self._get_redis_client()
             
-            raw_messages = redis_client.zrevrange(
+            raw_messages = await redis_client.zrevrange(
                 settings.NEWS_REDIS_KEY, 
                 0, 
                 limit - 1,
@@ -319,52 +300,51 @@ class NewsService:
                     logger.warning(f"Nie można zdekodować wiadomości z Redis: {e}")
                     continue
             
-            logger.debug(f"Pobrano {len(messages)} wiadomości z Redis (limit: {limit})")
             return messages
             
         except Exception as e:
             logger.error(f"Błąd podczas pobierania wiadomości z Redis: {e}", exc_info=True)
             return []
 
-    def get_messages_count(self) -> int:
+    async def get_messages_count(self) -> int:
         """Zwraca liczbę wiadomości w Redis."""
         try:
             settings = get_settings()
-            redis_client = self._get_redis_client()
-            count = redis_client.zcard(settings.NEWS_REDIS_KEY)
+            redis_client = await self._get_redis_client()
+            count = await redis_client.zcard(settings.NEWS_REDIS_KEY)
             return count
         except Exception as e:
             logger.error(f"Błąd podczas pobierania liczby wiadomości z Redis: {e}")
             return 0
 
-    def clear_all_messages(self) -> bool:
+    async def clear_all_messages(self) -> bool:
         """Usuwa wszystkie wiadomości z Redis. Używaj ostrożnie!"""
         try:
             settings = get_settings()
-            redis_client = self._get_redis_client()
-            deleted_count = redis_client.delete(settings.NEWS_REDIS_KEY)
+            redis_client = await self._get_redis_client()
+            deleted_count = await redis_client.delete(settings.NEWS_REDIS_KEY)
             logger.warning(f"Usunięto wszystkie wiadomości z Redis. Usuniętych kluczy: {deleted_count}")
             return deleted_count > 0
         except Exception as e:
             logger.error(f"Błąd podczas usuwania wiadomości z Redis: {e}")
             return False
 
-    def cleanup_old_messages(self, max_age_seconds: int = 86400) -> int:
+    async def cleanup_old_messages(self, max_age_seconds: int = 86400) -> int:
         """Usuwa wiadomości starsze niż max_age_seconds."""
         try:
             settings = get_settings()
-            redis_client = self._get_redis_client()
+            redis_client = await self._get_redis_client()
             
             cutoff_timestamp = time.time() - max_age_seconds
             
-            deleted_count = redis_client.zremrangebyscore(
+            deleted_count = await redis_client.zremrangebyscore(
                 settings.NEWS_REDIS_KEY, 
                 0,
                 cutoff_timestamp
             )
             
             if deleted_count > 0:
-                logger.info(f"Usunięto {deleted_count} starych wiadomości z Redis (starsze niż {max_age_seconds}s)")
+                logger.info(f"Usunięto {deleted_count} starych wiadomości z Redis")
             
             return deleted_count
             
@@ -372,17 +352,43 @@ class NewsService:
             logger.error(f"Błąd podczas czyszczenia starych wiadomości: {e}")
             return 0
 
-    def close_connections(self) -> None:
+    async def close_connections(self) -> None:
         """Zamyka połączenia z Redis przy wyłączaniu aplikacji."""
         try:
             if self._redis_client:
-                self._redis_client.close()
+                await self._redis_client.close()
                 logger.info("Zamknięto połączenie z Redis client")
             
             if self._redis_pool:
-                self._redis_pool.disconnect()
+                await self._redis_pool.disconnect()
                 logger.info("Zamknięto pool połączeń Redis")
                 
         except Exception as e:
             logger.warning(f"Błąd podczas zamykania połączeń Redis: {e}")
+    
+    # Wrapper metoda dla kompatybilności wstecznej z PubSubService
+    def add_message(self, message: Dict[str, Any]) -> None:
+        """Synchroniczny wrapper dla kompatybilności z PubSubService."""
+        is_critical = message.get("is_critical", False)
+        
+        # Get the main event loop
+        try:
+            loop = asyncio.get_running_loop()
+            # We're in an async context, create a task
+            if is_critical:
+                loop.create_task(self.add_critical_message_async(message))
+            else:
+                loop.create_task(self.add_message_async(message))
+        except RuntimeError:
+            # No running event loop, we need to handle this differently
+            # Since we're being called from a thread, we should use the main loop
+            # This should not happen with the fixed PubSubService, but keeping as safety
+            logger.warning("No running event loop in add_message, this shouldn't happen with fixed PubSubService")
             
+            # Try to run in a new event loop as last resort
+            loop = asyncio.new_event_loop()
+            try:
+                loop.run_until_complete(self.add_critical_message_async(message) if is_critical else self.add_message_async(message))
+            finally:
+                loop.close()
+                

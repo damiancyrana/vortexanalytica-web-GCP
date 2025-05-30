@@ -19,36 +19,28 @@ router = APIRouter(
 )
 
 @router.get("")
-async def get_news(
-    limit: int = 10,
-    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
-) -> Dict[str, Any]:
+async def get_news(limit: int = 30, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:
     """Pobiera najnowsze wiadomości dla zalogowanego użytkownika."""
-    logger.info(f"Pobieranie wiadomości dla użytkownika z sesji: {current_user_session.get('user_id')}")
+    logger.info(f"Pobieranie wiadomości dla użytkownika z sesji: {current_user_session.get('emmail')}")
     
     news_service = NewsService()
-    messages = news_service.get_messages(limit=limit)
+    messages = await news_service.get_messages(limit=limit)
     
-    # Przygotuj dane do odpowiedzi - używamy _simplify_message z NewsService
+    # Przygotuj dane do odpowiedzi
     simplified_messages = []
     for msg in messages:
         simplified_messages.append(news_service._simplify_message(msg))
-    
     return {"news": simplified_messages}
 
-
-
 @router.get("/stream")
-async def stream_news(
-    request: Request,
-    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
-) -> StreamingResponse:
+async def stream_news(request: Request, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> StreamingResponse:
     """
     Endpoint SSE dla aktualnych wiadomości.
     Używa długiego połączenia HTTP do przesyłania wiadomości w czasie rzeczywistym.
     """
     user_id = current_user_session.get('user_id')
-    logger.info(f"Otwieranie strumienia SSE dla użytkownika: {user_id}")
+    user_email = current_user_session.get('email')
+    logger.info(f"Otwieranie strumienia SSE dla użytkownika: {user_email}")
     
     async def event_generator():
         # Powiadomienie początkowe
@@ -56,7 +48,7 @@ async def stream_news(
         
         # Zwróć najnowsze wiadomości natychmiast z Redis
         news_service = NewsService()
-        recent_messages = news_service.get_messages(limit=5)
+        recent_messages = await news_service.get_messages(limit=5)
         for msg in recent_messages:
             simplified = news_service._simplify_message(msg)
             yield f"data: {json.dumps(simplified)}\n\n"
@@ -91,7 +83,7 @@ async def stream_news(
             # Anuluj heartbeat i wypisz subskrybenta
             heartbeat_task.cancel()
             await news_service.unsubscribe(send_events, is_critical=False)
-            logger.info(f"Zamknięto strumień SSE dla użytkownika: {user_id}")
+            logger.info(f"Zamknięto strumień SSE dla użytkownika: {user_email}")
     
     # Pomocnicza funkcja do wysyłania heartbeat
     async def send_heartbeats(queue):
@@ -112,18 +104,15 @@ async def stream_news(
         }
     )
 
-
 @router.get("/critical/stream")
-async def stream_critical_news(
-    request: Request,
-    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
-) -> StreamingResponse:
+async def stream_critical_news(request: Request, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> StreamingResponse:
     """
     Endpoint SSE dla krytycznych wiadomości rynkowych.
     Przesyła tylko najważniejsze sygnały w czasie rzeczywistym.
     """
     user_id = current_user_session.get('user_id')
-    logger.info(f"Otwieranie krytycznego strumienia SSE dla użytkownika: {user_id}")
+    user_email = current_user_session.get('email')
+    logger.info(f"Otwieranie krytycznego strumienia SSE dla użytkownika: {user_email}")
     
     async def event_generator():
         # Powiadomienie początkowe
@@ -169,7 +158,7 @@ async def stream_critical_news(
             heartbeat_task.cancel()
             cleanup_task.cancel()
             await news_service.unsubscribe(send_events, is_critical=True)
-            logger.info(f"Zamknięto krytyczny strumień SSE dla użytkownika: {user_id}")
+            logger.info(f"Zamknięto krytyczny strumień SSE dla użytkownika: {user_email}")
     
     # Pomocnicza funkcja do wysyłania heartbeat
     async def send_heartbeats(queue):
@@ -202,16 +191,11 @@ async def stream_critical_news(
         }
     )
 
-
 @router.get("/stats")
-async def get_news_stats(
-    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
-) -> Dict[str, Any]:
+async def get_news_stats(current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:
     """Zwraca statystyki wiadomości w Redis."""
     news_service = NewsService()
-    
-    total_count = news_service.get_messages_count()
-    
+    total_count = await news_service.get_messages_count()
     return {
         "total_messages": total_count,
         "storage_type": "Redis",
@@ -219,17 +203,12 @@ async def get_news_stats(
     }
 
 @router.post("/admin/cleanup")
-async def cleanup_old_messages(
-    max_age_hours: int = 24,
-    current_user_session: Dict[str, Any] = Depends(get_current_active_user)
-) -> Dict[str, Any]:
+async def cleanup_old_messages(max_age_hours: int = 24, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:
     """
     Endpoint administracyjny do czyszczenia starych wiadomości.
-    UWAGA: W rzeczywistej aplikacji dodaj sprawdzanie uprawnień administratora!
+    UWAGA: W produkcji wymaga uprawnień administratora!
     """
-    # TODO: Dodaj sprawdzanie czy użytkownik ma uprawnienia administratora
-    # Obecnie każdy zalogowany użytkownik może użyć tego endpointa
-    
+    # TODO: Dodaj sprawdzanie uprawnień administratora
     user_id = current_user_session.get('user_id')
     logger.warning(f"Użytkownik {user_id} uruchomił czyszczenie starych wiadomości (max_age: {max_age_hours}h)")
     
@@ -239,13 +218,13 @@ async def cleanup_old_messages(
     max_age_seconds = max_age_hours * 3600
     
     # Pobierz statystyki przed czyszczeniem
-    count_before = news_service.get_messages_count()
+    count_before = await news_service.get_messages_count()
     
     # Wykonaj czyszczenie
-    deleted_count = news_service.cleanup_old_messages(max_age_seconds=max_age_seconds)
+    deleted_count = await news_service.cleanup_old_messages(max_age_seconds=max_age_seconds)
     
     # Pobierz statystyki po czyszczeniu
-    count_after = news_service.get_messages_count()
+    count_after = await news_service.get_messages_count()
     
     return {
         "messages_before": count_before,
@@ -261,29 +240,13 @@ async def clear_all_messages(
 ) -> Dict[str, Any]:
     """
     Endpoint administracyjny do usunięcia WSZYSTKICH wiadomości.
-    UWAGA: Bardzo niebezpieczny endpoint! W rzeczywistości dodaj silne zabezpieczenia!
+    UWAGA: Bardzo niebezpieczny endpoint! W produkcji wyłączony.
     """
-    # TODO: Dodaj bardzo restrykcyjne sprawdzanie uprawnień!
-    # TODO: Dodaj potwierdzenie (np. wymagaj specjalnego tokena)
-    
     user_id = current_user_session.get('user_id')
     logger.critical(f"UWAGA: Użytkownik {user_id} próbuje usunąć WSZYSTKIE wiadomości!")
     
-    # W celach bezpieczeństwa - tymczasowo wyłączone
+    # W produkcji - zawsze wyłączone
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="Endpoint tymczasowo wyłączony ze względów bezpieczeństwa. Skontaktuj się z administratorem."
+        detail="Endpoint wyłączony w środowisku produkcyjnym ze względów bezpieczeństwa."
     )
-    
-    # Kod do odkomentowania gdy będą właściwe zabezpieczenia:
-    # news_service = NewsService()
-    # count_before = news_service.get_messages_count()
-    # 
-    # success = news_service.clear_all_messages()
-    # 
-    # return {
-    #     "success": success,
-    #     "messages_deleted": count_before,
-    #     "performed_by": user_id,
-    #     "timestamp": datetime.utcnow().isoformat()
-    # }

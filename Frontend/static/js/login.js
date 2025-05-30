@@ -1,660 +1,397 @@
 /**
- * Script for login.html
- * Initializes Firebase, handles login/registration,
- * sends token to backend for cookie session, handles OAuth.
+ * Login page script - handles authentication with Firebase and backend session creation
  */
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if canvas exists for the animation background
-    const canvas = document.getElementById('quantum-field');
-    if (!canvas) {
-      console.warn("Canvas element #quantum-field not found");
+  // Global Firebase references
+  let firebaseApp = null
+  let firebaseAuth = null
+
+  // DOM Elements cache
+  const elements = {
+    loginForm: document.getElementById('login-form'),
+    registerForm: document.getElementById('register-form'),
+    loginEmail: document.getElementById('login-email'),
+    loginPassword: document.getElementById('login-password'),
+    loginButton: document.getElementById('login-button'),
+    loginMessage: document.getElementById('login-message-area'),
+    regName: document.getElementById('reg-name'),
+    regEmail: document.getElementById('reg-email'),
+    regPassword: document.getElementById('reg-password'),
+    regConfirmPassword: document.getElementById('reg-confirm-password'),
+    regTerms: document.getElementById('reg-terms'),
+    registerButton: document.getElementById('register-button'),
+    registerMessage: document.getElementById('register-message-area'),
+    forgotPassword: document.querySelector('.forgot-password'),
+    strengthBar: document.querySelector('#register-form .strength-bar')
+  }
+
+  // CSRF utilities
+  const getCSRFToken = async () => {
+    // Try cookie first
+    const cookie = document.cookie.split('; ')
+      .find(row => row.startsWith('csrftoken='))
+    if (cookie) return cookie.split('=')[1]
+    
+    // Try HTML elements
+    const field = document.querySelector('input[name*="csrf"]')
+    if (field) return field.value
+    
+    const meta = document.querySelector('meta[name*="csrf"]')
+    if (meta) return meta.getAttribute('content')
+    
+    // Fetch from server
+    try {
+      await fetch('/login', { method: 'GET', credentials: 'same-origin' })
+      const newCookie = document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+      return newCookie ? newCookie.split('=')[1] : null
+    } catch {
+      return null
     }
-  
-    // Global Firebase references (initialized in initializeLoginAuth)
-    let firebaseApp = null;
-    let firebaseAuth = null;
-  
-    // --- DOM Elements ---
-    const elements = {
-      // Forms
-      loginForm: document.getElementById('login-form'),
-      registerForm: document.getElementById('register-form'),
-      
-      // Login form elements
-      loginEmailInput: document.getElementById('login-email'),
-      loginPasswordInput: document.getElementById('login-password'),
-      loginButton: document.getElementById('login-button'),
-      loginMessageArea: document.getElementById('login-message-area'),
-      
-      // Registration form elements
-      regNameInput: document.getElementById('reg-name'),
-      regEmailInput: document.getElementById('reg-email'),
-      regPasswordInput: document.getElementById('reg-password'),
-      regConfirmPasswordInput: document.getElementById('reg-confirm-password'),
-      regTermsCheckbox: document.getElementById('reg-terms'),
-      registerButton: document.getElementById('register-button'),
-      registerMessageArea: document.getElementById('register-message-area'),
-      
-      // Other UI elements
-      forgotPasswordLink: document.querySelector('.forgot-password'),
-      strengthBar: document.querySelector('#register-form .strength-bar'),
-      
-      // Social buttons (collected when needed)
-      getSocialButtons: (provider) => document.querySelectorAll(`.social-btn.${provider}`)
-    };
-  
-    // --- Cookie and CSRF handling ---
-    const cookieUtils = {
-      // Get cookie value by name
-      getCookie: (name) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-      },
-      
-      // Extract CSRF token from HTML form fields or meta tags
-      extractCSRFFromHTML: () => {
-        const csrfField = document.querySelector('input[name="csrf_token"], input[name="csrftoken"], input[name="csrf"], input[name="_csrf"], input[name="_csrf_token"]');
-        if (csrfField) {
-          return csrfField.value;
-        }
-        
-        const csrfMeta = document.querySelector('meta[name="csrf-token"], meta[name="csrf"]');
-        if (csrfMeta) {
-          return csrfMeta.getAttribute('content');
-        }
-        
-        return null;
-      },
-      
-      // Fetch CSRF token using various methods
-      fetchCSRFToken: async () => {
-        try {
-          // Check if CSRF token is already available in HTML
-          const htmlToken = cookieUtils.extractCSRFFromHTML();
-          if (htmlToken) {
-            return htmlToken;
-          }
-          
-          // Check cookies
-          let csrfToken = cookieUtils.getCookie("csrftoken");
-          if (csrfToken) {
-            return csrfToken;
-          }
-          
-          // Perform GET request to login page to fetch CSRF token
-          const response = await fetch('/login', {
-            method: 'GET',
-            credentials: 'same-origin'
-          });
-          
-          if (response.ok) {
-            // After GET request, CSRF cookie should be set
-            csrfToken = cookieUtils.getCookie("csrftoken");
-            
-            if (csrfToken) {
-              return csrfToken;
-            } else {
-              // Check alternative cookie names
-              const alternativeNames = ["XSRF-TOKEN", "CSRF-TOKEN", "_csrf", "csrf", "CSRF"];
-              for (const name of alternativeNames) {
-                const token = cookieUtils.getCookie(name);
-                if (token) {
-                  return token;
-                }
-              }
-              return null;
-            }
-          } else {
-            return null;
-          }
-        } catch (error) {
-          return null;
-        }
+  }
+
+  // UI utilities
+  const ui = {
+    getActiveMessageArea: () => {
+      const activeForm = document.querySelector('.auth-form.active')
+      return activeForm?.id.replace('-form', '-message-area') || 'login-message-area'
+    },
+    
+    setLoading: (button, loading) => {
+      if (!button) return
+      if (!button.dataset.originalHTML) {
+        button.dataset.originalHTML = button.innerHTML
       }
-    };
-  
-    // --- UI Helper Functions ---
-    const uiHelpers = {
-      // Get active message area ID based on which form is active
-      getActiveMessageAreaId: () => {
-        const activeForm = document.querySelector('.auth-form.active');
-        return activeForm ? activeForm.id.replace('-form', '-message-area') : 'login-message-area';
-      },
-      
-      // Set button loading state
-      setButtonLoading: (button, isLoading, loadingText = '', originalText = null) => {
-        if (!button) return;
-        
-        // Store original HTML if not already saved
-        if (!button.dataset.originalHTML) {
-          button.dataset.originalHTML = button.innerHTML;
-        }
-        const originalHTML = originalText || button.dataset.originalHTML;
-        
-        if (isLoading) {
-          button.disabled = true;
-          button.classList.add('loading');
-          // We use ::after for spinner, don't change innerHTML unless text is provided
-        } else {
-          button.disabled = false;
-          button.classList.remove('loading');
-          button.innerHTML = originalHTML; // Restore original HTML
-        }
-      },
-      
-      // Show message (success, error, etc.)
-      showMessage: (message, type, areaId = null) => {
-        const targetAreaId = areaId || uiHelpers.getActiveMessageAreaId();
-        const messageElement = document.getElementById(targetAreaId);
-        if (!messageElement) return;
-        
-        // Use textContent for safety (avoid HTML injection)
-        messageElement.textContent = message;
-        messageElement.className = `auth-message ${type}`;
-        messageElement.style.display = 'block';
-        
-        // Hide error message after a while
-        if (type === 'error') {
-          setTimeout(() => {
-            // Check if message still exists and is visible
-            if (messageElement.style.display === 'block' && messageElement.textContent === message) {
-              messageElement.style.display = 'none';
-              messageElement.textContent = '';
-            }
-          }, 7000); // Hide after 7 seconds
-        }
-      },
-      
-      // Helper functions for specific message types
-      showError: (message, areaId = null) => uiHelpers.showMessage(message, 'error', areaId),
-      showSuccess: (message, areaId = null) => uiHelpers.showMessage(message, 'success', areaId),
-      
-      // Clear messages
-      clearMessages: (areaId = null) => {
-        const targetAreaId = areaId || uiHelpers.getActiveMessageAreaId();
-        const messageElement = document.getElementById(targetAreaId);
-        if (messageElement) {
-          messageElement.innerHTML = '';
-          messageElement.style.display = 'none';
-          messageElement.className = 'auth-message'; // Reset classes
-        }
-        
-        // Also clear other area if areaId not provided
-        if (!areaId) {
-          const otherAreaId = (targetAreaId === 'login-message-area') ? 'register-message-area' : 'login-message-area';
-          const otherMessageElement = document.getElementById(otherAreaId);
-          if (otherMessageElement) {
-            otherMessageElement.innerHTML = '';
-            otherMessageElement.style.display = 'none';
-            otherMessageElement.className = 'auth-message';
+      button.disabled = loading
+      button.classList.toggle('loading', loading)
+      if (!loading) button.innerHTML = button.dataset.originalHTML
+    },
+    
+    showMessage: (message, type, areaId = null) => {
+      const area = document.getElementById(areaId || ui.getActiveMessageArea())
+      if (!area) return
+      area.textContent = message
+      area.className = `auth-message ${type}`
+      area.style.display = 'block'
+      if (type === 'error') {
+        setTimeout(() => {
+          if (area.textContent === message) {
+            area.style.display = 'none'
+            area.textContent = ''
           }
-        }
+        }, 7000)
       }
-    };
-  
-    // --- Password Strength Utilities ---
-    const passwordUtils = {
-      // Check if password meets strength requirements
-      isStrongPassword: (password) => {
-        // Min. 8 chars, uppercase, lowercase, digit, special char
-        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`])[A-Za-z\d@$!%*?&^#()_+=\-[\]{}|\\:;"'<>,.?/~`]{8,}$/;
-        return strongPasswordRegex.test(password);
-      },
-      
-      // Update password strength indicator
-      updatePasswordStrength: (event) => {
-        const password = event.target.value;
-        const strengthBar = elements.strengthBar;
-        if (!strengthBar) return;
-        
-        if (!password) {
-          strengthBar.style.width = '0%';
-          strengthBar.style.backgroundColor = '#ddd'; // Default bar color
-          return;
+    },
+    
+    showError: (msg, area) => ui.showMessage(msg, 'error', area),
+    showSuccess: (msg, area) => ui.showMessage(msg, 'success', area),
+    
+    clearMessages: () => {
+      ['login-message-area', 'register-message-area'].forEach(id => {
+        const area = document.getElementById(id)
+        if (area) {
+          area.innerHTML = ''
+          area.style.display = 'none'
+          area.className = 'auth-message'
         }
-        
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[a-z]/.test(password)) strength++;
-        if (/\d/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++; // Checks for special character
-        
-        // Simple point system (max 5 points) -> percentage
-        const percentage = Math.min((strength / 5) * 100, 100);
-        strengthBar.style.width = `${percentage}%`;
-        
-        // Bar coloring
-        if (strength <= 1) strengthBar.style.backgroundColor = '#FF4B4B';      // Very weak
-        else if (strength <= 2) strengthBar.style.backgroundColor = '#FFA500'; // Weak
-        else if (strength <= 3) strengthBar.style.backgroundColor = '#FFD700'; // Medium
-        else if (strength <= 4) strengthBar.style.backgroundColor = '#90EE90'; // Good
-        else strengthBar.style.backgroundColor = '#4CAF50';                   // Very good
+      })
+    }
+  }
+
+  // Password strength checker
+  const checkPasswordStrength = password => {
+    if (!password) return 0
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/\d/.test(password)) strength++
+    if (/[^A-Za-z0-9]/.test(password)) strength++
+    return strength
+  }
+
+  const updatePasswordStrength = event => {
+    const password = event.target.value
+    const bar = elements.strengthBar
+    if (!bar) return
+    
+    const strength = checkPasswordStrength(password)
+    const percentage = (strength / 5) * 100
+    bar.style.width = `${percentage}%`
+    
+    const colors = ['#FF4B4B', '#FFA500', '#FFD700', '#90EE90', '#4CAF50']
+    bar.style.backgroundColor = colors[Math.max(0, strength - 1)] || '#ddd'
+  }
+
+  // Create backend session after Firebase auth
+  const createBackendSession = async user => {
+    if (!user) {
+      ui.showError('Authentication error', ui.getActiveMessageArea())
+      return
+    }
+    
+    const activeButton = document.querySelector('.auth-form.active button[type="submit"]')
+    ui.setLoading(activeButton, true)
+    document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, true))
+    ui.clearMessages()
+    
+    try {
+      const csrfToken = await getCSRFToken()
+      const idToken = await user.getIdToken(true)
+      
+      const headers = { 'Content-Type': 'application/json' }
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken
+        headers['X-CSRFToken'] = csrfToken
       }
-    };
-  
-    // --- Firebase Auth Handler ---
-    const authHandler = {
-      // Create backend session after Firebase authentication
-      createBackendSession: async (user) => {
-        if (!user) {
-          uiHelpers.showError("Authentication error (missing user data).", uiHelpers.getActiveMessageAreaId());
-          return;
-        }
-        
-        const activeFormButton = document.querySelector('.auth-form.active button[type="submit"]');
-        const originalButtonText = activeFormButton ? activeFormButton.dataset.originalHTML : null;
-        
-        // Block active form button
-        if (activeFormButton) uiHelpers.setButtonLoading(activeFormButton, true, '', originalButtonText);
-        
-        // Block social buttons
-        document.querySelectorAll('.social-btn').forEach(btn => uiHelpers.setButtonLoading(btn, true));
-        
-        uiHelpers.clearMessages(); // Hide previous messages
-        
-        try {
-          // Get CSRF token
-          const csrfToken = await cookieUtils.fetchCSRFToken();
-          
-          // Get fresh token before sending to backend
-          const idToken = await user.getIdToken(true);
-          
-          // Prepare headers with various CSRF token variants
-          const headers = { 'Content-Type': 'application/json' };
-          
-          // Add CSRF token in various header formats, if it exists
-          if (csrfToken) {
-            // Standard and popular CSRF header name variants
-            headers['X-CSRF-Token'] = csrfToken;
-            headers['X-CSRFToken'] = csrfToken;
-            headers['CSRF-Token'] = csrfToken;
-            headers['CSRFToken'] = csrfToken;
-          }
-          
-          const response = await fetch('/auth/firebase-session-login', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ token: idToken }),
-            credentials: 'same-origin' // Important: include cookies in request
-          });
-          
-          if (response.ok) {
-            // Save information that login succeeded, to display message after reload (optional)
-            sessionStorage.setItem('authActionCompleted', 'true');
-            // Redirect to application main page
-            window.location.href = '/index';
-          } else {
-            // Backend error
-            const errorData = await response.json().catch(() => ({ detail: `Server error ${response.status}` }));
-            const errorMessage = `Login error (${response.status}): ${errorData.detail || 'Cannot create session.'}`;
-            uiHelpers.showError(errorMessage, uiHelpers.getActiveMessageAreaId());
-            
-            // Sign out from Firebase if backend rejected session
-            if (firebaseAuth) {
-              await firebaseAuth.signOut();
-            }
-            
-            // Unblock buttons after error
-            if (activeFormButton) uiHelpers.setButtonLoading(activeFormButton, false, '', originalButtonText);
-            document.querySelectorAll('.social-btn').forEach(btn => uiHelpers.setButtonLoading(btn, false));
-          }
-        } catch (error) {
-          uiHelpers.showError(`An error occurred: ${error.message || 'Check your internet connection.'}`, uiHelpers.getActiveMessageAreaId());
-          
-          // Unblock buttons after error
-          if (activeFormButton) uiHelpers.setButtonLoading(activeFormButton, false, '', originalButtonText);
-          document.querySelectorAll('.social-btn').forEach(btn => uiHelpers.setButtonLoading(btn, false));
-        }
-      },
       
-      // Email/Password Login Logic
-      handleLogin: async (event) => {
-        event.preventDefault();
-        const { loginEmailInput, loginPasswordInput, loginButton } = elements;
-        const email = loginEmailInput ? loginEmailInput.value.trim() : null;
-        const password = loginPasswordInput ? loginPasswordInput.value : null;
-        const messageAreaId = 'login-message-area';
-        
-        uiHelpers.clearMessages(messageAreaId);
-        
-        if (!email || !password) {
-          uiHelpers.showError('Please enter email and password.', messageAreaId);
-          return;
-        }
-        
-        if (!firebaseAuth) {
-          uiHelpers.showError('Login system is not ready.', messageAreaId);
-          return;
-        }
-        
-        uiHelpers.setButtonLoading(loginButton, true);
-        
-        try {
-          // Call Firebase login - the rest will be handled by onAuthStateChanged -> createBackendSession
-          await firebaseAuth.signInWithEmailAndPassword(email, password);
-          // Do nothing more, onAuthStateChanged will take over
-        } catch (error) {
-          let msg = 'An error occurred during login.';
-          switch (error.code) {
-            case 'auth/invalid-email': msg = 'Invalid email format.'; break;
-            case 'auth/user-disabled': msg = 'This account has been disabled.'; break;
-            case 'auth/user-not-found':
-            case 'auth/wrong-password':
-            case 'auth/invalid-credential': // Newer error code for bad credentials
-              msg = 'Invalid email or password.'; break;
-            case 'auth/network-request-failed': msg = 'Network error. Check your connection.'; break;
-            default: msg = `Login error (${error.code || 'unknown'})`;
-          }
-          uiHelpers.showError(msg, messageAreaId);
-          uiHelpers.setButtonLoading(loginButton, false); // Unblock button after error
-        }
-        // Don't unblock button on success, onAuthStateChanged will handle it
-      },
+      const response = await fetch('/auth/firebase-session-login', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ token: idToken }),
+        credentials: 'same-origin'
+      })
       
-      // Registration Logic
-      handleRegister: async (event) => {
-        event.preventDefault();
-        const { regNameInput, regEmailInput, regPasswordInput, regConfirmPasswordInput, regTermsCheckbox, registerButton } = elements;
-        
-        const name = regNameInput ? regNameInput.value.trim() : null;
-        const email = regEmailInput ? regEmailInput.value.trim() : null;
-        const password = regPasswordInput ? regPasswordInput.value : null;
-        const confirmPassword = regConfirmPasswordInput ? regConfirmPasswordInput.value : null;
-        const termsAccepted = regTermsCheckbox ? regTermsCheckbox.checked : false;
-        const messageAreaId = 'register-message-area';
-        
-        uiHelpers.clearMessages(messageAreaId);
-        
-        if (!name || !email || !password || !confirmPassword) {
-          uiHelpers.showError('Please fill in all fields.', messageAreaId);
-          return;
-        }
-        
-        if (password !== confirmPassword) {
-          uiHelpers.showError('Passwords do not match.', messageAreaId);
-          return;
-        }
-        
-        if (!passwordUtils.isStrongPassword(password)) {
-          uiHelpers.showError('Password does not meet security requirements.', messageAreaId);
-          return;
-        }
-        
-        if (!termsAccepted) {
-          uiHelpers.showError('You must accept the Terms of Service and Privacy Policy.', messageAreaId);
-          return;
-        }
-        
-        if (!firebaseAuth) {
-          uiHelpers.showError('Registration system is not ready.', messageAreaId);
-          return;
-        }
-        
-        uiHelpers.setButtonLoading(registerButton, true);
-        
-        try {
-          const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, password);
-          const user = userCredential.user;
-          
-          // Set displayName
-          await user.updateProfile({ displayName: name });
-          
-          // Success - the rest will be handled by onAuthStateChanged -> createBackendSession
-        } catch (error) {
-          let msg = 'An error occurred during registration.';
-          switch (error.code) {
-            case 'auth/email-already-in-use': msg = 'This email address is already registered.'; break;
-            case 'auth/invalid-email': msg = 'Invalid email format.'; break;
-            case 'auth/operation-not-allowed': msg = 'Registration is currently disabled.'; break;
-            case 'auth/weak-password': msg = 'Password is too weak.'; break;
-            default: msg = `Registration error (${error.code || 'unknown'})`;
-          }
-          uiHelpers.showError(msg, messageAreaId);
-          uiHelpers.setButtonLoading(registerButton, false); // Unblock after error
-        }
-        // Don't unblock button on success
-      },
-      
-      // OAuth Sign-in Logic (Google, Microsoft)
-      handleOAuthSignIn: async (providerName) => {
-        let provider;
-        const buttonSelector = `.auth-form.active .social-btn.${providerName}`;
-        const button = document.querySelector(buttonSelector);
-        
-        if (!button) return;
-        
-        if (!firebaseAuth) {
-          uiHelpers.showError('Login system is not ready.', uiHelpers.getActiveMessageAreaId());
-          return;
-        }
-        
-        switch(providerName) {
-          case 'google':
-            provider = new firebase.auth.GoogleAuthProvider();
-            break;
-          case 'microsoft':
-            provider = new firebase.auth.OAuthProvider('microsoft.com');
-            break;
-          default:
-            uiHelpers.showError(`Provider "${providerName}" is not supported.`, uiHelpers.getActiveMessageAreaId());
-            return;
-        }
-        
-        uiHelpers.clearMessages();
-        uiHelpers.setButtonLoading(button, true);
-        
-        try {
-          // Call Firebase popup login - onAuthStateChanged will handle the rest
-          await firebaseAuth.signInWithPopup(provider);
-        } catch (error) {
-          let msg = `An error occurred while signing in with ${providerName}.`;
-          switch(error.code) {
-            case 'auth/account-exists-with-different-credential': 
-              msg = 'An account with this email already exists and is linked to a different sign-in method.'; 
-              break;
-            case 'auth/popup-closed-by-user': 
-              msg = `${providerName} sign-in was cancelled.`; 
-              break;
-            case 'auth/popup-blocked': 
-              msg = `${providerName} sign-in popup was blocked. Please unblock it and try again.`; 
-              break;
-            case 'auth/cancelled-popup-request': 
-              msg = 'Cancelled additional popup request.'; 
-              break;
-            case 'auth/operation-not-allowed': 
-              msg = `${providerName} sign-in is not enabled in Firebase.`; 
-              break;
-            case 'auth/unauthorized-domain': 
-              msg = `This domain is not authorized for Firebase operations.`; 
-              break;
-            default: 
-              msg = `${providerName} sign-in error (${error.code || 'unknown'})`;
-          }
-          uiHelpers.showError(msg, uiHelpers.getActiveMessageAreaId());
-          uiHelpers.setButtonLoading(button, false); // Unblock after error
-        }
-        // Don't unblock button on success
-      },
-      
-      // "Forgot password?" Logic
-      handleForgotPassword: (event) => {
-        event.preventDefault();
-        const { loginEmailInput } = elements;
-        const email = loginEmailInput ? loginEmailInput.value.trim() : null;
-        const messageAreaId = 'login-message-area';
-        
-        uiHelpers.clearMessages(messageAreaId);
-        
-        if (!email) {
-          uiHelpers.showError('Enter your email address in the field above to reset your password.', messageAreaId);
-          return;
-        }
-        
-        if (!firebaseAuth) {
-          uiHelpers.showError('Password reset system is not ready.', messageAreaId);
-          return;
-        }
-        
-        // Show temporary loading message
-        uiHelpers.showSuccess('Sending password reset instructions...', messageAreaId);
-        
-        firebaseAuth.sendPasswordResetEmail(email)
-          .then(() => {
-            uiHelpers.showSuccess('Password reset link has been sent to your email address. Check your inbox (and spam folder).', messageAreaId);
-          })
-          .catch((error) => {
-            let msg = 'Failed to send password reset link.';
-            if (error.code === 'auth/invalid-email') {
-              msg += ' Check email format.';
-            } else if (error.code === 'auth/user-not-found') {
-              msg = 'No account found with this email address.';
-            } else {
-              msg += ` (Error: ${error.code || 'unknown'})`;
-            }
-            uiHelpers.showError(msg, messageAreaId);
-          });
+      if (response.ok) {
+        sessionStorage.setItem('authActionCompleted', 'true')
+        window.location.href = '/index'
+      } else {
+        const error = await response.json().catch(() => ({ detail: `Server error ${response.status}` }))
+        ui.showError(`Login error: ${error.detail || 'Cannot create session'}`, ui.getActiveMessageArea())
+        firebaseAuth && await firebaseAuth.signOut()
+        ui.setLoading(activeButton, false)
+        document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, false))
       }
-    };
-  
-    // --- Firebase Initialization ---
-    const initializeLoginAuth = async () => {
+    } catch (error) {
+      ui.showError(`Error: ${error.message || 'Check your connection'}`, ui.getActiveMessageArea())
+      ui.setLoading(activeButton, false)
+      document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, false))
+    }
+  }
+
+  // Auth handlers
+  const authHandlers = {
+    login: async event => {
+      event.preventDefault()
+      const email = elements.loginEmail?.value.trim()
+      const password = elements.loginPassword?.value
+      
+      ui.clearMessages()
+      
+      if (!email || !password) {
+        ui.showError('Please enter email and password', 'login-message-area')
+        return
+      }
+      
+      if (!firebaseAuth) {
+        ui.showError('Login system is not ready', 'login-message-area')
+        return
+      }
+      
+      ui.setLoading(elements.loginButton, true)
+      
       try {
-        const response = await fetch('/auth/firebase-config');
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ detail: response.statusText }));
-          throw new Error(errorData.detail || `Error ${response.status} fetching Firebase configuration`);
-        }
-        
-        const config = await response.json();
-        
-        if (!config.apiKey || !config.authDomain) {
-          throw new Error('Incomplete Firebase configuration data from backend.');
-        }
-        
-        if (firebase.apps.length === 0) {
-          firebaseApp = firebase.initializeApp({ apiKey: config.apiKey, authDomain: config.authDomain });
-        } else {
-          firebaseApp = firebase.app();
-        }
-        
-        firebaseAuth = firebase.auth();
-        
-        // --- Key Authentication State Handling ---
-        firebaseAuth.onAuthStateChanged(async (user) => {
-          if (user) {
-            // User is signed in to Firebase (fresh or from memory)
-            // Check if we're already creating session or redirecting
-            if (sessionStorage.getItem('creatingSession') === 'true') {
-              return;
-            }
-            
-            // Set flag that we're starting backend session creation
-            sessionStorage.setItem('creatingSession', 'true');
-            
-            // Call backend session creation function
-            await authHandler.createBackendSession(user);
-            
-            // Remove flag after completion (even if there was an error and no redirect)
-            sessionStorage.removeItem('creatingSession');
-          } else {
-            // User is not signed in to Firebase
-            // Make sure buttons are unblocked if no user
-            const activeFormButton = document.querySelector('.auth-form.active button[type="submit"]');
-            if (activeFormButton && activeFormButton.classList.contains('loading')) {
-              uiHelpers.setButtonLoading(activeFormButton, false);
-            }
-            
-            document.querySelectorAll('.social-btn.loading').forEach(btn => 
-              uiHelpers.setButtonLoading(btn, false)
-            );
-            
-            // Clear session flags
-            sessionStorage.removeItem('creatingSession');
-            sessionStorage.removeItem('authActionCompleted');
-          }
-        });
-        
-        // After successful Firebase initialization, set up forms
-        setupAuthForms();
+        await firebaseAuth.signInWithEmailAndPassword(email, password)
       } catch (error) {
-        const errorMessage = `Authentication system error: ${error.message}`;
-        uiHelpers.showError(errorMessage, 'login-message-area');
-        uiHelpers.showError(errorMessage, 'register-message-area');
-        
-        // Disable all buttons
-        if (elements.loginButton) elements.loginButton.disabled = true;
-        if (elements.registerButton) elements.registerButton.disabled = true;
-        document.querySelectorAll('.social-btn').forEach(btn => btn.disabled = true);
+        const errors = {
+          'auth/invalid-email': 'Invalid email format',
+          'auth/user-disabled': 'This account has been disabled',
+          'auth/user-not-found': 'Invalid email or password',
+          'auth/wrong-password': 'Invalid email or password',
+          'auth/invalid-credential': 'Invalid email or password',
+          'auth/network-request-failed': 'Network error. Check your connection'
+        }
+        ui.showError(errors[error.code] || `Login error (${error.code || 'unknown'})`, 'login-message-area')
+        ui.setLoading(elements.loginButton, false)
       }
-    };
-  
-    // --- Setup Auth Forms and Event Listeners ---
-    const setupAuthForms = () => {
-      const { loginForm, registerForm, regPasswordInput, forgotPasswordLink } = elements;
+    },
+    
+    register: async event => {
+      event.preventDefault()
+      const name = elements.regName?.value.trim()
+      const email = elements.regEmail?.value.trim()
+      const password = elements.regPassword?.value
+      const confirmPassword = elements.regConfirmPassword?.value
+      const termsAccepted = elements.regTerms?.checked
       
-      if (loginForm) {
-        loginForm.addEventListener('submit', authHandler.handleLogin);
-      }
+      ui.clearMessages()
       
-      if (registerForm) {
-        registerForm.addEventListener('submit', authHandler.handleRegister);
-      }
-      
-      if (regPasswordInput) {
-        regPasswordInput.addEventListener('input', passwordUtils.updatePasswordStrength);
-      }
-      
-      // Google Sign-in
-      document.querySelectorAll('.social-btn.google').forEach(button => {
-        button.addEventListener('click', () => authHandler.handleOAuthSignIn('google'));
-      });
-      
-      // Microsoft Sign-in
-      document.querySelectorAll('.social-btn.microsoft').forEach(button => {
-        button.addEventListener('click', () => authHandler.handleOAuthSignIn('microsoft'));
-      });
-      
-      // LinkedIn Sign-in (placeholder)
-      document.querySelectorAll('.social-btn.linkedin').forEach(button => {
-        button.addEventListener('click', () => {
-          uiHelpers.showError('LinkedIn sign-in is not yet implemented.', uiHelpers.getActiveMessageAreaId());
-        });
-      });
-      
-      // "Forgot password?" link
-      if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', authHandler.handleForgotPassword);
+      if (!name || !email || !password || !confirmPassword) {
+        ui.showError('Please fill in all fields', 'register-message-area')
+        return
       }
       
-      // --- Tab switching logic ---
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      const authForms = document.querySelectorAll('.auth-form');
+      if (password !== confirmPassword) {
+        ui.showError('Passwords do not match', 'register-message-area')
+        return
+      }
       
-      tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          // Deselect all buttons and hide forms
-          tabButtons.forEach(btn => btn.classList.remove('active'));
-          authForms.forEach(form => form.classList.remove('active'));
-          
-          // Clear messages when switching tabs
-          uiHelpers.clearMessages();
-          
-          // Mark clicked button and show corresponding form
-          button.classList.add('active');
-          const targetFormId = button.dataset.target;
-          const targetForm = document.getElementById(targetFormId);
-          
-          if (targetForm) {
-            targetForm.classList.add('active');
-          }
-        });
-      });
-    };
-  
-    // Initialize Firebase auth
-    initializeLoginAuth();
-  }); // End of DOMContentLoaded
-  
+      if (checkPasswordStrength(password) < 5) {
+        ui.showError('Password does not meet security requirements', 'register-message-area')
+        return
+      }
+      
+      if (!termsAccepted) {
+        ui.showError('You must accept the Terms of Service', 'register-message-area')
+        return
+      }
+      
+      if (!firebaseAuth) {
+        ui.showError('Registration system is not ready', 'register-message-area')
+        return
+      }
+      
+      ui.setLoading(elements.registerButton, true)
+      
+      try {
+        const { user } = await firebaseAuth.createUserWithEmailAndPassword(email, password)
+        await user.updateProfile({ displayName: name })
+      } catch (error) {
+        const errors = {
+          'auth/email-already-in-use': 'This email is already registered',
+          'auth/invalid-email': 'Invalid email format',
+          'auth/operation-not-allowed': 'Registration is currently disabled',
+          'auth/weak-password': 'Password is too weak'
+        }
+        ui.showError(errors[error.code] || `Registration error (${error.code || 'unknown'})`, 'register-message-area')
+        ui.setLoading(elements.registerButton, false)
+      }
+    },
+    
+    oauth: async provider => {
+      const button = document.querySelector(`.auth-form.active .social-btn.${provider}`)
+      if (!button || !firebaseAuth) return
+      
+      const providers = {
+        google: () => new firebase.auth.GoogleAuthProvider(),
+        microsoft: () => new firebase.auth.OAuthProvider('microsoft.com')
+      }
+      
+      if (!providers[provider]) {
+        ui.showError(`Provider "${provider}" is not supported`, ui.getActiveMessageArea())
+        return
+      }
+      
+      ui.clearMessages()
+      ui.setLoading(button, true)
+      
+      try {
+        await firebaseAuth.signInWithPopup(providers[provider]())
+      } catch (error) {
+        const errors = {
+          'auth/account-exists-with-different-credential': 'Account exists with different sign-in method',
+          'auth/popup-closed-by-user': `${provider} sign-in was cancelled`,
+          'auth/popup-blocked': `${provider} sign-in popup was blocked`,
+          'auth/cancelled-popup-request': 'Cancelled popup request',
+          'auth/operation-not-allowed': `${provider} sign-in is not enabled`,
+          'auth/unauthorized-domain': 'This domain is not authorized'
+        }
+        ui.showError(errors[error.code] || `${provider} sign-in error (${error.code || 'unknown'})`, ui.getActiveMessageArea())
+        ui.setLoading(button, false)
+      }
+    },
+    
+    forgotPassword: event => {
+      event.preventDefault()
+      const email = elements.loginEmail?.value.trim()
+      
+      ui.clearMessages()
+      
+      if (!email) {
+        ui.showError('Enter your email address above', 'login-message-area')
+        return
+      }
+      
+      if (!firebaseAuth) {
+        ui.showError('Password reset system is not ready', 'login-message-area')
+        return
+      }
+      
+      ui.showSuccess('Sending password reset instructions...', 'login-message-area')
+      
+      firebaseAuth.sendPasswordResetEmail(email)
+        .then(() => ui.showSuccess('Password reset link sent. Check your email', 'login-message-area'))
+        .catch(error => {
+          const msg = error.code === 'auth/user-not-found' 
+            ? 'No account found with this email' 
+            : `Failed to send reset link (${error.code || 'unknown'})`
+          ui.showError(msg, 'login-message-area')
+        })
+    }
+  }
+
+  // Initialize Firebase
+  const initializeAuth = async () => {
+    try {
+      const response = await fetch('/auth/firebase-config')
+      if (!response.ok) throw new Error(`Error ${response.status} fetching Firebase configuration`)
+      
+      const config = await response.json()
+      if (!config.apiKey || !config.authDomain) throw new Error('Incomplete Firebase configuration')
+      
+      firebaseApp = firebase.apps.length === 0 
+        ? firebase.initializeApp({ apiKey: config.apiKey, authDomain: config.authDomain })
+        : firebase.app()
+      
+      firebaseAuth = firebase.auth()
+      
+      // Handle auth state changes
+      firebaseAuth.onAuthStateChanged(async user => {
+        if (user) {
+          if (sessionStorage.getItem('creatingSession') === 'true') return
+          sessionStorage.setItem('creatingSession', 'true')
+          await createBackendSession(user)
+          sessionStorage.removeItem('creatingSession')
+        } else {
+          document.querySelectorAll('.loading').forEach(btn => ui.setLoading(btn, false))
+          sessionStorage.removeItem('creatingSession')
+          sessionStorage.removeItem('authActionCompleted')
+        }
+      })
+      
+      setupEventHandlers()
+    } catch (error) {
+      const msg = `Authentication system error: ${error.message}`
+      ui.showError(msg, 'login-message-area')
+      ui.showError(msg, 'register-message-area')
+      
+      // Disable all buttons
+      ;[elements.loginButton, elements.registerButton, ...document.querySelectorAll('.social-btn')]
+        .forEach(btn => btn && (btn.disabled = true))
+    }
+  }
+
+  // Setup event handlers
+  const setupEventHandlers = () => {
+    // Form submissions
+    elements.loginForm?.addEventListener('submit', authHandlers.login)
+    elements.registerForm?.addEventListener('submit', authHandlers.register)
+    
+    // Password strength
+    elements.regPassword?.addEventListener('input', updatePasswordStrength)
+    
+    // OAuth buttons
+    document.querySelectorAll('.social-btn.google').forEach(btn => 
+      btn.addEventListener('click', () => authHandlers.oauth('google')))
+    document.querySelectorAll('.social-btn.microsoft').forEach(btn => 
+      btn.addEventListener('click', () => authHandlers.oauth('microsoft')))
+    
+    // Forgot password
+    elements.forgotPassword?.addEventListener('click', authHandlers.forgotPassword)
+    
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'))
+        document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'))
+        ui.clearMessages()
+        button.classList.add('active')
+        const target = document.getElementById(button.dataset.target)
+        target && target.classList.add('active')
+      })
+    })
+  }
+
+  // Initialize
+  initializeAuth()
+})
