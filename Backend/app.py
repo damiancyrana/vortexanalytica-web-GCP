@@ -162,15 +162,15 @@ def get_optimal_workers():
     """Oblicza optymalną liczbę workerów na podstawie liczby dostępnych rdzeni CPU."""
     try:
         cores = multiprocessing.cpu_count()
-        if cores <= 2:
-            optimal = max(2, cores * 2)  # 2-4 dla małych maszyn
+        if cores <= 4:
+            optimal = max(4, cores * 4)  # 2-4 dla małych maszyn
         else:
-            optimal = min(cores * 2, 16)  # 2 na rdzeń, max 16
+            optimal = min(cores * 4, 16)  # 2 na rdzeń, max 16
         logger.info(f"Wykryto {cores} rdzeni CPU, optymalna liczba workerów: {optimal}")
         return optimal
     except Exception as e:
         logger.warning(f"Nie można określić liczby rdzeni CPU: {e}, używam domyślnej wartości 4")
-        return 4
+        return 6
 
 
 # Przykładowe polecenie z optymalną liczbą workerów:

@@ -31,6 +31,27 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModalBtns: document.querySelectorAll('.close-modal')
   }
 
+  // Common error messages
+  const AUTH_ERRORS = {
+    'auth/invalid-email': 'Invalid email format',
+    'auth/user-disabled': 'This account has been disabled',
+    'auth/user-not-found': 'Invalid email or password',
+    'auth/wrong-password': 'Invalid email or password',
+    'auth/invalid-credential': 'Invalid email or password',
+    'auth/network-request-failed': 'Network error. Check your connection',
+    'auth/email-already-in-use': 'This email is already registered',
+    'auth/operation-not-allowed': 'Operation is currently disabled',
+    'auth/weak-password': 'Password is too weak',
+    'auth/too-many-requests': 'Too many requests. Please try again later',
+    'auth/account-exists-with-different-credential': 'Account exists with different sign-in method',
+    'auth/popup-closed-by-user': 'Sign-in was cancelled',
+    'auth/popup-blocked': 'Sign-in popup was blocked',
+    'auth/cancelled-popup-request': 'Cancelled popup request',
+    'auth/unauthorized-domain': 'This domain is not authorized'
+  }
+
+  const UNTRUSTED_EMAIL_ERROR = "We don\'t accept fake email addresses. Please use an email from a trusted provider like Google, iCloud, Yahoo, Onet etc."
+
   // CSRF utilities
   const getCSRFToken = async () => {
     // Try cookie first
@@ -72,6 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
       button.classList.toggle('loading', loading)
       if (!loading) button.innerHTML = button.dataset.originalHTML
     },
+
+    setSocialButtonsLoading: (loading) => {
+      document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, loading))
+    },
     
     showMessage: (message, type, areaId = null) => {
       const area = document.getElementById(areaId || ui.getActiveMessageArea())
@@ -85,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             area.style.display = 'none'
             area.textContent = ''
           }
-        }, 7000)
+        }, 10000)
       }
     },
     
@@ -124,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkPasswordStrength = password => {
     if (!password) return 0
     let strength = 0
-    if (password.length >= 8) strength++
+    if (password.length >= 10) strength++
     if (/[A-Z]/.test(password)) strength++
     if (/[a-z]/.test(password)) strength++
     if (/\d/.test(password)) strength++
@@ -155,13 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ui.showModal('email-verification-modal')
       return true
     } catch (error) {
-      console.error('Error sending verification email:', error)
-      const errors = {
-        'auth/too-many-requests': 'Too many requests. Please try again later',
-        'auth/invalid-email': 'Invalid email address.',
-        'auth/user-not-found': 'User not found.'
-      }
-      ui.showError(errors[error.code] || 'Failed to send verification email', 'register-message-area')
+      ui.showError(AUTH_ERRORS[error.code] || 'Failed to send verification email', 'register-message-area')
       return false
     }
   }
@@ -176,6 +195,162 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Trusted email providers whitelist
+  const trustedEmailProviders = new Set([
+    // Global providers
+    'gmail.com', 'googlemail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 
+    'live.com', 'msn.com', 'icloud.com', 'me.com', 'mac.com', 'aol.com',
+    'protonmail.com', 'proton.me', 'zoho.com',
+    
+    // Americas
+    'yahoo.com.mx', 'yahoo.com.br', 'uol.com.br', 'bol.com.br', 'terra.com.br',
+    'ig.com.br', 'globo.com', 'shaw.ca', 'rogers.com', 'bell.net', 'sympatico.ca',
+    
+    // Europe
+    'wp.pl', 'onet.pl', 'interia.pl', 'o2.pl', 'gazeta.pl', 'poczta.fm', // Poland
+    'gmx.de', 'gmx.net', 'web.de', 't-online.de', 'freenet.de', // Germany
+    'orange.fr', 'wanadoo.fr', 'free.fr', 'laposte.net', 'sfr.fr', // France
+    'virgilio.it', 'libero.it', 'alice.it', 'tin.it', 'fastwebnet.it', // Italy
+    'terra.es', 'telefonica.net', 'movistar.es', 'ono.com', // Spain
+    'mail.ru', 'yandex.ru', 'yandex.com', 'rambler.ru', 'list.ru', // Russia
+    'ukr.net', 'i.ua', 'bigmir.net', // Ukraine
+    'mail.com', 'email.com', 'gmx.com', 'gmx.at', 'gmx.ch',
+    'bluewin.ch', 'sunrise.ch', // Switzerland
+    'skynet.be', 'telenet.be', 'proximus.be', // Belgium
+    'xs4all.nl', 'kpnmail.nl', 'ziggo.nl', 'hetnet.nl', // Netherlands
+    'seznam.cz', 'email.cz', 'volny.cz', // Czech Republic
+    'azet.sk', 'centrum.sk', // Slovakia
+    'freemail.hu', 't-online.hu', 'citromail.hu', // Hungary
+    'abv.bg', 'mail.bg', // Bulgaria
+    
+    // Asia
+    'qq.com', '163.com', '126.com', 'sina.com', 'sina.cn', 'sohu.com', // China
+    'aliyun.com', '189.cn', '139.com', 'wo.cn', 'foxmail.com',
+    'naver.com', 'daum.net', 'hanmail.net', 'nate.com', 'kakao.com', // South Korea
+    'yahoo.co.jp', 'rakuten.jp', 'goo.jp', 'excite.co.jp', 'biglobe.ne.jp', // Japan
+    'docomo.ne.jp', 'ezweb.ne.jp', 'softbank.jp',
+    'rediffmail.com', 'yahoo.co.in', 'yahoo.in', 'gmail.co.in', // India
+    'sify.com', 'vsnl.net', 'airtelmail.in', 
+    'yahoo.com.sg', 'singnet.com.sg', 'pacific.net.sg', // Singapore
+    'yahoo.com.my', 'tm.net.my', // Malaysia
+    'yahoo.com.hk', 'netvigator.com', 'hknet.com', // Hong Kong
+    'yahoo.com.tw', 'pchome.com.tw', 'seed.net.tw', // Taiwan
+    'yahoo.com.ph', 'globe.com.ph', // Philippines
+    'yahoo.co.id', 'telkom.net', // Indonesia
+    'yahoo.co.th', 'truemail.co.th', // Thailand
+    'viettel.com.vn', 'fpt.vn', // Vietnam
+    
+    // Middle East & Arabia
+    'yahoo.ae', 'emirates.net.ae', 'eim.ae', // UAE
+    'saudia.com', 'mobily.com.sa', 'stc.com.sa', // Saudi Arabia
+    'yahoo.com.tr', 'hotmail.com.tr', 'mynet.com', 'ttmail.com', // Turkey
+    'walla.co.il', 'walla.com', 'bezeqint.net', // Israel
+    
+    // Africa
+    'webmail.co.za', 'mweb.co.za', 'vodamail.co.za', 'telkomsa.net', // South Africa
+    'afrihost.com', 'iafrica.com',
+    'caramail.com', 'voila.fr', // North Africa (French influence)
+    
+    // Oceania
+    'yahoo.com.au', 'bigpond.com', 'bigpond.com.au', 'bigpond.net.au', // Australia
+    'optusnet.com.au', 'ozemail.com.au', 'iinet.net.au', 'tpg.com.au',
+    'yahoo.co.nz', 'xtra.co.nz', 'clear.net.nz', 'slingshot.co.nz', // New Zealand
+    'paradise.net.nz', 'orcon.net.nz',
+    
+    // Business & Education (generally trusted)
+    'company.com', 'corporate.com'
+  ])
+
+  // Email validation function
+  const isEmailFromTrustedProvider = (email) => {
+    if (!email || typeof email !== 'string') return false
+    
+    const domain = email.toLowerCase().split('@')[1]
+    if (!domain) return false
+    
+    // Common temporary/disposable email patterns to block
+    const tempEmailPatterns = [
+      'temp-mail', 'tempmail', 'temp.mail', 'throwaway', 'guerrilla',
+      'mailinator', '10minute', 'minutemail', 'trashmail', 'fakeinbox',
+      'yopmail', 'maildrop', 'mailcatch', 'throwawaymail', 'sharklasers',
+      'spam4', 'emailondeck', 'getnada', 'bugmenot', 'dispostable',
+      'mailnesia', 'tempr', 'tmpmail', 'enterweb', 'mytrashmail',
+      'mt2009', 'thankyou2010', 'trash2009', 'temporaryemail',
+      'jetable', 'kasmail', 'spamgourmet', 'tempemail', 'temporaryinbox',
+      'tempinbox', 'killmail', 'throwemail', 'tempmail.co'
+    ]
+    
+    // Check if domain contains any temporary email patterns
+    for (const pattern of tempEmailPatterns) {
+      if (domain.includes(pattern)) {
+        return false
+      }
+    }
+    
+    // Check if it's a direct match
+    if (trustedEmailProviders.has(domain)) return true
+    
+    // Check for education domains (.edu, .ac.*, etc.)
+    if (domain.endsWith('.edu') || domain.includes('.edu.') || 
+        domain.endsWith('.ac.uk') || domain.endsWith('.ac.jp') ||
+        domain.endsWith('.ac.in') || domain.endsWith('.ac.za') ||
+        domain.includes('.ac.')) {
+      return true
+    }
+    
+    // Check for government domains
+    if (domain.endsWith('.gov') || domain.includes('.gov.') ||
+        domain.endsWith('.gob.mx') || domain.endsWith('.gov.in') ||
+        domain.endsWith('.gov.uk') || domain.endsWith('.gov.au')) {
+      return true
+    }
+    
+    // Check for organization domains
+    if (domain.endsWith('.org') && !domain.includes('temp') && 
+        !domain.includes('disposable') && !domain.includes('guerrilla')) {
+      return true
+    }
+    
+    return false
+  }
+
+  // Common validation functions
+  const validateEmailAndVerification = async (user, messageArea, button) => {
+    // Check if email is from trusted provider
+    if (!isEmailFromTrustedProvider(user.email)) {
+      ui.showError(UNTRUSTED_EMAIL_ERROR, messageArea)
+      ui.setLoading(button, false)
+      ui.setSocialButtonsLoading(false)
+      await firebaseAuth.signOut()
+      return false
+    }
+    
+    // Check if email is verified
+    if (!user.emailVerified) {
+      ui.showError('Please verify your email before logging in. Check your inbox', messageArea)
+      
+      // Offer to resend verification email (only for login form)
+      if (messageArea === 'login-message-area') {
+        const resendBtn = document.createElement('button')
+        resendBtn.textContent = 'Resend verification email'
+        resendBtn.className = 'auth-button secondary'
+        resendBtn.style.marginTop = '10px'
+        resendBtn.onclick = async () => {
+          await sendVerificationEmail(user)
+        }
+        
+        const messageAreaEl = document.getElementById(messageArea)
+        messageAreaEl.appendChild(resendBtn)
+      }
+      
+      await firebaseAuth.signOut()
+      ui.setLoading(button, false)
+      return false
+    }
+    
+    return true
+  }
+
   // Create backend session after Firebase auth
   const createBackendSession = async user => {
     if (!user) {
@@ -183,17 +358,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
     
-    // Check if email is verified
-    if (!user.emailVerified) {
-      ui.showError('Please verify your email before logging in. Check your inbox', 'login-message-area')
-      ui.setLoading(elements.loginButton, false)
-      await firebaseAuth.signOut()
+    const activeButton = document.querySelector('.auth-form.active button[type="submit"]')
+    
+    // Validate email and verification
+    if (!await validateEmailAndVerification(user, ui.getActiveMessageArea(), activeButton)) {
       return
     }
     
-    const activeButton = document.querySelector('.auth-form.active button[type="submit"]')
     ui.setLoading(activeButton, true)
-    document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, true))
+    ui.setSocialButtonsLoading(true)
     ui.clearMessages()
     
     try {
@@ -221,12 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.showError(`Login error: ${error.detail || 'Cannot create session'}`, ui.getActiveMessageArea())
         firebaseAuth && await firebaseAuth.signOut()
         ui.setLoading(activeButton, false)
-        document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, false))
+        ui.setSocialButtonsLoading(false)
       }
     } catch (error) {
       ui.showError(`Error: ${error.message || 'Check your connection'}`, ui.getActiveMessageArea())
       ui.setLoading(activeButton, false)
-      document.querySelectorAll('.social-btn').forEach(btn => ui.setLoading(btn, false))
+      ui.setSocialButtonsLoading(false)
     }
   }
 
@@ -254,39 +427,15 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const result = await firebaseAuth.signInWithEmailAndPassword(email, password)
         
-        // Check if email is verified
-        if (!result.user.emailVerified) {
-          ui.showError('Please verify your email before logging in. Check your inbox', 'login-message-area')
-          
-          // Offer to resend verification email
-          const resendBtn = document.createElement('button')
-          resendBtn.textContent = 'Resend verification email'
-          resendBtn.className = 'auth-button secondary'
-          resendBtn.style.marginTop = '10px'
-          resendBtn.onclick = async () => {
-            await sendVerificationEmail(result.user)
-          }
-          
-          const messageArea = document.getElementById('login-message-area')
-          messageArea.appendChild(resendBtn)
-          
-          await firebaseAuth.signOut()
-          ui.setLoading(elements.loginButton, false)
+        // Validate email and verification
+        if (!await validateEmailAndVerification(result.user, 'login-message-area', elements.loginButton)) {
           return
         }
         
         await createBackendSession(result.user)
         
       } catch (error) {
-        const errors = {
-          'auth/invalid-email': 'Invalid email format',
-          'auth/user-disabled': 'This account has been disabled',
-          'auth/user-not-found': 'Invalid email or password',
-          'auth/wrong-password': 'Invalid email or password',
-          'auth/invalid-credential': 'Invalid email or password',
-          'auth/network-request-failed': 'Network error. Check your connection'
-        }
-        ui.showError(errors[error.code] || `Login error (${error.code || 'unknown'})`, 'login-message-area')
+        ui.showError(AUTH_ERRORS[error.code] || `Login error (${error.code || 'unknown'})`, 'login-message-area')
         ui.setLoading(elements.loginButton, false)
       }
     },
@@ -303,6 +452,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (!name || !email || !password || !confirmPassword) {
         ui.showError('Please fill in all fields', 'register-message-area')
+        return
+      }
+      
+      // Validate email against whitelist
+      if (!isEmailFromTrustedProvider(email)) {
+        ui.showError(UNTRUSTED_EMAIL_ERROR, 'register-message-area')
         return
       }
       
@@ -344,13 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.tab-btn[data-target="login-form"]').click()
         
       } catch (error) {
-        const errors = {
-          'auth/email-already-in-use': 'This email is already registered',
-          'auth/invalid-email': 'Invalid email format',
-          'auth/operation-not-allowed': 'Registration is currently disabled',
-          'auth/weak-password': 'Password is too weak'
-        }
-        ui.showError(errors[error.code] || `Registration error (${error.code || 'unknown'})`, 'register-message-area')
+        ui.showError(AUTH_ERRORS[error.code] || `Registration error (${error.code || 'unknown'})`, 'register-message-area')
         ui.setLoading(elements.registerButton, false)
       }
     },
@@ -375,26 +524,20 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const result = await firebaseAuth.signInWithPopup(providers[provider]())
         
-        // OAuth providers usually verify email automatically
-        if (!result.user.emailVerified) {
-          await sendVerificationEmail(result.user)
-          await firebaseAuth.signOut()
-          ui.setLoading(button, false)
+        // Validate email and verification
+        if (!await validateEmailAndVerification(result.user, ui.getActiveMessageArea(), button)) {
           return
         }
         
         await createBackendSession(result.user)
         
       } catch (error) {
-        const errors = {
-          'auth/account-exists-with-different-credential': 'Account exists with different sign-in method',
+        const providerErrors = {
           'auth/popup-closed-by-user': `${provider} sign-in was cancelled`,
-          'auth/popup-blocked': `${provider} sign-in popup was blocked`,
-          'auth/cancelled-popup-request': 'Cancelled popup request',
-          'auth/operation-not-allowed': `${provider} sign-in is not enabled`,
-          'auth/unauthorized-domain': 'This domain is not authorized'
+          'auth/popup-blocked': `${provider} sign-in popup was blocked`
         }
-        ui.showError(errors[error.code] || `${provider} sign-in error (${error.code || 'unknown'})`, ui.getActiveMessageArea())
+        const errorMsg = providerErrors[error.code] || AUTH_ERRORS[error.code] || `${provider} sign-in error (${error.code || 'unknown'})`
+        ui.showError(errorMsg, ui.getActiveMessageArea())
         ui.setLoading(button, false)
       }
     },
@@ -442,15 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
           ui.hideModal('password-reset-modal')
           elements.resetEmailInput.value = ''
           resetMessage.style.display = 'none'
-        }, 3000)
+        }, 5000)
         
       } catch (error) {
-        const errors = {
-          'auth/invalid-email': 'Invalid email format',
-          'auth/user-not-found': 'No account found with this email',
-          'auth/too-many-requests': 'Too many requests. Please try again later.'
-        }
-        ui.showError(errors[error.code] || `Failed to send reset link (${error.code || 'unknown'})`, 'reset-message-area')
+        ui.showError(AUTH_ERRORS[error.code] || `Failed to send reset link (${error.code || 'unknown'})`, 'reset-message-area')
       } finally {
         ui.setLoading(elements.resetPasswordBtn, false)
       }
@@ -494,11 +632,21 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Handle auth state changes
       firebaseAuth.onAuthStateChanged(async user => {
-        if (user && user.emailVerified) {
-          if (sessionStorage.getItem('creatingSession') === 'true') return
-          sessionStorage.setItem('creatingSession', 'true')
-          await createBackendSession(user)
-          sessionStorage.removeItem('creatingSession')
+        if (user) {
+          // Validate email domain even for existing sessions
+          if (!isEmailFromTrustedProvider(user.email)) {
+            await firebaseAuth.signOut()
+            sessionStorage.removeItem('creatingSession')
+            sessionStorage.removeItem('authActionCompleted')
+            return
+          }
+          
+          if (user.emailVerified) {
+            if (sessionStorage.getItem('creatingSession') === 'true') return
+            sessionStorage.setItem('creatingSession', 'true')
+            await createBackendSession(user)
+            sessionStorage.removeItem('creatingSession')
+          }
         } else {
           document.querySelectorAll('.loading').forEach(btn => ui.setLoading(btn, false))
           sessionStorage.removeItem('creatingSession')
@@ -542,24 +690,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Resend verification button
     elements.resendVerificationBtn?.addEventListener('click', authHandlers.resendVerification)
     
-    // Close modal buttons
-    elements.closeModalBtns?.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const modal = e.target.closest('.modal')
-        if (modal) {
-          ui.hideModal(modal.id)
-        }
+    // Modal handlers
+    const setupModalHandlers = () => {
+      // Close modal buttons
+      elements.closeModalBtns?.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const modal = e.target.closest('.modal')
+          if (modal) {
+            ui.hideModal(modal.id)
+          }
+        })
       })
-    })
+      
+      // Close modal on outside click
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            ui.hideModal(modal.id)
+          }
+        })
+      })
+    }
     
-    // Close modal on outside click
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          ui.hideModal(modal.id)
-        }
-      })
-    })
+    setupModalHandlers()
     
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(button => {

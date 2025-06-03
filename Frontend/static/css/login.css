@@ -244,7 +244,7 @@ html, body{
 .tab-btn{
   flex:1;background:transparent;border:none;
   color: var(--text-light-dim);
-  font-family:'Exo 2',sans-serif;font-size:15px;font-weight:500;
+  font-family:'Exo 2',sans-serif;font-size:18px;font-weight:500;
   padding:10px 8px;
   cursor:pointer;transition:.3s;
   white-space: nowrap;
@@ -254,6 +254,9 @@ html, body{
   color: var(--text-light);border-bottom:2px solid var(--blue-accent);
 }
 
+.auth-message {
+  font-size: 1rem;
+}
 .auth-form{
   display:none;
   width: 100%;
