@@ -1862,6 +1862,13 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
+/* ========== FONT ADJUSTMENT FOR SMALLER SCREENS ========== */
+@media (max-width: 980px) {
+  body {
+    font-size: 17.25px;
+  }
+}
+
 /* Logout button animations */
 @keyframes spin {
   0% { transform: rotate(0deg) scale(.94) }
