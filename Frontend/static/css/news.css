@@ -166,7 +166,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-dark: #0b0b13;
+    --bg-dark: #0a0a10;
     --text-primary: #ffffff;
     --text-secondary: rgba(255,255,255,0.7);
     --text-dim: rgba(255,255,255,0.5);

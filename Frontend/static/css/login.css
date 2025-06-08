@@ -1,6 +1,9 @@
 :root {
-  --bg-dark: #0a0a10; /* Changed from #1a1f2e to match quantum field background */
-  --blue-accent: #4e8cff;
+  --bg-dark: #0a0a10; /* Consistent dark background */
+  --blue: #00c6ff;
+  --teal: #3affc3;
+  --purple: #b967ff;
+  --blue-accent: var(--blue);
   --text-light: #fff;
   --text-light-muted: rgba(255, 255, 255, .7);
   --text-light-dim: rgba(255, 255, 255, .5);
@@ -177,7 +180,8 @@
 
 html, body{
   height:100vh;
-  overflow:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
   font-family:'Exo 2', sans-serif;
   background-color: transparent; /* Changed to transparent */
   color: var(--text-light);
@@ -317,7 +321,7 @@ html, body{
   padding: 12px;
   border:none;
   border-radius:6px;
-  background:linear-gradient(135deg,#4e8cff,#3366cc);
+  background:linear-gradient(135deg,var(--blue),#3366cc);
   color: var(--text-light);
   font-family:'Exo 2',sans-serif;
   font-size:15px;

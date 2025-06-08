@@ -42,7 +42,7 @@
   --light-btn-text: #ffffff;
   --light-btn-border: #405875;
 
-  --bg-dark: #121620;
+  --bg-dark: #0a0a10;
   --bg-dark-medium: #1c2735;
   --text-color-dark: #e2e8f0;
   --text-muted-dark: #7c8699;
@@ -57,7 +57,7 @@
   --control-bg-dark: rgba(0, 0, 0, 0.25);
   --link-color-dark: var(--blue);
 
-  --dark-bg: #121620;
+  --dark-bg: #0a0a10;
   --dark-text: #e2e8f0;
   --dark-text-muted: #8e96a9;
   --dark-accent: var(--blue);
@@ -1638,6 +1638,7 @@ body:not(.dark-theme) .logoutButton::after {
   /* Force color recalculation on mobile */
   body {
     background-color: var(--bg-body-light);
+    overflow-y: auto;
   }
   
   body.dark-theme {
