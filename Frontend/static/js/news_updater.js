@@ -135,11 +135,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create and add element
     try {
       const html = window.NewsSSE.createNewsElement(message, 'standard')
-      
+      const template = document.createElement('template')
+      template.innerHTML = html.trim()
+      const element = template.content.firstElementChild
+      element.newsId = messageId
+
       if (addToTop) {
-        newsContainer.insertAdjacentHTML('afterbegin', html)
+        newsContainer.prepend(element)
       } else {
-        newsContainer.insertAdjacentHTML('beforeend', html)
+        newsContainer.appendChild(element)
       }
       
       // Track this message ID
@@ -150,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (messages.length > MAX_MESSAGES) {
         for (let i = MAX_MESSAGES; i < messages.length; i++) {
           const removedElement = messages[i]
-          const removedId = removedElement.getAttribute('data-news-id')
+          const removedId = removedElement.newsId
           if (removedId) {
             messageIds.delete(removedId)
           }

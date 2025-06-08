@@ -139,10 +139,11 @@ window.NewsSSE = (() => {
     }
     
     // Standard news element
-    let impactClass = 'medium'
-    if (message.narrative_impact?.toLowerCase() === 'yes') {
+    let impactClass = 'neutral'
+    const sentiment = message.sentiment?.toLowerCase()
+    if (sentiment === 'positive') {
       impactClass = 'positive'
-    } else if (message.narrative_impact?.toLowerCase() === 'no') {
+    } else if (sentiment === 'negative') {
       impactClass = 'negative'
     }
     
@@ -155,7 +156,7 @@ window.NewsSSE = (() => {
       .join('')
     
     return `
-      <div class="news-item ${impactClass} fade-in" data-news-id="${utils.escapeHtml(message.news_id || '')}">
+      <div class="news-item ${impactClass} fade-in">
         <div class="news-header">
           <div class="news-title">${utils.escapeHtml(message.title || 'No title')}</div>
           <div class="news-date">${utils.formatDate(message.time_reported)}</div>
