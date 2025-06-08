@@ -1,3 +1,6 @@
+"""
+Backend/routes/news.py - Updated to show 50 messages initially
+"""
 from __future__ import annotations
 
 import logging
@@ -19,9 +22,9 @@ router = APIRouter(
 )
 
 @router.get("")
-async def get_news(limit: int = 30, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:
+async def get_news(limit: int = 50, current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:
     """Pobiera najnowsze wiadomości dla zalogowanego użytkownika."""
-    logger.info(f"Pobieranie wiadomości dla użytkownika z sesji: {current_user_session.get('emmail')}")
+    logger.info(f"Pobieranie wiadomości dla użytkownika z sesji: {current_user_session.get('email')}")
     
     news_service = NewsService()
     messages = await news_service.get_messages(limit=limit)
@@ -46,9 +49,9 @@ async def stream_news(request: Request, current_user_session: Dict[str, Any] = D
         # Powiadomienie początkowe
         yield "data: {\"type\": \"connected\", \"message\": \"SSE connection established\"}\n\n"
         
-        # Zwróć najnowsze wiadomości natychmiast z Redis
+        # Zwróć najnowsze wiadomości natychmiast z Redis - INCREASED FROM 5 TO 50
         news_service = NewsService()
-        recent_messages = await news_service.get_messages(limit=5)
+        recent_messages = await news_service.get_messages(limit=50)
         for msg in recent_messages:
             simplified = news_service._simplify_message(msg)
             yield f"data: {json.dumps(simplified)}\n\n"
@@ -118,7 +121,7 @@ async def stream_critical_news(request: Request, current_user_session: Dict[str,
         # Powiadomienie początkowe
         yield "data: {\"type\": \"connected\", \"message\": \"Critical SSE connection established\"}\n\n"
         
-        # Sprawdź czy jest ostatnia krytyczna wiadomość
+        # Sprawdź czy jest ostatnia krytyczna wiadomość (within 1 hour)
         news_service = NewsService()
         last_critical = news_service.get_last_critical_message()
         if last_critical:

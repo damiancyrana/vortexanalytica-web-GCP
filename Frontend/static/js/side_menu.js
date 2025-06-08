@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     SIDEBAR_EXPANDED: 'vortex_sidebar_expanded',
     THEME: 'theme'
   };
+  
+  const BREAKPOINTS = {
+    MOBILE: 768,
+    TABLET: 1024
+  };
 
   // Elements
   const sidebar = document.getElementById('sidebar');
@@ -17,18 +22,39 @@ document.addEventListener('DOMContentLoaded', function() {
   const feedbackBtn = document.getElementById('feedback-btn');
 
   // State
-  let isMobile = window.innerWidth <= 768;
-  let isPinned = localStorage.getItem(STORAGE_KEYS.SIDEBAR_PINNED) === 'true';
-  let isExpanded = localStorage.getItem(STORAGE_KEYS.SIDEBAR_EXPANDED) === 'true';
+  let isMobile = window.innerWidth < BREAKPOINTS.MOBILE;
+  let isTablet = window.innerWidth >= BREAKPOINTS.MOBILE && window.innerWidth < BREAKPOINTS.TABLET;
+  let isDesktop = window.innerWidth >= BREAKPOINTS.TABLET;
+  let isPinned = false;
+  let isExpanded = false;
 
-  // Initialize sidebar state
+  // Only load saved states on desktop
+  if (isDesktop) {
+    isPinned = localStorage.getItem(STORAGE_KEYS.SIDEBAR_PINNED) === 'true';
+    isExpanded = localStorage.getItem(STORAGE_KEYS.SIDEBAR_EXPANDED) === 'true';
+  }
+
+  // Initialize sidebar state based on device
   function initializeSidebar() {
-    if (!isMobile) {
-      // Desktop behavior
+    if (isMobile) {
+      // Mobile: always start closed, no pin functionality
+      sidebar.classList.remove('pinned', 'expanded', 'mobile-open');
+      body.classList.remove('sidebar-pinned', 'sidebar-expanded');
+      overlay.classList.remove('active');
+      
+      // Ensure mobile menu toggle is visible
+      if (menuToggle) {
+        menuToggle.style.display = 'flex';
+      }
+    } else if (isTablet) {
+      // Tablet: collapsed by default, can expand on hover or click
+      sidebar.classList.remove('pinned', 'mobile-open');
+      body.classList.remove('sidebar-pinned', 'sidebar-expanded');
+      
       if (isPinned) {
         sidebar.classList.add('pinned');
         body.classList.add('sidebar-pinned');
-        pinButton.classList.add('pinned');
+        pinButton?.classList.add('pinned');
         
         if (isExpanded) {
           sidebar.classList.add('expanded');
@@ -36,27 +62,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     } else {
-      // Mobile - always start closed
-      sidebar.classList.remove('pinned', 'expanded');
-      body.classList.remove('sidebar-pinned', 'sidebar-expanded');
+      // Desktop: restore saved state
+      if (isPinned) {
+        sidebar.classList.add('pinned');
+        body.classList.add('sidebar-pinned');
+        pinButton?.classList.add('pinned');
+        
+        if (isExpanded) {
+          sidebar.classList.add('expanded');
+          body.classList.add('sidebar-expanded');
+        }
+      }
+      
+      // Hide mobile menu toggle on desktop
+      if (menuToggle) {
+        menuToggle.style.display = 'none';
+      }
     }
   }
 
-  // Toggle sidebar expansion
+  // Toggle sidebar for mobile/tablet
   function toggleSidebar() {
     if (isMobile) {
-      // Mobile behavior - full overlay
+      // Mobile: slide in from left with overlay
       const isOpen = sidebar.classList.contains('mobile-open');
       
       if (isOpen) {
-        sidebar.classList.remove('mobile-open');
-        overlay.classList.remove('active');
+        closeMobileSidebar();
       } else {
-        sidebar.classList.add('mobile-open');
-        overlay.classList.add('active');
+        openMobileSidebar();
+      }
+    } else if (isTablet) {
+      // Tablet: expand/collapse behavior
+      if (isPinned) {
+        isExpanded = !isExpanded;
+        
+        if (isExpanded) {
+          sidebar.classList.add('expanded');
+          body.classList.add('sidebar-expanded');
+        } else {
+          sidebar.classList.remove('expanded');
+          body.classList.remove('sidebar-expanded');
+        }
+        
+        localStorage.setItem(STORAGE_KEYS.SIDEBAR_EXPANDED, isExpanded);
+      } else {
+        // If not pinned, just toggle expansion temporarily
+        sidebar.classList.toggle('expanded');
       }
     } else {
-      // Desktop behavior
+      // Desktop: toggle expansion if pinned
       if (isPinned) {
         isExpanded = !isExpanded;
         
@@ -73,16 +128,56 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Pin/unpin sidebar
+  // Open mobile sidebar
+  function openMobileSidebar() {
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('active');
+    body.style.overflow = 'hidden'; // Prevent body scroll
+    
+    // Add touch event to close on swipe
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const handleTouchStart = (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    };
+    
+    const handleTouchEnd = (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    };
+    
+    const handleSwipe = () => {
+      if (touchStartX - touchEndX > 50) { // Swipe left
+        closeMobileSidebar();
+        sidebar.removeEventListener('touchstart', handleTouchStart);
+        sidebar.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+    
+    sidebar.addEventListener('touchstart', handleTouchStart);
+    sidebar.addEventListener('touchend', handleTouchEnd);
+  }
+
+  // Close mobile sidebar
+  function closeMobileSidebar() {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    body.style.overflow = ''; // Restore body scroll
+  }
+
+  // Pin/unpin sidebar (tablet/desktop only)
   function togglePin() {
+    if (isMobile) return; // No pin functionality on mobile
+    
     isPinned = !isPinned;
     
     if (isPinned) {
       sidebar.classList.add('pinned');
       body.classList.add('sidebar-pinned');
-      pinButton.classList.add('pinned');
+      pinButton?.classList.add('pinned');
       
-      // If not expanded, expand it when pinning
+      // Auto-expand when pinning
       if (!sidebar.classList.contains('expanded')) {
         sidebar.classList.add('expanded');
         body.classList.add('sidebar-expanded');
@@ -92,29 +187,36 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       sidebar.classList.remove('pinned', 'expanded');
       body.classList.remove('sidebar-pinned', 'sidebar-expanded');
-      pinButton.classList.remove('pinned');
+      pinButton?.classList.remove('pinned');
       isExpanded = false;
     }
     
     localStorage.setItem(STORAGE_KEYS.SIDEBAR_PINNED, isPinned);
   }
 
-  // Handle window resize
+  // Handle window resize with debouncing
+  let resizeTimeout;
   function handleResize() {
-    const wasMobile = isMobile;
-    isMobile = window.innerWidth <= 768;
-    
-    if (wasMobile !== isMobile) {
-      if (isMobile) {
-        // Switching to mobile
-        sidebar.classList.remove('pinned', 'expanded', 'mobile-open');
-        body.classList.remove('sidebar-pinned', 'sidebar-expanded');
-        overlay.classList.remove('active');
-      } else {
-        // Switching to desktop
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const wasMobile = isMobile;
+      const wasTablet = isTablet;
+      
+      isMobile = window.innerWidth < BREAKPOINTS.MOBILE;
+      isTablet = window.innerWidth >= BREAKPOINTS.MOBILE && window.innerWidth < BREAKPOINTS.TABLET;
+      isDesktop = window.innerWidth >= BREAKPOINTS.TABLET;
+      
+      // Only reinitialize if breakpoint changed
+      if (wasMobile !== isMobile || wasTablet !== isTablet) {
+        // Close mobile sidebar if open
+        if (sidebar.classList.contains('mobile-open')) {
+          closeMobileSidebar();
+        }
+        
+        // Reinitialize for new breakpoint
         initializeSidebar();
       }
-    }
+    }, 250);
   }
 
   // Handle menu item clicks
@@ -162,8 +264,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Close sidebar on mobile after selection
     if (isMobile) {
-      sidebar.classList.remove('mobile-open');
-      overlay.classList.remove('active');
+      setTimeout(() => {
+        closeMobileSidebar();
+      }, 150);
     }
   }
 
@@ -173,10 +276,12 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem(STORAGE_KEYS.THEME, isDark ? 'dark' : 'light');
     
     // Update icon
-    themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    if (themeIcon) {
+      themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
     
     // Update theme toggle text
-    const themeText = themeToggle.querySelector('span');
+    const themeText = themeToggle?.querySelector('span');
     if (themeText) {
       themeText.textContent = isDark ? 'Light theme' : 'Dark theme';
     }
@@ -199,12 +304,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize theme
   function initializeTheme() {
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
-    const isDark = savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedTheme === 'dark' || (savedTheme === null && prefersDark);
     
     body.classList.toggle('dark-theme', isDark);
-    themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
     
-    const themeText = themeToggle.querySelector('span');
+    if (themeIcon) {
+      themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    
+    const themeText = themeToggle?.querySelector('span');
     if (themeText) {
       themeText.textContent = isDark ? 'Light theme' : 'Dark theme';
     }
@@ -212,33 +321,70 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle feedback button
   function handleFeedback() {
-    alert('Funkcja "Feedback" zostanie zaimplementowana w przyszłości.');
+    if (isMobile) {
+      closeMobileSidebar();
+    }
+    
+    // Create a simple modal or redirect
+    const message = 'Feedback feature coming soon! For now, please email us at: feedback@vortexanalytica.com';
+    
+    if (window.confirm(message)) {
+      window.location.href = 'mailto:feedback@vortexanalytica.com';
+    }
+  }
+
+  // Prevent body scroll when mobile menu is open
+  function preventBodyScroll(prevent) {
+    if (prevent) {
+      body.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.width = '100%';
+    } else {
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.width = '';
+    }
   }
 
   // Event listeners
   if (menuToggle) {
-    menuToggle.addEventListener('click', toggleSidebar);
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSidebar();
+    });
   }
 
   if (pinButton) {
-    pinButton.addEventListener('click', togglePin);
+    pinButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePin();
+    });
   }
 
   if (overlay) {
     overlay.addEventListener('click', () => {
-      sidebar.classList.remove('mobile-open');
-      overlay.classList.remove('active');
+      closeMobileSidebar();
     });
   }
   
   // Menu item clicks
   if (sidebar) {
     sidebar.addEventListener('click', handleMenuItemClick);
+    
+    // Prevent sidebar from closing when clicking inside on mobile
+    sidebar.addEventListener('click', (e) => {
+      if (isMobile && !e.target.closest('a')) {
+        e.stopPropagation();
+      }
+    });
   }
   
   // Theme toggle
   if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTheme();
+    });
   }
 
   // Feedback button
@@ -246,51 +392,66 @@ document.addEventListener('DOMContentLoaded', function() {
     feedbackBtn.addEventListener('click', handleFeedback);
   }
   
-  // Window resize
+  // Window resize with debouncing
   window.addEventListener('resize', handleResize);
   
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
+    // Escape to close mobile sidebar
+    if (e.key === 'Escape' && isMobile && sidebar.classList.contains('mobile-open')) {
+      closeMobileSidebar();
+    }
+    
     // Ctrl/Cmd + B to toggle sidebar
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
       e.preventDefault();
       toggleSidebar();
     }
     
-    // Ctrl/Cmd + \ to toggle pin
-    if ((e.ctrlKey || e.metaKey) && e.key === '\\') {
+    // Ctrl/Cmd + \ to toggle pin (desktop/tablet only)
+    if ((e.ctrlKey || e.metaKey) && e.key === '\\' && !isMobile) {
       e.preventDefault();
-      if (!isMobile && sidebar) {
-        togglePin();
-      }
+      togglePin();
     }
   });
   
-  // Prevent sidebar hover on touch devices
+  // Touch gesture support for mobile
   if ('ontouchstart' in window) {
-    sidebar.style.pointerEvents = 'none';
-    sidebar.addEventListener('touchstart', () => {
-      sidebar.style.pointerEvents = 'auto';
+    let touchStartX = 0;
+    
+    // Detect edge swipe to open sidebar
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+      if (!sidebar.classList.contains('mobile-open') && 
+          touchStartX < 20 && 
+          e.touches[0].clientX > touchStartX + 50) {
+        openMobileSidebar();
+      }
     });
   }
   
-  // Initialize
+  // Initialize on load
   initializeSidebar();
   initializeTheme();
   
   // Update background effect when theme changes
   if (typeof window.updateThemeColors === 'function') {
     window.updateThemeColors();
-  } else {
-    // Polling to check if updateThemeColors becomes available
-    const checkInterval = setInterval(() => {
-      if (typeof window.updateThemeColors === 'function') {
-        window.updateThemeColors();
-        clearInterval(checkInterval);
-      }
-    }, 200);
-    
-    // Stop polling after 5 seconds
-    setTimeout(() => clearInterval(checkInterval), 5000);
   }
-});
+  
+  // Focus management for accessibility
+  if (sidebar) {
+    sidebar.addEventListener('transitionend', () => {
+      if (sidebar.classList.contains('mobile-open')) {
+        // Focus first menu item when sidebar opens
+        const firstLink = sidebar.querySelector('.sidebar-menu a');
+        if (firstLink) {
+          firstLink.focus();
+        }
+      }
+    });
+  }
+})

@@ -1,6 +1,6 @@
 """
 Asynchroniczny serwis Pub/Sub do odbierania wiadomości rynkowych.
-Obsługuje zarówno standardowe jak i krytyczne wiadomości.
+Obsługuje standardowe, krytyczne, kalendarzowe i MOC wiadomości.
 """
 from __future__ import annotations
 
@@ -33,18 +33,30 @@ class PubSubService:
     # Critical topic configuration
     critical_subscription_name: str
     critical_topic_name: str
+    
+    # Calendar topic configuration
+    calendar_subscription_name: str
+    calendar_topic_name: str
+    
+    # MOC market data topic configuration
+    moc_subscription_name: str
+    moc_topic_name: str
 
     subscriber: Optional[pubsub_v1.SubscriberClient] = None
     
     # Separate streaming futures for each topic
     standard_streaming_pull_future: Optional[Any] = None
     critical_streaming_pull_future: Optional[Any] = None
+    calendar_streaming_pull_future: Optional[Any] = None
+    moc_streaming_pull_future: Optional[Any] = None
     
     shutdown_event: Optional[threading.Event] = None
     
     # Monitoring tasks for each subscription
     _standard_monitoring_task: Optional[asyncio.Task] = None
     _critical_monitoring_task: Optional[asyncio.Task] = None
+    _calendar_monitoring_task: Optional[asyncio.Task] = None
+    _moc_monitoring_task: Optional[asyncio.Task] = None
     
     # Store the main event loop reference
     _main_loop: Optional[asyncio.AbstractEventLoop] = None
@@ -73,6 +85,16 @@ class PubSubService:
         self.critical_topic_name = "chronoengine-marketnews-enriched-critical"
         self.critical_subscription_name = "chronoengine-marketnews-enriched-critical-sub"
         
+        # Calendar topic configuration
+        self.calendar_full_topic_path = "projects/vortexanalytica/topics/chronoengine-calendar-update"
+        self.calendar_topic_name = "chronoengine-calendar-update"
+        self.calendar_subscription_name = "chronoengine-calendar-update-sub"
+        
+        # MOC market data topic configuration
+        self.moc_full_topic_path = "projects/vortexanalytica/topics/chronoengine-moc-market-data"
+        self.moc_topic_name = "chronoengine-moc-market-data"
+        self.moc_subscription_name = "chronoengine-moc-market-data-sub"
+        
         self.shutdown_event = threading.Event()
 
         try:
@@ -85,12 +107,18 @@ class PubSubService:
             self.critical_subscription_path = self.subscriber.subscription_path(
                 self.project_id, self.critical_subscription_name
             )
+            self.calendar_subscription_path = self.subscriber.subscription_path(
+                self.project_id, self.calendar_subscription_name
+            )
+            self.moc_subscription_path = self.subscriber.subscription_path(
+                self.project_id, self.moc_subscription_name
+            )
             
             logger.info(f"PubSubService zainicjalizowany dla projektu: {self.project_id}")
             logger.info(f"Standard topic: {self.standard_full_topic_path}")
             logger.info(f"Critical topic: {self.critical_full_topic_path}")
-            logger.info(f"Standard subscription: {self.standard_subscription_path}")
-            logger.info(f"Critical subscription: {self.critical_subscription_path}")
+            logger.info(f"Calendar topic: {self.calendar_full_topic_path}")
+            logger.info(f"MOC topic: {self.moc_full_topic_path}")
             
             self._initialized = True
         except Exception as e:
@@ -113,33 +141,56 @@ class PubSubService:
             logger.error(f"Błąd podczas sprawdzania subskrypcji: {e}", exc_info=True)
             return False
 
-    async def _async_message_callback(self, message_data: bytes, message_id: str, publish_time: str, is_critical: bool = False) -> None:
+    async def _async_message_callback(self, message_data: bytes, message_id: str, publish_time: str, topic_type: str) -> None:
         """Asynchroniczna wersja przetwarzania wiadomości z Pub/Sub."""
         try:
-            message_type = "CRITICAL" if is_critical else "STANDARD"
-            print(f"\n===== NOWA WIADOMOŚĆ {message_type} Z MARKETNEWS (RAW JSON) =====")
+            # Określ typ wiadomości na podstawie topic_type
+            if topic_type == "critical":
+                message_type = "CRITICAL"
+            elif topic_type == "standard":
+                message_type = "STANDARD"
+            elif topic_type == "calendar":
+                message_type = "CALENDAR UPDATE"
+            elif topic_type == "moc":
+                message_type = "MOC MARKET DATA"
+            else:
+                message_type = "UNKNOWN"
+            
+            print(f"\n===== NOWA WIADOMOŚĆ {message_type} (RAW JSON) =====")
             print(f"Message ID: {message_id}")
             print(f"Publish Time: {publish_time}")
+            print(f"Topic Type: {topic_type}")
             print("\n----- SUROWY JSON -----")
             
             try:
                 decoded_json = message_data.decode('utf-8')
                 print(decoded_json)
                 
-                # Parsuj JSON
-                news_data = orjson.loads(decoded_json)
-                news_service = NewsService()
+                # Parsuj JSON dla lepszego wyświetlania
+                try:
+                    data = orjson.loads(decoded_json)
+                    print("\n----- SPARSOWANE DANE -----")
+                    import json
+                    print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+                except Exception as parse_error:
+                    print(f"\nNie można sparsować JSON: {parse_error}")
                 
-                if is_critical:
-                    # Dla krytycznych wiadomości, dodaj flagę
-                    news_data['is_critical'] = True
-                    # Użyj dedykowanej metody dla krytycznych wiadomości
-                    await news_service.add_critical_message_async(news_data)
-                    logger.info(f"Krytyczna wiadomość {message_id} przetworzona i opublikowana")
+                # Dla standardowych i krytycznych wiadomości, przetwarzaj jak wcześniej
+                if topic_type in ["standard", "critical"]:
+                    news_data = orjson.loads(decoded_json)
+                    news_service = NewsService()
+                    
+                    if topic_type == "critical":
+                        news_data['is_critical'] = True
+                        await news_service.add_critical_message_async(news_data)
+                        logger.info(f"Krytyczna wiadomość {message_id} przetworzona i opublikowana")
+                    else:
+                        await news_service.add_message_async(news_data)
+                        logger.info(f"Standardowa wiadomość {message_id} przetworzona i opublikowana")
+                
+                # Dla calendar i moc - tylko wyświetlamy
                 else:
-                    # Użyj standardowej metody dla zwykłych wiadomości
-                    await news_service.add_message_async(news_data)
-                    logger.info(f"Standardowa wiadomość {message_id} przetworzona i opublikowana")
+                    logger.info(f"Wiadomość {topic_type} {message_id} wyświetlona w terminalu")
                 
             except UnicodeDecodeError:
                 print(f"Nie można zdekodować jako UTF-8: {message_data!r}")
@@ -148,7 +199,7 @@ class PubSubService:
         except Exception as e:
             logger.error(f"Błąd podczas asynchronicznego przetwarzania wiadomości Pub/Sub: {e}", exc_info=True)
 
-    def _create_message_callback(self, is_critical: bool = False):
+    def _create_message_callback(self, topic_type: str):
         """Tworzy callback dla danego typu wiadomości."""
         def _message_callback(message: pubsub_v1.subscriber.message.Message) -> None:
             """Synchroniczny callback dla Pub/Sub."""
@@ -160,7 +211,7 @@ class PubSubService:
                 # Schedule processing in the main event loop
                 if self._main_loop and not self._main_loop.is_closed():
                     asyncio.run_coroutine_threadsafe(
-                        self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical),
+                        self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, topic_type),
                         self._main_loop
                     )
                 else:
@@ -173,7 +224,7 @@ class PubSubService:
                         # Create a new thread to run the async task
                         def run_async():
                             asyncio.run(
-                                self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical)
+                                self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, topic_type)
                             )
                         
                         thread = threading.Thread(target=run_async, daemon=True)
@@ -182,9 +233,9 @@ class PubSubService:
                     
                     # We have a running loop, create task
                     task = loop.create_task(
-                        self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, is_critical)
+                        self._process_message_wrapper(data_bytes, message_id, str(publish_time), message, topic_type)
                     )
-                    task.set_name(f"process_{'critical' if is_critical else 'standard'}_pubsub_message_{message_id}")
+                    task.set_name(f"process_{topic_type}_pubsub_message_{message_id}")
                     
             except Exception as e:
                 logger.error(f"Błąd podczas przetwarzania wiadomości Pub/Sub: {e}", exc_info=True)
@@ -193,20 +244,20 @@ class PubSubService:
         return _message_callback
 
     async def _process_message_wrapper(self, data_bytes: bytes, message_id: str, publish_time: str, 
-                                     message: pubsub_v1.subscriber.message.Message, is_critical: bool = False) -> None:
+                                     message: pubsub_v1.subscriber.message.Message, topic_type: str) -> None:
         """Wrapper dla przetwarzania wiadomości."""
         try:
             start_time = time.time()
-            await self._async_message_callback(data_bytes, message_id, publish_time, is_critical)
+            await self._async_message_callback(data_bytes, message_id, publish_time, topic_type)
             processing_time = (time.time() - start_time) * 1000
-            logger.info(f"{'Krytyczna' if is_critical else 'Standardowa'} wiadomość {message_id} przetworzona w {processing_time:.2f}ms")
+            logger.info(f"Wiadomość {topic_type} {message_id} przetworzona w {processing_time:.2f}ms")
             message.ack()
         except Exception as e:
             logger.error(f"Błąd w _process_message_wrapper: {e}", exc_info=True)
             message.ack()
 
     async def start_listener_async(self) -> bool:
-        """Asynchroniczna wersja uruchamiania nasłuchiwania dla obu topiców."""
+        """Asynchroniczna wersja uruchamiania nasłuchiwania dla wszystkich topiców."""
         if not self._initialized or not self.subscriber:
             logger.error("Próba uruchomienia nasłuchiwania na niezainicjalizowanym PubSubService.")
             return False
@@ -216,17 +267,25 @@ class PubSubService:
         
         self.shutdown_event.clear()
         
-        # Sprawdź obie subskrypcje
-        standard_exists = self._ensure_subscription_exists(self.standard_subscription_path, self.standard_subscription_name)
-        critical_exists = self._ensure_subscription_exists(self.critical_subscription_path, self.critical_subscription_name)
+        # Sprawdź wszystkie subskrypcje
+        subscriptions = {
+            "standard": (self.standard_subscription_path, self.standard_subscription_name),
+            "critical": (self.critical_subscription_path, self.critical_subscription_name),
+            "calendar": (self.calendar_subscription_path, self.calendar_subscription_name),
+            "moc": (self.moc_subscription_path, self.moc_subscription_name)
+        }
         
-        if not standard_exists and not critical_exists:
+        existing_subscriptions = {}
+        for sub_type, (path, name) in subscriptions.items():
+            existing_subscriptions[sub_type] = self._ensure_subscription_exists(path, name)
+        
+        if not any(existing_subscriptions.values()):
             logger.error("Nie można rozpocząć nasłuchiwania - żadna subskrypcja nie istnieje.")
             return False
             
         try:
             # Uruchom nasłuchiwanie dla standardowego topicu
-            if standard_exists:
+            if existing_subscriptions["standard"]:
                 logger.info(f"Rozpoczynam nasłuchiwanie na standardowej subskrypcji: {self.standard_subscription_name}")
                 
                 def start_standard_subscription():
@@ -238,7 +297,7 @@ class PubSubService:
                     
                     self.standard_streaming_pull_future = self.subscriber.subscribe(
                         self.standard_subscription_path,
-                        callback=self._create_message_callback(is_critical=False),
+                        callback=self._create_message_callback("standard"),
                         flow_control=flow_control
                     )
                     print(f"\n[MARKETNEWS STANDARD] Rozpoczęto nasłuchiwanie na temacie '{self.standard_topic_name}'")
@@ -261,19 +320,19 @@ class PubSubService:
                 )
             
             # Uruchom nasłuchiwanie dla krytycznego topicu
-            if critical_exists:
+            if existing_subscriptions["critical"]:
                 logger.info(f"Rozpoczynam nasłuchiwanie na krytycznej subskrypcji: {self.critical_subscription_name}")
                 
                 def start_critical_subscription():
                     flow_control = pubsub_v1.types.FlowControl(
-                        max_messages=10,  # Mniej wiadomości dla krytycznych
+                        max_messages=10,
                         max_bytes=5 * 1024 * 1024,
-                        max_lease_duration=30  # Krótszy czas dla szybszego przetwarzania
+                        max_lease_duration=30
                     )
                     
                     self.critical_streaming_pull_future = self.subscriber.subscribe(
                         self.critical_subscription_path,
-                        callback=self._create_message_callback(is_critical=True),
+                        callback=self._create_message_callback("critical"),
                         flow_control=flow_control
                     )
                     print(f"\n[MARKETNEWS CRITICAL] Rozpoczęto nasłuchiwanie na temacie '{self.critical_topic_name}'")
@@ -295,6 +354,76 @@ class PubSubService:
                     self._monitor_subscription_async("critical")
                 )
             
+            # Uruchom nasłuchiwanie dla kalendarza
+            if existing_subscriptions["calendar"]:
+                logger.info(f"Rozpoczynam nasłuchiwanie na subskrypcji kalendarza: {self.calendar_subscription_name}")
+                
+                def start_calendar_subscription():
+                    flow_control = pubsub_v1.types.FlowControl(
+                        max_messages=30,
+                        max_bytes=10 * 1024 * 1024,
+                        max_lease_duration=60
+                    )
+                    
+                    self.calendar_streaming_pull_future = self.subscriber.subscribe(
+                        self.calendar_subscription_path,
+                        callback=self._create_message_callback("calendar"),
+                        flow_control=flow_control
+                    )
+                    print(f"\n[CALENDAR UPDATE] Rozpoczęto nasłuchiwanie na temacie '{self.calendar_topic_name}'")
+                    
+                    try:
+                        self.calendar_streaming_pull_future.result()
+                    except Exception as e:
+                        if not self.shutdown_event.is_set():
+                            logger.error(f"Błąd w subskrypcji kalendarza Pub/Sub: {e}", exc_info=True)
+                
+                calendar_thread = threading.Thread(
+                    target=start_calendar_subscription,
+                    daemon=True,
+                    name="PubSub_Calendar_Listener_Thread"
+                )
+                calendar_thread.start()
+                
+                self._calendar_monitoring_task = asyncio.create_task(
+                    self._monitor_subscription_async("calendar")
+                )
+            
+            # Uruchom nasłuchiwanie dla MOC market data
+            if existing_subscriptions["moc"]:
+                logger.info(f"Rozpoczynam nasłuchiwanie na subskrypcji MOC: {self.moc_subscription_name}")
+                
+                def start_moc_subscription():
+                    flow_control = pubsub_v1.types.FlowControl(
+                        max_messages=200,  # Więcej wiadomości dla danych rynkowych
+                        max_bytes=20 * 1024 * 1024,
+                        max_lease_duration=45
+                    )
+                    
+                    self.moc_streaming_pull_future = self.subscriber.subscribe(
+                        self.moc_subscription_path,
+                        callback=self._create_message_callback("moc"),
+                        flow_control=flow_control
+                    )
+                    print(f"\n[MOC MARKET DATA] Rozpoczęto nasłuchiwanie na temacie '{self.moc_topic_name}'")
+                    
+                    try:
+                        self.moc_streaming_pull_future.result()
+                    except Exception as e:
+                        if not self.shutdown_event.is_set():
+                            logger.error(f"Błąd w subskrypcji MOC Pub/Sub: {e}", exc_info=True)
+                
+                moc_thread = threading.Thread(
+                    target=start_moc_subscription,
+                    daemon=True,
+                    name="PubSub_MOC_Listener_Thread"
+                )
+                moc_thread.start()
+                
+                self._moc_monitoring_task = asyncio.create_task(
+                    self._monitor_subscription_async("moc")
+                )
+            
             return True
             
         except Exception as e:
@@ -307,18 +436,21 @@ class PubSubService:
             while not self.shutdown_event.is_set():
                 await asyncio.sleep(5)
                 
-                if subscription_type == "standard" and self.standard_streaming_pull_future:
-                    if self.standard_streaming_pull_future.done():
-                        if not self.shutdown_event.is_set():
-                            logger.warning("Standardowa subskrypcja Pub/Sub zakończyła się nieoczekiwanie. Ponowne uruchamianie...")
-                            await self.start_listener_async()
-                        break
-                elif subscription_type == "critical" and self.critical_streaming_pull_future:
-                    if self.critical_streaming_pull_future.done():
-                        if not self.shutdown_event.is_set():
-                            logger.warning("Krytyczna subskrypcja Pub/Sub zakończyła się nieoczekiwanie. Ponowne uruchamianie...")
-                            await self.start_listener_async()
-                        break
+                future = None
+                if subscription_type == "standard":
+                    future = self.standard_streaming_pull_future
+                elif subscription_type == "critical":
+                    future = self.critical_streaming_pull_future
+                elif subscription_type == "calendar":
+                    future = self.calendar_streaming_pull_future
+                elif subscription_type == "moc":
+                    future = self.moc_streaming_pull_future
+                
+                if future and future.done():
+                    if not self.shutdown_event.is_set():
+                        logger.warning(f"Subskrypcja {subscription_type} Pub/Sub zakończyła się nieoczekiwanie. Ponowne uruchamianie...")
+                        await self.start_listener_async()
+                    break
                     
         except asyncio.CancelledError:
             logger.info(f"Monitorowanie subskrypcji {subscription_type} zostało anulowane.")
@@ -337,7 +469,8 @@ class PubSubService:
         self._main_loop = None
         
         # Anuluj zadania monitorujące
-        for task in [self._standard_monitoring_task, self._critical_monitoring_task]:
+        for task in [self._standard_monitoring_task, self._critical_monitoring_task, 
+                     self._calendar_monitoring_task, self._moc_monitoring_task]:
             if task:
                 task.cancel()
                 try:
@@ -347,9 +480,12 @@ class PubSubService:
         
         self._standard_monitoring_task = None
         self._critical_monitoring_task = None
+        self._calendar_monitoring_task = None
+        self._moc_monitoring_task = None
         
         # Anuluj subskrypcje
-        for future in [self.standard_streaming_pull_future, self.critical_streaming_pull_future]:
+        for future in [self.standard_streaming_pull_future, self.critical_streaming_pull_future,
+                       self.calendar_streaming_pull_future, self.moc_streaming_pull_future]:
             if future:
                 try:
                     future.cancel()
@@ -359,6 +495,8 @@ class PubSubService:
         
         self.standard_streaming_pull_future = None
         self.critical_streaming_pull_future = None
+        self.calendar_streaming_pull_future = None
+        self.moc_streaming_pull_future = None
         
         if self.subscriber:
             try:
@@ -367,5 +505,5 @@ class PubSubService:
             except Exception as e:
                 logger.warning(f"Błąd podczas zamykania klienta Pub/Sub: {e}")
                 
-        print("\n[MARKETNEWS] Zakończono nasłuchiwanie.")
-        
+        print("\n[PUBSUB] Zakończono nasłuchiwanie wszystkich topiców.")
+
