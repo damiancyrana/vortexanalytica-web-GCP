@@ -195,6 +195,7 @@ class NewsService:
         interpretation = ""
         interpretation_tags = []
         extracted_entities = []
+        sentiment = "Neutral"
         
         if ("analysis_payload" in message and 
             "knowledge_graph_data" in message["analysis_payload"]):
@@ -212,6 +213,15 @@ class NewsService:
             
             if "extracted_entities" in kg_data:
                 extracted_entities = kg_data["extracted_entities"]
+
+            if "sentiment" in kg_data:
+                try:
+                    if isinstance(kg_data["sentiment"], dict):
+                        sentiment = kg_data["sentiment"].get("label", "Neutral")
+                    else:
+                        sentiment = str(kg_data["sentiment"])
+                except Exception:
+                    sentiment = "Neutral"
         
         return {
             "news_id": message.get("news_id", ""),
@@ -221,7 +231,8 @@ class NewsService:
             "narrative_impact": narrative_impact,
             "interpretation": interpretation,
             "interpretation_tags": interpretation_tags,
-            "extracted_entities": extracted_entities
+            "extracted_entities": extracted_entities,
+            "sentiment": sentiment
         }
     
     async def _notify_subscribers(self, message: Dict[str, Any], is_critical: bool = False) -> None:

@@ -124,6 +124,7 @@
     box-shadow: 0 3px 8px rgba(22,40,80,0.06);
     color: var(--text-primary) !important;
   }
+  .news-item.neutral,
   .news-item.medium {
     border-left-color: var(--quantum-gold);
     background: linear-gradient(90deg, #fffbe8 85%, #f7f8fa 100%);
@@ -180,7 +181,7 @@
     box-shadow: 0 2px 7px rgba(0,0,0,.14);
     color: var(--text-primary);
   }
-  .news-item.medium { border-left-color: var(--quantum-gold); animation: pulse-bg-neutral 3s infinite;}
+  .news-item.neutral, .news-item.medium { border-left-color: var(--quantum-gold); animation: pulse-bg-neutral 3s infinite;}
   .news-item.positive { border-left-color: var(--quantum-teal); animation: pulse-bg-positive 3s infinite;}
   .news-item.negative { border-left-color: var(--quantum-pink); animation: pulse-bg-negative 3s infinite;}
 
