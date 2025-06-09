@@ -22,6 +22,25 @@ document.addEventListener('DOMContentLoaded', () => {
     return v.length === 2 ? v.pop().split(';')[0] : null
   }
 
+  const getCSRFToken = async () => {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))
+    if (cookie) return cookie.split('=')[1]
+
+    const field = document.querySelector('input[name*="csrf"]')
+    if (field) return field.value
+
+    const meta = document.querySelector('meta[name*="csrf"]')
+    if (meta) return meta.getAttribute('content')
+
+    try {
+      await fetch('/login', { method: 'GET', credentials: 'same-origin' })
+      const newCookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))
+      return newCookie ? newCookie.split('=')[1] : null
+    } catch {
+      return null
+    }
+  }
+
   const saveAuth = st => st && sessionStorage.setItem(AUTH_KEY, JSON.stringify({ ...st, timestamp: Date.now() }))
 
   const loadAuth = () => {
@@ -200,12 +219,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const logout = async () => {
     const b = document.getElementById('logout-btn')
     b && (b.disabled = true)
-    
+
     firebaseAuth && await firebaseAuth.signOut()
-    
-    const c = getCookie('csrftoken')
+
+    const c = await getCSRFToken()
     const h = { 'Content-Type': 'application/json' }
-    c && (h['X-CSRF-Token'] = c)
+    if (c) {
+      h['X-CSRF-Token'] = c
+      h['X-CSRFToken'] = c
+    }
     
     await fetch('/logout', { method: 'POST', headers: h, credentials: 'same-origin' })
     clearAuth()
