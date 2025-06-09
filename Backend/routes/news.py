@@ -4,14 +4,32 @@ Backend/routes/news.py - Updated to show 50 messages initially
 from __future__ import annotations
 
 import logging
-import asyncio, json
-from typing import Dict, Any, List
+import asyncio
+import json
+from typing import Dict, Any
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from starlette.responses import Response
 
 from Backend.core.dependencies import get_current_active_user
 from Backend.services.news_service import NewsService
+
+# Shared headers for SSE responses
+SSE_HEADERS = {
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no",
+}
+
+
+async def _send_heartbeats(queue: asyncio.Queue) -> None:
+    """Periodically send heartbeat messages to keep SSE connections alive."""
+    try:
+        while True:
+            await asyncio.sleep(30)
+            await queue.put('data: {"type": "heartbeat"}\n\n')
+    except asyncio.CancelledError:
+        pass
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +86,7 @@ async def stream_news(request: Request, current_user_session: Dict[str, Any] = D
         
         try:
             # Heartbeat co 30 sekund
-            heartbeat_task = asyncio.create_task(send_heartbeats(send_queue))
+            heartbeat_task = asyncio.create_task(_send_heartbeats(send_queue))
             
             # Czekaj na wiadomości lub rozłączenie
             while not await request.is_disconnected():
@@ -88,23 +106,10 @@ async def stream_news(request: Request, current_user_session: Dict[str, Any] = D
             await news_service.unsubscribe(send_events, is_critical=False)
             logger.info(f"Zamknięto strumień SSE dla użytkownika: {user_email}")
     
-    # Pomocnicza funkcja do wysyłania heartbeat
-    async def send_heartbeats(queue):
-        try:
-            while True:
-                await asyncio.sleep(30)
-                await queue.put("data: {\"type\": \"heartbeat\"}\n\n")
-        except asyncio.CancelledError:
-            pass
-
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"  # Wyłącza buforowanie dla Nginx
-        }
+        headers=SSE_HEADERS,
     )
 
 @router.get("/critical/stream")
@@ -139,7 +144,7 @@ async def stream_critical_news(request: Request, current_user_session: Dict[str,
         
         try:
             # Heartbeat co 30 sekund
-            heartbeat_task = asyncio.create_task(send_heartbeats(send_queue))
+            heartbeat_task = asyncio.create_task(_send_heartbeats(send_queue))
             
             # Timer do czyszczenia starych wiadomości
             cleanup_task = asyncio.create_task(cleanup_old_critical(send_queue))
@@ -163,15 +168,6 @@ async def stream_critical_news(request: Request, current_user_session: Dict[str,
             await news_service.unsubscribe(send_events, is_critical=True)
             logger.info(f"Zamknięto krytyczny strumień SSE dla użytkownika: {user_email}")
     
-    # Pomocnicza funkcja do wysyłania heartbeat
-    async def send_heartbeats(queue):
-        try:
-            while True:
-                await asyncio.sleep(30)
-                await queue.put("data: {\"type\": \"heartbeat\"}\n\n")
-        except asyncio.CancelledError:
-            pass
-    
     # Pomocnicza funkcja do czyszczenia starych wiadomości krytycznych
     async def cleanup_old_critical(queue):
         try:
@@ -187,11 +183,7 @@ async def stream_critical_news(request: Request, current_user_session: Dict[str,
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"  # Wyłącza buforowanie dla Nginx
-        }
+        headers=SSE_HEADERS,
     )
 
 @router.get("/stats")
