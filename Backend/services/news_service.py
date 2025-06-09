@@ -4,7 +4,7 @@ Obsługuje zarówno standardowe jak i krytyczne wiadomości.
 """
 from __future__ import annotations
 
-import logging, asyncio, json, time
+import logging, asyncio, time, orjson
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Set, Callable, Awaitable
 import redis.asyncio as redis
@@ -128,7 +128,7 @@ class NewsService:
                 score = time.time()
             
             # Serializuj wiadomość do JSON
-            message_json = json.dumps(message, ensure_ascii=False, default=str)
+            message_json = orjson.dumps(message, default=str).decode()
             
             # Dodaj do sorted set w Redis
             await redis_client.zadd(settings.NEWS_REDIS_KEY, {message_json: score})
@@ -242,7 +242,7 @@ class NewsService:
         if not subscribers:
             return
             
-        message_json = json.dumps(message, ensure_ascii=False, default=str)
+        message_json = orjson.dumps(message, default=str).decode()
         message_sse = f"data: {message_json}\n\n"
         
         async with self._sse_lock:
@@ -305,9 +305,9 @@ class NewsService:
             messages = []
             for raw_message in raw_messages:
                 try:
-                    message = json.loads(raw_message)
+                    message = orjson.loads(raw_message)
                     messages.append(message)
-                except json.JSONDecodeError as e:
+                except orjson.JSONDecodeError as e:
                     logger.warning(f"Nie można zdekodować wiadomości z Redis: {e}")
                     continue
             

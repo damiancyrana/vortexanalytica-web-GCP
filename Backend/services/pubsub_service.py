@@ -187,8 +187,7 @@ class PubSubService:
                 try:
                     data = orjson.loads(decoded_json)
                     print("\n----- SPARSOWANE DANE -----")
-                    import json
-                    print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
+                    print(orjson.dumps(data, option=orjson.OPT_INDENT_2).decode())
                 except Exception as parse_error:
                     print(f"\nNie można sparsować JSON: {parse_error}")
                 

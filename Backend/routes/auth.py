@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, Any, Optional # Dodano Optional
 from fastapi import FastAPI, Request, Depends, HTTPException, status, Response, Body
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, ORJSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, EmailStr
 
@@ -115,8 +115,8 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Błąd wewnętrzny serwera podczas logowania sesji.")
 
     # Trasa GET zwracająca konfigurację Firebase dla frontendu
-    @app.get("/auth/firebase-config", response_class=JSONResponse, summary="Zwraca publiczną konfigurację Firebase")
-    async def firebase_config(settings: Settings = Depends(get_settings)) -> JSONResponse:
+    @app.get("/auth/firebase-config", response_class=ORJSONResponse, summary="Zwraca publiczną konfigurację Firebase")
+    async def firebase_config(settings: Settings = Depends(get_settings)) -> ORJSONResponse:
         """ Zwraca publiczną konfigurację Firebase (apiKey, authDomain). """
         api_key = settings.firebase_api_key
         auth_domain = settings.firebase_auth_domain
@@ -125,7 +125,7 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
              logger.critical("Krytyczny błąd: Brak firebase_api_key lub firebase_auth_domain w załadowanej konfiguracji!")
              # Zwracamy 503, bo usługa jest źle skonfigurowana
              raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Konfiguracja systemu uwierzytelniania jest niedostępna.")
-        return JSONResponse(content={"apiKey": api_key, "authDomain": auth_domain})
+        return ORJSONResponse(content={"apiKey": api_key, "authDomain": auth_domain})
 
     # Trasa POST do wylogowania (usuwa ciasteczko sesyjne)
     @app.post("/logout", status_code=status.HTTP_200_OK, summary="Wylogowuje użytkownika (usuwa ciasteczko sesji)")
