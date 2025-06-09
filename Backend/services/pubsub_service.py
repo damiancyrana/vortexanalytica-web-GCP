@@ -1,6 +1,6 @@
 """
 Asynchroniczny serwis Pub/Sub do odbierania wiadomości rynkowych.
-Obsługuje standardowe, krytyczne, kalendarzowe i MOC wiadomości.
+Obsługuje standardowe, krytyczne, kalendarzowe, MOC i regularne wiadomości.
 """
 from __future__ import annotations
 
@@ -41,6 +41,10 @@ class PubSubService:
     # MOC market data topic configuration
     moc_subscription_name: str
     moc_topic_name: str
+    
+    # Regular topic configuration (NEW)
+    regular_subscription_name: str
+    regular_topic_name: str
 
     subscriber: Optional[pubsub_v1.SubscriberClient] = None
     
@@ -49,6 +53,7 @@ class PubSubService:
     critical_streaming_pull_future: Optional[Any] = None
     calendar_streaming_pull_future: Optional[Any] = None
     moc_streaming_pull_future: Optional[Any] = None
+    regular_streaming_pull_future: Optional[Any] = None  # NEW
     
     shutdown_event: Optional[threading.Event] = None
     
@@ -57,6 +62,7 @@ class PubSubService:
     _critical_monitoring_task: Optional[asyncio.Task] = None
     _calendar_monitoring_task: Optional[asyncio.Task] = None
     _moc_monitoring_task: Optional[asyncio.Task] = None
+    _regular_monitoring_task: Optional[asyncio.Task] = None  # NEW
     
     # Store the main event loop reference
     _main_loop: Optional[asyncio.AbstractEventLoop] = None
@@ -95,6 +101,11 @@ class PubSubService:
         self.moc_topic_name = "chronoengine-moc-market-data"
         self.moc_subscription_name = "chronoengine-moc-market-data-sub"
         
+        # Regular topic configuration (NEW)
+        self.regular_full_topic_path = "projects/vortexanalytica/topics/chronoengine-marketnews-enriched-regular"
+        self.regular_topic_name = "chronoengine-marketnews-enriched-regular"
+        self.regular_subscription_name = "chronoengine-marketnews-enriched-regular-sub"
+        
         self.shutdown_event = threading.Event()
 
         try:
@@ -113,12 +124,16 @@ class PubSubService:
             self.moc_subscription_path = self.subscriber.subscription_path(
                 self.project_id, self.moc_subscription_name
             )
+            self.regular_subscription_path = self.subscriber.subscription_path(
+                self.project_id, self.regular_subscription_name
+            )
             
             logger.info(f"PubSubService zainicjalizowany dla projektu: {self.project_id}")
             logger.info(f"Standard topic: {self.standard_full_topic_path}")
             logger.info(f"Critical topic: {self.critical_full_topic_path}")
             logger.info(f"Calendar topic: {self.calendar_full_topic_path}")
             logger.info(f"MOC topic: {self.moc_full_topic_path}")
+            logger.info(f"Regular topic: {self.regular_full_topic_path}")  # NEW
             
             self._initialized = True
         except Exception as e:
@@ -153,6 +168,8 @@ class PubSubService:
                 message_type = "CALENDAR UPDATE"
             elif topic_type == "moc":
                 message_type = "MOC MARKET DATA"
+            elif topic_type == "regular":  # NEW
+                message_type = "REGULAR"
             else:
                 message_type = "UNKNOWN"
             
@@ -188,7 +205,7 @@ class PubSubService:
                         await news_service.add_message_async(news_data)
                         logger.info(f"Standardowa wiadomość {message_id} przetworzona i opublikowana")
                 
-                # Dla calendar i moc - tylko wyświetlamy
+                # Dla calendar, moc i regular - tylko wyświetlamy (NEW: dodano regular)
                 else:
                     logger.info(f"Wiadomość {topic_type} {message_id} wyświetlona w terminalu")
                 
@@ -267,12 +284,13 @@ class PubSubService:
         
         self.shutdown_event.clear()
         
-        # Sprawdź wszystkie subskrypcje
+        # Sprawdź wszystkie subskrypcje (NEW: dodano regular)
         subscriptions = {
             "standard": (self.standard_subscription_path, self.standard_subscription_name),
             "critical": (self.critical_subscription_path, self.critical_subscription_name),
             "calendar": (self.calendar_subscription_path, self.calendar_subscription_name),
-            "moc": (self.moc_subscription_path, self.moc_subscription_name)
+            "moc": (self.moc_subscription_path, self.moc_subscription_name),
+            "regular": (self.regular_subscription_path, self.regular_subscription_name)  # NEW
         }
         
         existing_subscriptions = {}
@@ -424,6 +442,41 @@ class PubSubService:
                     self._monitor_subscription_async("moc")
                 )
             
+            # NEW: Uruchom nasłuchiwanie dla regularnych wiadomości
+            if existing_subscriptions["regular"]:
+                logger.info(f"Rozpoczynam nasłuchiwanie na regularnej subskrypcji: {self.regular_subscription_name}")
+                
+                def start_regular_subscription():
+                    flow_control = pubsub_v1.types.FlowControl(
+                        max_messages=50,  # Umiarkowana liczba wiadomości
+                        max_bytes=15 * 1024 * 1024,
+                        max_lease_duration=60
+                    )
+                    
+                    self.regular_streaming_pull_future = self.subscriber.subscribe(
+                        self.regular_subscription_path,
+                        callback=self._create_message_callback("regular"),
+                        flow_control=flow_control
+                    )
+                    print(f"\n[MARKETNEWS REGULAR] Rozpoczęto nasłuchiwanie na temacie '{self.regular_topic_name}'")
+                    
+                    try:
+                        self.regular_streaming_pull_future.result()
+                    except Exception as e:
+                        if not self.shutdown_event.is_set():
+                            logger.error(f"Błąd w regularnej subskrypcji Pub/Sub: {e}", exc_info=True)
+                
+                regular_thread = threading.Thread(
+                    target=start_regular_subscription,
+                    daemon=True,
+                    name="PubSub_Regular_Listener_Thread"
+                )
+                regular_thread.start()
+                
+                self._regular_monitoring_task = asyncio.create_task(
+                    self._monitor_subscription_async("regular")
+                )
+            
             return True
             
         except Exception as e:
@@ -445,6 +498,8 @@ class PubSubService:
                     future = self.calendar_streaming_pull_future
                 elif subscription_type == "moc":
                     future = self.moc_streaming_pull_future
+                elif subscription_type == "regular":  # NEW
+                    future = self.regular_streaming_pull_future
                 
                 if future and future.done():
                     if not self.shutdown_event.is_set():
@@ -468,9 +523,10 @@ class PubSubService:
         # Clear the main loop reference
         self._main_loop = None
         
-        # Anuluj zadania monitorujące
+        # Anuluj zadania monitorujące (NEW: dodano regular)
         for task in [self._standard_monitoring_task, self._critical_monitoring_task, 
-                     self._calendar_monitoring_task, self._moc_monitoring_task]:
+                     self._calendar_monitoring_task, self._moc_monitoring_task, 
+                     self._regular_monitoring_task]:  # NEW
             if task:
                 task.cancel()
                 try:
@@ -482,10 +538,12 @@ class PubSubService:
         self._critical_monitoring_task = None
         self._calendar_monitoring_task = None
         self._moc_monitoring_task = None
+        self._regular_monitoring_task = None  # NEW
         
-        # Anuluj subskrypcje
+        # Anuluj subskrypcje (NEW: dodano regular)
         for future in [self.standard_streaming_pull_future, self.critical_streaming_pull_future,
-                       self.calendar_streaming_pull_future, self.moc_streaming_pull_future]:
+                       self.calendar_streaming_pull_future, self.moc_streaming_pull_future,
+                       self.regular_streaming_pull_future]:  # NEW
             if future:
                 try:
                     future.cancel()
@@ -497,6 +555,7 @@ class PubSubService:
         self.critical_streaming_pull_future = None
         self.calendar_streaming_pull_future = None
         self.moc_streaming_pull_future = None
+        self.regular_streaming_pull_future = None 
         
         if self.subscriber:
             try:
@@ -505,5 +564,4 @@ class PubSubService:
             except Exception as e:
                 logger.warning(f"Błąd podczas zamykania klienta Pub/Sub: {e}")
                 
-        print("\n[PUBSUB] Zakończono nasłuchiwanie wszystkich topiców.")
-
+        print("\n[PUBSUB] Zakończono nasłuchiwanie wszystkich topiców")
