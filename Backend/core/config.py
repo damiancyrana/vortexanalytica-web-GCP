@@ -62,7 +62,8 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
     REDIS_DB: int = Field(default=0, env="REDIS_DB")
     REDIS_URL: Optional[str] = Field(default=None, env="REDIS_URL")
-    REDIS_MAX_CONNECTIONS: int = Field(default=20, env="REDIS_MAX_CONNECTIONS")
+    # Zwiększono domyślną liczbę połączeń z Redis dla obsługi większej liczby użytkowników
+    REDIS_MAX_CONNECTIONS: int = Field(default=100, env="REDIS_MAX_CONNECTIONS")
     REDIS_POOL_TIMEOUT: int = Field(default=10, env="REDIS_POOL_TIMEOUT")
     REDIS_SOCKET_CONNECT_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_CONNECT_TIMEOUT")
     REDIS_SOCKET_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_TIMEOUT")
@@ -71,6 +72,9 @@ class Settings(BaseSettings):
     NEWS_REDIS_KEY: str = "vortex:news:messages"
     NEWS_MAX_MESSAGES: int = Field(default=100, env="NEWS_MAX_MESSAGES")
     NEWS_MESSAGE_TTL: int = Field(default=86400, env="NEWS_MESSAGE_TTL")  # 24h
+
+    # Maksymalna liczba subskrybentów SSE jednocześnie
+    MAX_SSE_SUBSCRIBERS: int = Field(default=1000, env="MAX_SSE_SUBSCRIBERS")
 
     # Domyślne ustawienia odpowiedzi HTTP
     default_response_class: Any = None

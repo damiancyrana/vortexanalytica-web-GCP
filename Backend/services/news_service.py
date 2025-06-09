@@ -263,14 +263,20 @@ class NewsService:
                 subscribers.remove(expired)
 
     async def subscribe(self, callback: Callable[[str], Awaitable[None]], is_critical: bool = False) -> None:
-        """Dodaje funkcję callback do listy subskrybentów SSE."""
+        """Dodaje funkcję callback do listy subskrybentów SSE z limitem."""
         async with self._sse_lock:
-            if is_critical:
-                self._critical_subscribers.add(callback)
-                logger.info(f"Nowy subskrybent SSE krytyczny. Łącznie: {len(self._critical_subscribers)}")
-            else:
-                self._standard_subscribers.add(callback)
-                logger.info(f"Nowy subskrybent SSE standardowy. Łącznie: {len(self._standard_subscribers)}")
+            settings = get_settings()
+            subscribers = self._critical_subscribers if is_critical else self._standard_subscribers
+
+            if len(subscribers) >= settings.MAX_SSE_SUBSCRIBERS:
+                logger.warning(
+                    f"Osiągnięto limit {settings.MAX_SSE_SUBSCRIBERS} subskrybentów SSE. Odrzucam nowe połączenie."
+                )
+                raise RuntimeError("Too many SSE subscribers")
+
+            subscribers.add(callback)
+            sub_type = "krytyczny" if is_critical else "standardowy"
+            logger.info(f"Nowy subskrybent SSE {sub_type}. Łącznie: {len(subscribers)}")
     
     async def unsubscribe(self, callback: Callable[[str], Awaitable[None]], is_critical: bool = False) -> None:
         """Usuwa funkcję callback z listy subskrybentów SSE."""
