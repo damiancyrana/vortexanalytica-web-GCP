@@ -4,8 +4,9 @@ Inicjalizuje Firebase Admin SDK, serwis Pub/Sub oraz Redis.
 """
 from __future__ import annotations
 
-import logging, json
-from json import JSONDecodeError
+import logging
+import orjson
+from orjson import JSONDecodeError
 
 import firebase_admin
 from firebase_admin import credentials
@@ -46,7 +47,7 @@ async def app_startup() -> None:
                 
             # Parsowanie JSON
             try:
-                firebase_credentials_dict = json.loads(firebase_key_json_str)
+                firebase_credentials_dict = orjson.loads(firebase_key_json_str)
             except JSONDecodeError as json_err:
                 logger.critical(f"Nieprawidłowy format klucza Firebase: {json_err}")
                 raise ValueError(f"Invalid Firebase key format: {json_err}")

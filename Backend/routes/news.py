@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 import asyncio
-import json
+import orjson
 from typing import Dict, Any
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -72,7 +72,7 @@ async def stream_news(request: Request, current_user_session: Dict[str, Any] = D
         recent_messages = await news_service.get_messages(limit=50)
         for msg in recent_messages:
             simplified = news_service._simplify_message(msg)
-            yield f"data: {json.dumps(simplified)}\n\n"
+            yield f"data: {orjson.dumps(simplified).decode()}\n\n"
         
         # Utwórz funkcję callbacku dla nowych wiadomości
         send_queue = asyncio.Queue()
@@ -130,7 +130,7 @@ async def stream_critical_news(request: Request, current_user_session: Dict[str,
         news_service = NewsService()
         last_critical = news_service.get_last_critical_message()
         if last_critical:
-            yield f"data: {json.dumps(last_critical)}\n\n"
+            yield f"data: {orjson.dumps(last_critical).decode()}\n\n"
         
         # Utwórz funkcję callbacku dla nowych krytycznych wiadomości
         send_queue = asyncio.Queue()

@@ -5,6 +5,7 @@ import logging, os, multiprocessing
 from functools import lru_cache
 from typing import Optional
 from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from starlette_csrf import CSRFMiddleware
@@ -62,6 +63,7 @@ class VortexApplication:
             title=self._settings.app_name,
             docs_url=None,  # Wyłącz Swagger na produkcji
             redoc_url=None,  # Wyłącz ReDoc na produkcji
+            default_response_class=ORJSONResponse,
         )
 
         self._configure_middleware()
