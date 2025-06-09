@@ -6,6 +6,7 @@ from __future__ import annotations
 import os
 import logging
 import time
+from pathlib import Path
 from functools import lru_cache
 from typing import Dict, Any, Optional, Final
 
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
     SESSION_COOKIE_DOMAIN: Optional[str] = Field(None)
     SESSION_COOKIE_SECURE: bool = True
     SESSION_COOKIE_HTTPONLY: bool = True
-    SESSION_COOKIE_SAMESITE: str = "lax"
+    SESSION_COOKIE_SAMESITE: str = "strict"
 
     # Konfiguracja Redis (produkcja wymaga zmiennych środowiskowych)
     REDIS_HOST: str = Field(default=None, env="REDIS_HOST")
@@ -94,13 +95,21 @@ class Settings(BaseSettings):
         if not self.REDIS_URL and not self.REDIS_HOST:
             raise ValueError("REDIS_URL lub REDIS_HOST musi być ustawiony w produkcji")
 
+    def _safe_subdir(self, *parts: str) -> str:
+        """Safely constructs a path under base_dir to prevent traversal."""
+        base = Path(self.base_dir).resolve()
+        path = (base.joinpath(*parts)).resolve()
+        if not str(path).startswith(str(base)):
+            raise ValueError("Unsafe path traversal detected when building path")
+        return str(path)
+
     @property
-    def templates_dir(self) -> str: 
-        return os.path.join(self.base_dir, "Frontend", "templates")
-    
+    def templates_dir(self) -> str:
+        return self._safe_subdir("Frontend", "templates")
+
     @property
-    def static_dir(self) -> str: 
-        return os.path.join(self.base_dir, "Frontend", "static")
+    def static_dir(self) -> str:
+        return self._safe_subdir("Frontend", "static")
     
     @property
     def is_development(self) -> bool: 

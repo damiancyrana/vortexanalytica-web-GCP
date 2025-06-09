@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette_csrf import CSRFMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -97,6 +98,15 @@ class VortexApplication:
 
     def _configure_middleware(self) -> None:
         """ Konfiguruje middleware aplikacji. """
+        # Trusted Host Middleware
+        allowed_hosts = [
+            "www.vortexanalytica.com",
+            "vortexanalytica.com",
+            "127.0.0.1",
+            "localhost",
+        ]
+        self._app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+
         # GZip Middleware (kompresja odpowiedzi)
         self._app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=9)
 

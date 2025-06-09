@@ -21,15 +21,27 @@ from Backend.services.email_service import EmailService
 logger = logging.getLogger(__name__)
 
 async def verify_firebase_token(id_token: str) -> dict:
-    """ Weryfikuje token Firebase ID i zwraca zdekodowany token (dict). """
+    """Weryfikuje token Firebase ID i zwraca zdekodowany token."""
     if not firebase_admin._apps:
         logger.error("Próba weryfikacji tokenu Firebase, ale SDK nie jest zainicjalizowane.")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Problem z konfiguracją autentykacji serwera.")
+
     try:
         decoded_token = auth.verify_id_token(id_token)
         if not decoded_token or not isinstance(decoded_token, dict):
-             logger.error(f"verify_id_token zwrócił nieoczekiwany wynik: {type(decoded_token)}")
-             raise InvalidIdTokenError("Nie udało się zdekodować tokenu lub wynik ma zły typ.")
+            logger.error(f"verify_id_token zwrócił nieoczekiwany wynik: {type(decoded_token)}")
+            raise InvalidIdTokenError("Nie udało się zdekodować tokenu lub wynik ma zły typ.")
+
+        settings = get_settings()
+        expected_iss = f"https://securetoken.google.com/{settings.PROJECT_ID}"
+        if decoded_token.get("iss") != expected_iss or decoded_token.get("aud") != settings.PROJECT_ID:
+            logger.warning("Issuer or audience mismatch in Firebase token")
+            raise InvalidIdTokenError("Invalid issuer or audience")
+
+        if not decoded_token.get("email_verified", False):
+            logger.info("Użytkownik nie ma zweryfikowanego adresu e-mail")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not verified")
+
         return decoded_token
     except ExpiredIdTokenError:
         logger.info("Otrzymano wygasły token Firebase ID.") # Info zamiast warning
