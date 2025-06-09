@@ -147,6 +147,10 @@ window.NewsSSE = (() => {
       impactClass = 'negative'
     }
     
+    const tagsHtml = (message.interpretation_tags || [])
+      .map(tag => `<span class="news-label">${utils.escapeHtml(tag)}</span>`)
+      .join('')
+
     const entitiesHtml = (message.extracted_entities || [])
       .map(entity => {
         const name = entity.normalized_name || entity.text || 'N/A'
@@ -164,7 +168,7 @@ window.NewsSSE = (() => {
         <div class="news-content">
           <p>${utils.escapeHtml(message.interpretation || '')}</p>
         </div>
-        <div class="news-labels">${entitiesHtml}</div>
+        <div class="news-labels">${tagsHtml}${entitiesHtml}</div>
       </div>
     `
   }
@@ -180,8 +184,8 @@ window.NewsSSE = (() => {
     const signal = signalMap[sigKey] || signalMap['HOLD']
 
     return `
-      <div class="critical-news-alert" data-message-id="${utils.escapeHtml(message.news_id || '')}" data-signal="${sigKey}">
-        <button class="critical-news-close" data-message-id="${utils.escapeHtml(message.news_id || '')}">
+      <div class="critical-news-alert">
+        <button class="critical-news-close">
           <i class="fas fa-times"></i>
         </button>
         <div class="critical-news-header">
