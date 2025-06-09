@@ -171,16 +171,17 @@ window.NewsSSE = (() => {
   
   const createCriticalElement = message => {
     const signalMap = {
-      'BUY': { text: 'UP', icon: 'fa-arrow-up', class: 'signal-buy' },
-      'SELL': { text: 'DOWN', icon: 'fa-arrow-down', class: 'signal-sell' },
-      'HOLD': { text: 'HOLD', icon: 'fa-pause', class: 'signal-hold' }
+      'BUY': { text: 'UP', icon: 'fa-arrow-up' },
+      'SELL': { text: 'DOWN', icon: 'fa-arrow-down' },
+      'HOLD': { text: 'HOLD', icon: 'fa-pause' }
     }
-    
-    const signal = signalMap[message.signal] || signalMap['HOLD']
-    
+
+    const sigKey = (message.signal || 'HOLD').toUpperCase()
+    const signal = signalMap[sigKey] || signalMap['HOLD']
+
     return `
-      <div class="critical-news-alert ${signal.class}" data-message-id="${utils.escapeHtml(message.news_id || '')}">
-        <button class="critical-news-close" onclick="window.closeCriticalMessage('${utils.escapeHtml(message.news_id || '')}')">
+      <div class="critical-news-alert" data-message-id="${utils.escapeHtml(message.news_id || '')}" data-signal="${sigKey}">
+        <button class="critical-news-close" data-message-id="${utils.escapeHtml(message.news_id || '')}">
           <i class="fas fa-times"></i>
         </button>
         <div class="critical-news-header">

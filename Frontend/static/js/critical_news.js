@@ -48,17 +48,17 @@
         overflow: hidden;
       }
       
-      .critical-news-alert.signal-buy {
+      .critical-news-alert[data-signal="BUY"] {
         background: rgba(34, 139, 34, 0.85);
         border-color: rgba(50, 205, 50, 0.4);
       }
-      
-      .critical-news-alert.signal-sell {
+
+      .critical-news-alert[data-signal="SELL"] {
         background: rgba(220, 20, 60, 0.85);
         border-color: rgba(255, 69, 0, 0.4);
       }
-      
-      .critical-news-alert.signal-hold {
+
+      .critical-news-alert[data-signal="HOLD"] {
         background: rgba(238, 181, 8, 0.92);
         border-color: rgba(255, 215, 0, 0.4);
       }
@@ -413,7 +413,13 @@
     tempDiv.innerHTML = html
     const element = tempDiv.firstElementChild
     container.appendChild(element)
-    
+
+    const btn = element.querySelector('.critical-news-close')
+    btn && btn.addEventListener('click', e => {
+      e.preventDefault()
+      removeMessage(messageId)
+    })
+
     messageObj.element = element
     criticalMessages.push(messageObj)
     
