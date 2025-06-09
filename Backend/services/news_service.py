@@ -8,7 +8,7 @@ import logging, asyncio, time, orjson
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Set, Callable, Awaitable
 import redis.asyncio as redis
-from redis.asyncio.connection import ConnectionPool
+from redis.asyncio.connection import BlockingConnectionPool, ConnectionPool
 
 from Backend.core.config import Settings, get_settings
 
@@ -56,28 +56,32 @@ class NewsService:
         try:
             settings = get_settings()
             
+            pool_cls = BlockingConnectionPool
+
             if settings.REDIS_URL:
                 logger.info(f"Łączenie z Redis przy użyciu URL: {settings.REDIS_URL}")
-                self._redis_pool = ConnectionPool.from_url(
+                self._redis_pool = pool_cls.from_url(
                     settings.REDIS_URL,
                     max_connections=settings.REDIS_MAX_CONNECTIONS,
+                    timeout=settings.REDIS_POOL_TIMEOUT,
                     socket_connect_timeout=settings.REDIS_SOCKET_CONNECT_TIMEOUT,
                     socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
                     retry_on_timeout=True,
-                    decode_responses=True
+                    decode_responses=True,
                 )
             else:
                 logger.info(f"Łączenie z Redis: {settings.REDIS_HOST}:{settings.REDIS_PORT}, DB: {settings.REDIS_DB}")
-                self._redis_pool = ConnectionPool(
+                self._redis_pool = pool_cls(
                     host=settings.REDIS_HOST,
                     port=settings.REDIS_PORT,
                     db=settings.REDIS_DB,
                     password=settings.REDIS_PASSWORD,
                     max_connections=settings.REDIS_MAX_CONNECTIONS,
+                    timeout=settings.REDIS_POOL_TIMEOUT,
                     socket_connect_timeout=settings.REDIS_SOCKET_CONNECT_TIMEOUT,
                     socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
                     retry_on_timeout=True,
-                    decode_responses=True
+                    decode_responses=True,
                 )
             
             self._redis_client = redis.Redis(connection_pool=self._redis_pool)

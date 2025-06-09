@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     REDIS_DB: int = Field(default=0, env="REDIS_DB")
     REDIS_URL: Optional[str] = Field(default=None, env="REDIS_URL")
     REDIS_MAX_CONNECTIONS: int = Field(default=20, env="REDIS_MAX_CONNECTIONS")
+    REDIS_POOL_TIMEOUT: int = Field(default=10, env="REDIS_POOL_TIMEOUT")
     REDIS_SOCKET_CONNECT_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_CONNECT_TIMEOUT")
     REDIS_SOCKET_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_TIMEOUT")
     
