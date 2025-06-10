@@ -58,7 +58,13 @@ class Settings(BaseSettings):
     SESSION_COOKIE_SAMESITE: str = "strict"
 
     # Konfiguracja Redis (produkcja wymaga zmiennych środowiskowych)
-    REDIS_HOST: str = Field(default=None, env="REDIS_HOST")
+    #
+    # Pydantic v2 nie pozwala na przypisanie ``None`` do pola typu ``str``.
+    # Poprzednia deklaracja powodowała błąd walidacji, jeśli zmienna
+    # środowiskowa ``REDIS_HOST`` nie została ustawiona.  Aby umożliwić
+    # uruchomienie aplikacji bez tej zmiennej (np. w środowisku developerskim),
+    # pole musi być opcjonalne.
+    REDIS_HOST: Optional[str] = Field(default=None, env="REDIS_HOST")
     REDIS_PORT: int = Field(default=6379, env="REDIS_PORT")
     REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
     REDIS_DB: int = Field(default=0, env="REDIS_DB")
