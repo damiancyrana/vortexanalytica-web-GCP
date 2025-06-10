@@ -30,7 +30,7 @@
       .critical-news-container {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 0.75rem;
+        gap: 0.7rem;
         width: 100%;
       }
       
@@ -44,7 +44,7 @@
         position: relative;
         animation: slideIn 0.3s ease-out;
         transition: all 0.3s ease;
-        min-height: 60px;
+        min-height: 50px;
         overflow: hidden;
       }
       
@@ -67,34 +67,34 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 5px;
         padding-right: 30px;
       }
       
       .critical-news-signal {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         color: #fff;
       }
       
       .critical-news-signal i {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
       }
       
       .critical-news-time {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         opacity: 0.8;
         color: #fff;
         white-space: nowrap;
       }
       
       .critical-news-title {
-        font-size: 0.95rem;
+        font-size: 0.8rem;
         font-weight: 600;
         margin-bottom: 5px;
         line-height: 1.3;
@@ -120,13 +120,13 @@
         background: rgba(255, 255, 255, 0.15);
         padding: 3px 8px;
         border-radius: 4px;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: #fff;
       }
       
       .critical-news-confidence {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         opacity: 0.8;
         color: #fff;
       }
