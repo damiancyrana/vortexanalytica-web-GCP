@@ -110,7 +110,7 @@ body {
   margin: 0;
   height: 100vh;
   overflow: hidden;
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Playfair Display', serif;
   background-color: var(--current-bg-body);
   color: var(--current-text-color);
   display: flex;
@@ -244,7 +244,7 @@ body:not(.dark-theme) header {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: .04em;
@@ -323,7 +323,7 @@ body:not(.dark-theme) #user-display-name {
   height: 32px;
   align-items: center;
   justify-content: center;
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Inter', sans-serif;
   min-width: 80px;
 }
 
@@ -1063,7 +1063,7 @@ footer .theme-toggle-btn:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Exo 2', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
   border-radius: 50%;

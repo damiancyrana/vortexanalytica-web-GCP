@@ -16,7 +16,29 @@
   --social-microsoft-hover: rgba(0, 120, 215, .3);
   --social-google-bg: rgba(219, 68, 55, .2);
   --social-google-hover: rgba(219, 68, 55, .3);
+  --container-bg: rgba(26, 31, 54, 0.7);
+  --modal-bg: rgba(26, 31, 54, 0.95);
+  --header-bg: rgba(10, 10, 16, .96);
+  --canvas-bg: #0a0a10;
   --header-height: 50px;
+}
+
+body[data-theme='light'] {
+  --text-light: #1e293b;
+  --text-light-muted: rgba(30,41,59,.7);
+  --text-light-dim: rgba(30,41,59,.5);
+  --border-light: rgba(0,0,0,.2);
+  --input-bg: rgba(0,0,0,.05);
+  --input-bg-focus: rgba(0,0,0,.08);
+  --social-microsoft-bg: rgba(0,120,215,.15);
+  --social-microsoft-hover: rgba(0,120,215,.25);
+  --social-google-bg: rgba(219,68,55,.15);
+  --social-google-hover: rgba(219,68,55,.25);
+  --container-bg: rgba(255,255,255,.9);
+  --modal-bg: rgba(255,255,255,.95);
+  --header-bg: rgba(255,255,255,.95);
+  --canvas-bg: #f4f6fb;
+  background-color: #f4f6fb;
 }
 
 [data-theme="dark"] .auth-button.loading::after,
@@ -40,7 +62,7 @@
 }
 
 .modal-content {
-  background-color: rgba(26, 31, 54, 0.95);
+  background-color: var(--modal-bg);
   border: 1px solid var(--border-light);
   border-radius: 10px;
   padding: 0;
@@ -182,7 +204,7 @@ html, body{
   height:100vh;
   overflow-x:hidden;
   overflow-y:auto;
-  font-family:'Exo 2', sans-serif;
+  font-family:'Inter', sans-serif;
   background-color: transparent; /* Changed to transparent */
   color: var(--text-light);
   position: relative;
@@ -214,7 +236,7 @@ html, body{
 }
 
 .login-container {
-  background-color: rgba(26, 31, 54, 0.7);
+  background-color: var(--container-bg);
   border: 1px solid var(--border-light);
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
@@ -232,7 +254,7 @@ html, body{
 
 .login-header{text-align:center;margin-bottom:25px}
 .login-header h1{
-  font-family:'Exo 2',sans-serif;font-weight:600;font-size:24px;
+  font-family:'Playfair Display',serif;font-weight:700;font-size:24px;
   color: var(--text-light);margin-bottom:6px;
   transition: font-size 0.3s ease;
 }
@@ -248,7 +270,7 @@ html, body{
 .tab-btn{
   flex:1;background:transparent;border:none;
   color: var(--text-light-dim);
-  font-family:'Exo 2',sans-serif;font-size:18px;font-weight:500;
+  font-family:'Inter',sans-serif;font-size:18px;font-weight:500;
   padding:10px 8px;
   cursor:pointer;transition:.3s;
   white-space: nowrap;
@@ -283,7 +305,7 @@ html, body{
   width:100%;padding:12px 12px 12px 42px;border-radius:6px;
   border:1px solid var(--border-light);
   background: var(--input-bg);color: var(--text-light);
-  font-family:'Exo 2',sans-serif;font-size:14px;transition:.3s;
+  font-family:'Inter',sans-serif;font-size:14px;transition:.3s;
   box-sizing: border-box;
 }
 .input-with-icon input:focus{
@@ -323,7 +345,7 @@ html, body{
   border-radius:6px;
   background:linear-gradient(135deg,var(--blue),#3366cc);
   color: var(--text-light);
-  font-family:'Exo 2',sans-serif;
+  font-family:'Inter',sans-serif;
   font-size:15px;
   font-weight:600;
   cursor:pointer;
@@ -370,7 +392,7 @@ html, body{
   border-radius:6px;
   background: var(--input-bg);
   color: var(--text-light);
-  font-family:'Exo 2',sans-serif;
+  font-family:'Inter',sans-serif;
   font-size:12px;
   cursor:pointer;
   transition:.3s;
