@@ -17,6 +17,7 @@
   --bg-medium: #10121f;
   --bg-light:  #1a1d36;
   --card-bg:   rgba(18,21,42,.80);
+  --header-bg: rgba(10,10,16,.96);
 
   /* Borders / accents */
   --card-border:  rgba(0,229,255,.20);
@@ -41,6 +42,18 @@
   --t-smooth: .5s  cubic-bezier(.4,0,.2,1);
 }
 
+body[data-theme='light']{
+  --bg-dark:#f4f6fb;
+  --bg-medium:#f9fbfd;
+  --bg-light:#ffffff;
+  --card-bg:rgba(255,255,255,.95);
+  --card-border:rgba(0,0,0,.12);
+  --text-main:#1e293b;
+  --text-sec:#334155;
+  --text-dim:rgba(51,65,85,.7);
+  --header-bg:rgba(255,255,255,.95);
+}
+
 /* ---------- 2. RESET & BASE ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -59,7 +72,7 @@ h1,h2,h3{font-family:'Playfair Display',serif;letter-spacing:-.02em}
 header{
   position:fixed;inset-block-start:0;inset-inline:0;
   height:var(--header-height);display:flex;justify-content:space-between;align-items:center;
-  padding:.7rem 1.8rem;background:rgba(10,10,16,.96);backdrop-filter:var(--blur);
+  padding:.7rem 1.8rem;background:var(--header-bg);backdrop-filter:var(--blur);
   border-block-end:1px solid rgba(0,229,255,.13);z-index:1000;
   transition:background-color var(--t-fast),padding var(--t-fast);
 }
@@ -84,6 +97,7 @@ nav a:hover{color:var(--blue)}nav a:hover::after{width:100%}
 
 /* mobile menu button */
 .mobile-menu-btn{display:none;background:none;border:none;color:var(--text-main);font-size:2.05rem;cursor:pointer;margin-inline-start:.5rem;line-height:1}
+.theme-toggle-btn{background:none;border:1px solid var(--card-border);color:var(--text-main);padding:.3rem .6rem;border-radius:4px;cursor:pointer;font:600 .8rem 'Inter',sans-serif;margin-left:1rem}
 
 /* responsive nav */
 @media(max-width:900px){

@@ -9,7 +9,7 @@
   <link rel="shortcut icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
   
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   
   <!-- Three.js MUST be loaded before quantum_bg.js -->
@@ -47,7 +47,7 @@
       z-index: -1 !important;
       pointer-events: none !important;
       display: block !important;
-      background-color: #0a0a10; /* Fallback dark background */
+      background-color: var(--canvas-bg); /* Fallback background */
     }
     
     /* CSS Variables needed by quantum_bg.js */
@@ -56,6 +56,8 @@
       --teal: #3affc3;
       --purple: #b967ff;
       --bg-dark: #0a0a10;
+      --header-bg: rgba(10, 10, 16, .96);
+      --canvas-bg: #0a0a10;
     }
     
     /* Header styles */
@@ -65,7 +67,7 @@
       left: 0; 
       right: 0;
       z-index: 1000;
-      background: rgba(10, 10, 16, .96);
+      background: var(--header-bg);
       backdrop-filter: blur(12px);
       padding: 0.7rem 1.8rem;
       height: 50px;
@@ -89,7 +91,7 @@
       display: block;
       user-select: none;
       text-decoration: none;
-      font-family: 'Exo 2', sans-serif;
+      font-family: 'Playfair Display', serif;
     }
     
     /* Main container adjustment */
@@ -292,6 +294,8 @@
 
   <!-- Load quantum background IMMEDIATELY after Three.js -->
   <script type="module" src="/static/js/quantum_bg.js"></script>
+
+  <script type="module" src="/static/js/site_theme.js"></script>
   
   <!-- Then load other scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
