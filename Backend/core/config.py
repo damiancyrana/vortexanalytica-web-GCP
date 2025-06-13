@@ -10,8 +10,12 @@ from pathlib import Path
 from functools import lru_cache
 from typing import Dict, Any, Optional, Final
 
+# Load .env file explicitly at module level
+from dotenv import load_dotenv
+load_dotenv()
+
 from pydantic import field_validator, AnyHttpUrl, Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from google.cloud.secretmanager_v1.services.secret_manager_service import SecretManagerServiceClient
 from google.api_core.exceptions import NotFound, PermissionDenied
 
@@ -19,14 +23,14 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     """ Klasa konfiguracji aplikacji. """
-    # Stałe aplikacji
-    PROJECT_ID: Final[str] = os.getenv("GOOGLE_CLOUD_PROJECT", "vortexanalytica")
-    MAIL_TO: Final[str] = os.getenv("MAIL_TO", "vortexanalytica@gmail.com")
+    # FIXED: Proper PROJECT_ID initialization
+    PROJECT_ID: str = Field(default="vortexanalytica")
+    MAIL_TO: str = Field(default="vortexanalytica@gmail.com")
 
     # Podstawowe ustawienia
     app_name: str = "Vortex Analytica"
-    environment: str = "production"
-    log_level: str = os.getenv("LOG_LEVEL", "INFO").upper()
+    environment: str = Field(default="development")  # CHANGED to development for testing
+    log_level: str = Field(default="INFO")
     base_url: Optional[AnyHttpUrl] = Field(None)
 
     # Ścieżki do katalogów
@@ -46,60 +50,80 @@ class Settings(BaseSettings):
     firebase_auth_domain: Optional[str] = Field(None)
     firebase_service_account_secret_id: str = "firebase-service-account-key-json"
 
-    # Konfiguracja sesji
-    SESSION_SECRET_KEY: Optional[str] = Field(None)
+    # Konfiguracja sesji - FIXED: Add default values for development
+    SESSION_SECRET_KEY: Optional[str] = Field(default="development-secret-key-change-in-production-12345678901234567890")
     SESSION_SECRET_KEY_NAME: str = "SESSION_SECRET_KEY"
     SESSION_COOKIE_NAME: str = "vortex_session"
     SESSION_COOKIE_MAX_AGE: int = 14 * 24 * 60 * 60  # 14 dni
     SESSION_COOKIE_PATH: str = "/"
     SESSION_COOKIE_DOMAIN: Optional[str] = Field(None)
-    SESSION_COOKIE_SECURE: bool = True
+    SESSION_COOKIE_SECURE: bool = False  # CHANGED for development
     SESSION_COOKIE_HTTPONLY: bool = True
-    SESSION_COOKIE_SAMESITE: str = "strict"
+    SESSION_COOKIE_SAMESITE: str = "lax"  # CHANGED for development
 
     # Konfiguracja Redis (produkcja wymaga zmiennych środowiskowych)
-    #
-    # Pydantic v2 nie pozwala na przypisanie ``None`` do pola typu ``str``.
-    # Poprzednia deklaracja powodowała błąd walidacji, jeśli zmienna
-    # środowiskowa ``REDIS_HOST`` nie została ustawiona.  Aby umożliwić
-    # uruchomienie aplikacji bez tej zmiennej (np. w środowisku developerskim),
-    # pole musi być opcjonalne.
-    REDIS_HOST: Optional[str] = Field(default=None, env="REDIS_HOST")
-    REDIS_PORT: int = Field(default=6379, env="REDIS_PORT")
-    REDIS_PASSWORD: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
-    REDIS_DB: int = Field(default=0, env="REDIS_DB")
-    REDIS_URL: Optional[str] = Field(default=None, env="REDIS_URL")
+    REDIS_HOST: Optional[str] = Field(default=None)
+    REDIS_PORT: int = Field(default=6379)
+    REDIS_PASSWORD: Optional[str] = Field(default=None)
+    REDIS_DB: int = Field(default=0)
+    REDIS_URL: Optional[str] = Field(default=None)
+    
     # Zwiększono domyślną liczbę połączeń z Redis dla obsługi większej liczby użytkowników
-    REDIS_MAX_CONNECTIONS: int = Field(default=100, env="REDIS_MAX_CONNECTIONS")
-    REDIS_POOL_TIMEOUT: int = Field(default=10, env="REDIS_POOL_TIMEOUT")
-    REDIS_SOCKET_CONNECT_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_CONNECT_TIMEOUT")
-    REDIS_SOCKET_TIMEOUT: int = Field(default=5, env="REDIS_SOCKET_TIMEOUT")
+    REDIS_MAX_CONNECTIONS: int = Field(default=100)
+    REDIS_POOL_TIMEOUT: int = Field(default=10)
+    REDIS_SOCKET_CONNECT_TIMEOUT: int = Field(default=5)
+    REDIS_SOCKET_TIMEOUT: int = Field(default=5)
     
     # Konfiguracja wiadomości w Redis
     NEWS_REDIS_KEY: str = "vortex:news:messages"
-    NEWS_MAX_MESSAGES: int = Field(default=100, env="NEWS_MAX_MESSAGES")
-    NEWS_MESSAGE_TTL: int = Field(default=86400, env="NEWS_MESSAGE_TTL")  # 24h
+    NEWS_MAX_MESSAGES: int = Field(default=100)
+    NEWS_MESSAGE_TTL: int = Field(default=86400)  # 24h
 
     # Maksymalna liczba subskrybentów SSE jednocześnie
-    MAX_SSE_SUBSCRIBERS: int = Field(default=1000, env="MAX_SSE_SUBSCRIBERS")
+    MAX_SSE_SUBSCRIBERS: int = Field(default=1000)
 
     # Domyślne ustawienia odpowiedzi HTTP
     default_response_class: Any = None
 
-    model_config = {
-        "env_file_encoding": "utf-8",
-        "case_sensitive": True,
-        "extra": "ignore"
-    }
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore"
+    )
 
     def model_post_init(self, __context: Any) -> None:
         """ Ustawienia po inicjalizacji Pydantic. """
         from fastapi.responses import HTMLResponse
         self.default_response_class = HTMLResponse
         
-        # Walidacja Redis w produkcji
-        if not self.REDIS_URL and not self.REDIS_HOST:
+        # Override from environment variables if available
+        self.PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", self.PROJECT_ID)
+        self.MAIL_TO = os.getenv("MAIL_TO", self.MAIL_TO)
+        self.environment = os.getenv("ENVIRONMENT", self.environment)
+        self.log_level = os.getenv("LOG_LEVEL", self.log_level).upper()
+        
+        # Load Redis config from environment
+        self.REDIS_URL = os.getenv("REDIS_URL", self.REDIS_URL)
+        self.REDIS_HOST = os.getenv("REDIS_HOST", self.REDIS_HOST)
+        self.REDIS_PORT = int(os.getenv("REDIS_PORT", str(self.REDIS_PORT)))
+        self.REDIS_DB = int(os.getenv("REDIS_DB", str(self.REDIS_DB)))
+        self.REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", self.REDIS_PASSWORD)
+        
+        # Debug: Print configuration
+        logger.info(f"Configuration loaded:")
+        logger.info(f"  Environment: {self.environment}")
+        logger.info(f"  PROJECT_ID: {self.PROJECT_ID}")
+        logger.info(f"  REDIS_URL: {self.REDIS_URL}")
+        logger.info(f"  REDIS_HOST: {self.REDIS_HOST}")
+        logger.info(f"  REDIS_PORT: {self.REDIS_PORT}")
+        
+        # Walidacja Redis - tylko w produkcji
+        if self.environment.lower() == "production" and not self.REDIS_URL and not self.REDIS_HOST:
+            logger.error("Brak konfiguracji Redis w trybie produkcyjnym!")
             raise ValueError("REDIS_URL lub REDIS_HOST musi być ustawiony w produkcji")
+        elif not self.REDIS_URL and not self.REDIS_HOST:
+            logger.warning("Redis nie jest skonfigurowany - niektóre funkcje mogą nie działać")
 
     def _safe_subdir(self, *parts: str) -> str:
         """Safely constructs a path under base_dir to prevent traversal."""
@@ -119,11 +143,11 @@ class Settings(BaseSettings):
     
     @property
     def is_development(self) -> bool: 
-        return False
+        return self.environment.lower() == "development"
     
     @property
     def is_production(self) -> bool: 
-        return True
+        return self.environment.lower() == "production"
     
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
@@ -190,7 +214,22 @@ class Settings(BaseSettings):
             self._secrets_cache.clear()
 
     def load_secrets(self) -> None:
-        """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety."""
+        """Ładuje WSZYSTKIE wymagane i opcjonalne sekrety - tylko w trybie produkcyjnym."""
+        if self.is_development:
+            logger.info("Tryb rozwojowy - pomijanie ładowania sekretów z Secret Manager")
+            # Set development defaults
+            if not self.SESSION_SECRET_KEY or self.SESSION_SECRET_KEY.startswith("development-"):
+                self.SESSION_SECRET_KEY = "development-secret-key-change-in-production-12345678901234567890"
+            
+            # Set dummy values for development
+            self.smtp_user = "development@example.com"
+            self.smtp_pass = "development-password"
+            self.firebase_api_key = "development-api-key"
+            self.firebase_auth_domain = "development.firebaseapp.com"
+            
+            logger.info("Tryb rozwojowy skonfigurowany z domyślnymi wartościami")
+            return
+            
         logger.info("Rozpoczynanie ładowania sekretów...")
         secrets_to_load = {
             "SESSION_SECRET_KEY": (self.SESSION_SECRET_KEY_NAME, True),
@@ -202,7 +241,7 @@ class Settings(BaseSettings):
         all_loaded = True
         for attr_name, (secret_id, is_required) in secrets_to_load.items():
              current_value = getattr(self, attr_name, None)
-             if current_value is None:
+             if current_value is None or (attr_name == "SESSION_SECRET_KEY" and current_value.startswith("development-")):
                 try:
                     secret_value = self.get_secret(secret_id)
                     setattr(self, attr_name, secret_value)
@@ -230,10 +269,9 @@ def get_settings() -> Settings:
         settings = Settings()
         settings.load_secrets()
         if not settings.SESSION_SECRET_KEY:
-            raise ValueError("SESSION_SECRET_KEY nie został pomyślnie załadowany z Secret Manager.")
+            raise ValueError("SESSION_SECRET_KEY nie został pomyślnie załadowany.")
         logger.info("Konfiguracja aplikacji zainicjalizowana pomyślnie.")
         return settings
     except Exception as e:
         logger.critical(f"Krytyczny błąd podczas inicjalizacji konfiguracji aplikacji: {e}", exc_info=True)
         raise SystemExit(f"Application cannot start due to configuration/secret error: {e}")
-    

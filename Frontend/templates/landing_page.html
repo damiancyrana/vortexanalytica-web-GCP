@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Vortex Analytica - See the Unseen. Act Faster</title>
+  <title>Vortex Analytica – See Beyond Data. Act Before Markets Move.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-        content="Vortex Analytica. Real-time analytics, fractal modeling and automated decision-making. Built for professional market teams." />
+        content="Vortex Analytica is a Market Intelligence Layer delivering ultra-fast analytics, satellite-driven commodity predictions and AI-powered disinformation defense. Act before markets move." />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
@@ -13,46 +13,29 @@
   <link rel="stylesheet" href="/static/css/landing_page.css" />
   <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
   <link rel="shortcut icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
-  
-  <style>
-    body, .info-card, .problem-card, .engine-card, .data-card, .disinfo-card, .capability-card, .usp-item, .team-card, .audience-list, .mvp-features, .contact-container, .footer-links, .login-button, .btn, .btn-ghost, .btn-shine, .form-label, .form-input, .form-textarea, .submit-button {
-      text-align: justify !important;
-      text-justify: inter-word !important;
-    }
-    .section-title,
-    .section-subtitle,
-    .copy,
-    .footer-links,
-    .hero h1,
-    .hero p.subtitle {
-      text-align: center !important;
-      text-justify: none !important;
-    }
-    .audience-list { justify-content: center; }
-    @media (max-width: 900px) {
-      .grid-container.grid-2-cols { grid-template-columns: 1fr !important; }
-    }
-  </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
+
 <body>
 <canvas id="quantum-field"></canvas>
 
+<!-- ========== HEADER ========= -->
 <header>
   <div class="logo">
     <span class="logo-text">Vortex Analytica</span>
   </div>
+
   <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
     <i class="fas fa-bars"></i>
   </button>
+
   <nav id="mainNav">
     <ul class="nav__list">
       <li><a href="#hero">Home</a></li>
-      <li><a href="#problem">Problem</a></li>
-      <li><a href="#engines">Predictive Engines</a></li>
-      <li><a href="#datalayer">Data Integrity</a></li>
-      <li><a href="#audience">For Professionals</a></li>
-      <li><a href="#about">Leadership</a></li>
+      <li><a href="#solutions">Solutions</a></li>
+      <li><a href="#industries">Industries</a></li>
+      <li><a href="#case-studies">Case Studies</a></li>
+      <li><a href="#leadership">Leadership</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -60,167 +43,200 @@
 
 <div class="main-container">
 
-  <!-- HERO -->
+  <!-- ========== HERO ========= -->
   <section class="hero" id="hero">
     <div class="hero-content">
-      <h1>Navigate Market Chaos. Anticipate the Unseen</h1>
+      <h1>See Beyond Data.<br>Act Before Markets Move.</h1>
       <p class="subtitle">
-        Vortex Analytica separates signal from noise. We combine real-time analytics, objective data interpretation, and fractal modeling to provide a genuine advantage in dynamic markets.
-        <b>We see the market as it is, without illusion.</b>
+        We are the <b>Market Intelligence Layer</b> for professionals who can’t afford latency.  
+        Our platform fuses real-time news, satellite imagery and option-flow analytics while blocking disinformation at the gate.  
+        <strong>Latency Freeze:</strong> insights arrive so fast that time stops being a constraint.
       </p>
       <div class="hero-buttons">
-        <a href="/login" class="btn btn-ghost btn-shine btn-login">Log in or Sign up</a>
+        <a href="/login" class="btn btn-ghost btn-shine btn-login">Log In / Sign Up</a>
+        <a href="#contact" class="btn">Request a Demo</a>
       </div>
     </div>
   </section>
 
-  <!-- PROBLEM -->
-  <section id="problem">
-    <h2 class="section-title">The Market Never Sleeps. Neither Should Your Intelligence.</h2>
-    <p class="section-subtitle">
-      Information velocity, volatility, and disinformation have rendered traditional analytics obsolete. The real edge comes from separating fact from interpretation in real time.
-    </p>
-    <div class="problem-container grid-2-cols">
-      <div class="info-card problem-card">
-        <i class="fas fa-tachometer-alt problem-icon"></i>
-        <h3>Latency Kills Alpha</h3>
+  <!-- ========== KEY SOLUTIONS ========= -->
+  <section id="solutions">
+    <h2 class="section-title"><i class="fas fa-cubes"></i> Key Solutions</h2>
+    <div class="grid-container grid-3-cols">
+
+      <!-- Market Intelligence Layer -->
+      <div class="info-card capability-card">
+        <i class="fas fa-chart-line engine-icon"></i>
+        <h3>Market Intelligence Layer</h3>
         <p>
-          Time is the ultimate edge. Our decisions are based on real, filtered signals, not on outdated consensus.
+          A fully-integrated stream of news, macro data, option flows and market micro-structure—
+          cross-validated in < 100 ms—so your desk reacts before price re-discounts reality.
         </p>
       </div>
-      <div class="info-card problem-card">
-        <i class="fas fa-newspaper problem-icon"></i>
-        <h3>Narrative Blind Spots</h3>
+
+      <!-- Disinformation Defense Suite -->
+      <div class="info-card capability-card">
+        <i class="fas fa-shield-virus engine-icon"></i>
+        <h3>Disinformation Defense Suite</h3>
         <p>
-          Markets react to interpretations and narratives often invisible to standard models. We analyze the information stream in full context, so nothing important is missed.
+          AI models detect and neutralise fake narratives in real time, protecting strategies
+          and reputations from manipulation shocks and information warfare.
         </p>
       </div>
-      <div class="info-card problem-card">
-        <i class="fas fa-filter problem-icon"></i>
-        <h3>Signal Drowned in Noise</h3>
+
+      <!-- Satellite Intelligence -->
+      <div class="info-card capability-card">
+        <i class="fas fa-satellite-dish engine-icon"></i>
+        <h3>Satellite Intelligence & Commodity Analytics</h3>
         <p>
-          Data has value only when it can be separated from noise. We automate filtration, objectively and consistently, with no guessing.
+          We monitor crops, logistics and industrial activity from space to forecast
+          wheat, coffee and energy flows—turning ground truth into profitable trades.
         </p>
       </div>
-      <div class="info-card problem-card">
-        <i class="fas fa-balance-scale problem-icon"></i>
-        <h3>Compliance & Auditability</h3>
-        <p>
-          Institutional investors require systems that guarantee regulatory compliance, audit trails, and transparent controls at every stage. Vortex Analytica delivers full traceability and review for every insight.
-        </p>
-      </div>
+
     </div>
   </section>
 
-  <!-- ENGINES -->
-  <section id="engines">
-    <h2 class="section-title"><i class="fas fa-bolt"></i> Powered by Predictive Engines</h2>
+  <!-- ========== BENEFITS GRID ========= -->
+  <section id="advantage">
+    <h2 class="section-title"><i class="fas fa-star-of-life"></i> Why It Matters</h2>
     <div class="grid-container grid-2-cols">
+
+      <div class="info-card usp-item">
+        <h3>Latency Freeze</h3>
+        <p>Sub-100 ms end-to-end processing means you <em>act</em> while others still refresh screens.</p>
+      </div>
+
+      <div class="info-card usp-item">
+        <h3>Cross-Validated Strategy</h3>
+        <p>Signals must agree across news, satellites and options before you ever see them—zero guesswork.</p>
+      </div>
+
+      <div class="info-card usp-item">
+        <h3>Disinformation Immunity</h3>
+        <p>Built-in fact-checking engines quarantine false narratives before they hit your model.</p>
+      </div>
+
+      <div class="info-card usp-item">
+        <h3>Precision from Space</h3>
+        <p>Objective satellite metrics anticipate supply-side shocks weeks ahead of public reports.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== AS SEEN IN ========= -->
+  <section id="press">
+    <h2 class="section-title"><i class="fas fa-bullhorn"></i> As Seen In</h2>
+    <div class="press-logos">
+
+      <figure>
+        <a href="https://radio.rzeszow.pl/219245/oto-zwyciezcy-konkursu-diamentowe-tarcze/" target="_blank" rel="noopener">
+          <img src="/static/Images/logos/radiorsz.png" alt="Polskie Radio Rzeszów">
+        </a>
+        <figcaption>“Innowator Bezpieczeństwa” award story</figcaption>
+      </figure>
+
+      <figure>
+        <a href="https://nowiny24.pl/statuetki-diamentowych-tarczy-rozdane-znamy-laureatow-prestizowego-konkursu-kongresu-bezpieczenstwa-polski-zdjecia/ar/c3p2-27680025"
+           target="_blank" rel="noopener">
+          <img src="/static/Images/logos/nowiny24.png" alt="Nowiny24">
+        </a>
+        <figcaption>Award coverage &amp; industry remarks</figcaption>
+      </figure>
+
+      <figure>
+        <a href="https://czytajrzeszow.pl/?id=48956&idd=4&poz=ml0" target="_blank" rel="noopener">
+          <img src="/static/Images/logos/czytajrzeszow.png" alt="Czytaj Rzeszów">
+        </a>
+        <figcaption>Gala highlights &amp; expert quotes</figcaption>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ========== PREDICTIVE ENGINES ========= -->
+  <section id="engines">
+    <h2 class="section-title"><i class="fas fa-bolt"></i> Predictive Engines</h2>
+    <div class="grid-container grid-2-cols">
+
       <!-- MARKET LOOM -->
       <div class="info-card engine-card">
         <i class="fas fa-layer-group engine-icon"></i>
         <h3>Market Loom</h3>
         <p>
-          Market Loom analyzes each instrument and timeframe individually with dedicated indicator settings, parameters, and context.
-          Every decision is woven from synchronized news streams. The system integrates analysis across intervals, detecting inconsistencies and turning points.
-          Models are self-adapting, optimizing parameters after every trade based on real results.
-          This is real decision automation: objective, repeatable optimization.
+Fully automated analytical platform that provides real-time technical analysis uniquely optimized for each financial instrument. Market Loom generates unparalleled strategic insights into market dynamics across stocks, indices, Forex, and cryptocurrencies. By continuously adapting analytical methods specifically to each trading symbol, Market Loom transforms raw market data into actionable trading intelligence, consistently outperforming traditional analysis methods and empowering traders to make precise, data-driven decisions with confidence.
         </p>
       </div>
+
       <!-- CHRONO ENGINE -->
       <div class="info-card engine-card">
         <i class="fas fa-network-wired engine-icon"></i>
-        <h3>Chrono Engine & AI Swarm</h3>
+        <h3>Chrono Engine</h3>
         <p>
-          Chrono Engine leverages a network of cooperating AI and ML agents, structured as a collective intelligence.
-          Agents analyze information flows, communicate, and confirm signals before anything reaches the core engine.
-          This delivers objective data selection before it becomes an investment decision.
-          The system is robust, scalable, and built on transparent rules: no speculation, just validated process.
+Engine engineered to revolutionize real-time market data analysis and financial intelligence. Featuring an innovative architecture built on collaborative analytical symbiotes, it processes critical financial data within 100 milliseconds of market events. Its symbiotic AI-driven analytics significantly reduce latency while enhancing the precision and reliability of market intelligence, empowering financial institutions and traders to proactively respond to rapidly evolving market conditions with unmatched speed and clarity.
         </p>
       </div>
+
     </div>
   </section>
 
-  <!-- OBJECTIVE DATA & DISINFORMATION -->
-  <section id="objectivity">
-    <h2 class="section-title">
-      <i class="fas fa-shield-alt"></i> Data Integrity and Decision Security
-    </h2>
-    <p class="section-subtitle">
-      True advantage comes from objective, resilient data. Our platform elevates your analytics beyond conventional signals, ensuring your decisions are rooted in fact, not narrative or noise.
-    </p>
-    <div class="grid-container grid-2-cols mt-2">
-      <!-- Objective Data Layer -->
-      <div class="info-card data-card">
-        <i class="fas fa-satellite-dish" style="font-size:2em;color:#49b7ff;"></i>
-        <h3>Objective Data Layer</h3>
-        <p>
-          We blend financial analytics with external, independent data sources that cannot be manipulated by narrative, opinion, or hype.
-          Every insight is validated across diverse signals and systematically checked for reliability before it ever reaches your dashboard.
-        </p>
-      </div>
-      <!-- Disinformation Resilience -->
-      <div class="info-card disinfo-card">
-        <i class="fas fa-shield-virus" style="font-size:2em;color:#eea700;"></i>
-        <h3>Disinformation Resilience</h3>
-        <p>
-          Our system is designed to withstand misinformation shocks. Automated checks detect inconsistencies, data conflicts, or anomalies and block them from influencing any analytic outcome.
-          Only verified information is used, so your strategy remains immune to unreliable or manipulated flows.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- AUDIENCE -->
-  <section id="audience">
-    <h2 class="section-title"><i class="fas fa-briefcase"></i> Built for Market Professionals</h2>
-    <p class="section-subtitle">
-      Designed for those who work with facts and require repeatable, evidence-based advantages.
-    </p>
+  <!-- ========== INDUSTRIES ========= -->
+  <section id="industries">
+    <h2 class="section-title"><i class="fas fa-briefcase"></i> Industries We Serve</h2>
     <ul class="audience-list">
-      <li>Hedge Funds and Global Macro</li>
+      <li>Hedge Funds & Global Macro</li>
       <li>Investment Banks</li>
-      <li>Proprietary Desks</li>
-      <li>Institutional Traders</li>
-      <li>Fintech and Quant Teams</li>
+      <li>Commodity & Energy Traders</li>
+      <li>Government & Defense (Anti-Disinformation)</li>
+      <li>FinTech & Quant Teams</li>
     </ul>
   </section>
 
-  <!-- LEADERSHIP -->
+  <!-- ========== CASE STUDIES (placeholder) ========= -->
+  <section id="case-studies">
+    <h2 class="section-title"><i class="fas fa-file-alt"></i> Case Studies</h2>
+    <p class="section-subtitle">
+      Selected realworld deployments will appear here soon. Contact us for early-access briefs
+    </p>
+  </section>
+
+  <!-- ========== LEADERSHIP ========= -->
   <section id="leadership">
     <h2 class="section-title"><i class="fas fa-users"></i> Meet the Leadership</h2>
     <p class="section-subtitle">
-      A team experienced in quantitative market analysis, algorithmic modeling, and automated decision systems. We work for those who do not accept mediocrity.
+      Experience in quantitative research, AI modelling and critical infrastructure security
     </p>
     <div class="grid-container grid-2-cols">
       <div class="info-card team-card">
         <div class="team-photo-placeholder">
-          <img src="static/Images/portrait/damian.jpg" alt="Damian Cyrana">
+          <img src="/static/Images/portrait/damian.jpg" alt="Damian Cyrana">
         </div>
         <h3>Damian Cyrana</h3>
         <div class="title">Founder & CTO</div>
         <a href="https://www.linkedin.com/in/damiancyrana/" target="_blank" class="linkedin-link">
-          <i class="fab fa-linkedin"></i> Linkedin
+          <i class="fab fa-linkedin"></i> LinkedIn
         </a>
       </div>
+
       <div class="info-card team-card">
         <div class="team-photo-placeholder">
-          <img src="static/Images/portrait/antek.jpg" alt="Antoni Moskwa">
+          <img src="/static/Images/portrait/antek.jpg" alt="Antoni Moskwa">
         </div>
         <h3>Antoni Moskwa</h3>
         <div class="title">Co-Founder & CEO</div>
         <a href="https://www.linkedin.com/in/antoni-moskwa/" target="_blank" class="linkedin-link">
-          <i class="fab fa-linkedin"></i> Linkedin
+          <i class="fab fa-linkedin"></i> LinkedIn
         </a>
       </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- ========== CONTACT ========= -->
   <section id="contact">
-    <h2 class="section-title"><i class="fas fa-envelope"></i> Get In Touch</h2>
+    <h2 class="section-title"><i class="fas fa-envelope"></i> Get in Touch</h2>
     <p class="section-subtitle">
-      Want to see what transparent data analysis looks like? Contact us to discuss a pilot or partnership.
+      Curious how Latency Freeze feels in practice? Let’s discuss a pilot.
     </p>
     <div class="contact-container">
       <form id="contact-form" method="post">
@@ -244,6 +260,7 @@
   </section>
 </div>
 
+<!-- ========== FOOTER ========= -->
 <footer>
   <div class="footer-links">
     <a href="#">Terms of Service</a>
@@ -251,14 +268,14 @@
     <a href="#contact">Contact Us</a>
   </div>
   <div class="footer-coffee-button">
-    <a href="https://www.buymeacoffee.com/vortexanalytica" class="btn btn-ghost btn-shine btn-coffee"> Buy me a coffee</a>
+    <a href="https://www.buymeacoffee.com/vortexanalytica" class="btn btn-ghost btn-shine btn-coffee">Buy Me a Coffee</a>
   </div>
   <p class="copy">&copy; 2025 Vortex Analytica. All rights reserved.</p>
 </footer>
 
 <script type="module" src="/static/js/quantum_bg.js"></script>
 <script type="module" src="/static/js/contact_form.js"></script>
-
-
+<script type="module" src="/static/js/mobile_nav.js"></script>
 </body>
 </html>
+
