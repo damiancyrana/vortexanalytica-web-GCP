@@ -21,6 +21,7 @@ from google.api_core.exceptions import NotFound, PermissionDenied
 
 logger = logging.getLogger(__name__)
 
+
 class Settings(BaseSettings):
     """ Klasa konfiguracji aplikacji. """
     # FIXED: Proper PROJECT_ID initialization
@@ -91,6 +92,10 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore"
     )
+
+    NARRATIVE_REDIS_PREFIX: str = "narrative"
+    NARRATIVE_MAX_AGE_HOURS: int = 48
+    NARRATIVE_CLUSTER_THRESHOLD: float = 0.3
 
     def model_post_init(self, __context: Any) -> None:
         """ Ustawienia po inicjalizacji Pydantic. """

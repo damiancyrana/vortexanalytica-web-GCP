@@ -96,6 +96,36 @@ async def app_startup() -> None:
         logger.critical(f"Krytyczny błąd podczas inicjalizacji NewsService z Redis: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Could not initialize NewsService with Redis: {e}") from e
 
+
+    # Initialize NarrativeService and load existing messages
+    try:
+        logger.info("Initializing NarrativeService...")
+        from Backend.services.narrative_service import NarrativeService
+        narrative_service = NarrativeService()
+        
+        # Load recent messages into narrative clustering
+        logger.info("Loading existing messages into narrative clusters...")
+        recent_messages = await _news_service.get_messages(limit=200)
+        
+        processed_count = 0
+        for message in recent_messages:
+            try:
+                await narrative_service.add_message(message)
+                processed_count += 1
+            except Exception as e:
+                logger.warning(f"Could not add message to narratives: {e}")
+        
+        logger.info(f"Loaded {processed_count} messages into narrative clusters")
+        
+        # Get initial stats
+        active_narratives = await narrative_service.get_active_narratives(limit=10)
+        logger.info(f"Active narratives: {len(active_narratives)}")
+        
+    except Exception as e:
+        logger.error(f"Error initializing NarrativeService: {e}")
+        # Non-critical, continue startup
+
+
     # Inicjalizacja Pub/Sub Service
     try:
         logger.info("Inicjalizacja serwisu Pub/Sub...")
@@ -135,6 +165,18 @@ async def app_shutdown() -> None:
         except Exception as e:
             logger.warning(f"Błąd podczas zamykania połączeń Redis: {e}", exc_info=True)
     
+
+    # Close NarrativeService connections
+    try:
+        from Backend.services.narrative_service import NarrativeService
+        narrative_service = NarrativeService._instance
+        if narrative_service:
+            logger.info("Closing NarrativeService connections...")
+            await narrative_service.close_connections()
+    except Exception as e:
+        logger.warning(f"Error closing NarrativeService connections: {e}")
+
+
     # Zamknij pulę połączeń SMTP, jeśli EmailService był używany
     try:
         email_service = EmailService._instance

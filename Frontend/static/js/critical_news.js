@@ -5,7 +5,7 @@
   let sseConnection = null
   const criticalMessages = []
   const messageTimers = {}
-  const MESSAGE_LIFETIME = 3600000 // 1 hour
+  const MESSAGE_LIFETIME = 10800000 // 3 hour
   
   // Mobile detection
   const isMobile = () => window.innerWidth <= 768
