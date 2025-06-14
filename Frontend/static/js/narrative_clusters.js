@@ -93,6 +93,9 @@ class NarrativeClusterVisualization {
     // Setup SVG
     this.setupSVG(vizContainer)
     
+    // Create legend
+    this.createLegend()
+    
     // Setup event handlers
     this.setupEventHandlers()
     
@@ -142,6 +145,38 @@ class NarrativeClusterVisualization {
       })
     
     this.svg.call(this.zoom)
+  }
+  
+  createLegend() {
+    const legendData = [
+      { label: 'Positive', color: this.colors.positive },
+      { label: 'Negative', color: this.colors.negative },
+      { label: 'Neutral', color: this.colors.neutral }
+    ]
+    
+    const legend = this.svg.append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(20, 20)`)
+    
+    const legendItems = legend.selectAll('.legend-item')
+      .data(legendData)
+      .enter().append('g')
+      .attr('class', 'legend-item')
+      .attr('transform', (d, i) => `translate(0, ${i * 25})`)
+    
+    legendItems.append('circle')
+      .attr('r', 8)
+      .style('fill', d => d.color)
+      .style('stroke', 'rgba(255, 255, 255, 0.3)')
+      .style('stroke-width', 1)
+    
+    legendItems.append('text')
+      .attr('x', 15)
+      .attr('y', 0)
+      .attr('dy', '0.35em')
+      .style('font-size', '12px')
+      .style('fill', document.body.classList.contains('dark-theme') ? '#fff' : '#333')
+      .text(d => d.label)
   }
   
   setupEventHandlers() {
@@ -331,7 +366,7 @@ class NarrativeClusterVisualization {
       .attr('class', 'node')
       .call(this.drag())
       .on('click', (event, d) => this.handleNodeClick(d))
-      .on('mouseenter', (event, d) => this.handleNodeHover(d, true))
+      .on('mouseenter', (event, d) => this.handleNodeHover(d, true, event))
       .on('mouseleave', (event, d) => this.handleNodeHover(d, false))
     
     // Add circles
@@ -354,7 +389,7 @@ class NarrativeClusterVisualization {
       .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
       .style('font-weight', '600')
       .style('pointer-events', 'none')
-      .text(d => this.truncateText(d.title, d.radius))
+      .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
       .style('opacity', 0)
       .transition()
       .duration(this.config.transitionDuration)
@@ -368,7 +403,7 @@ class NarrativeClusterVisualization {
       .style('fill', d => d.color)
     
     node.select('text')
-      .text(d => this.truncateText(d.title, d.radius))
+      .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
       .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
   }
   
@@ -424,10 +459,10 @@ class NarrativeClusterVisualization {
     this.updateNodeHighlighting()
   }
   
-  handleNodeHover(node, isHovering) {
+  handleNodeHover(node, isHovering, event) {
     if (isHovering) {
       // Show tooltip
-      this.showTooltip(node)
+      this.showTooltip(node, event)
     } else {
       // Hide tooltip
       this.hideTooltip()
@@ -486,7 +521,7 @@ class NarrativeClusterVisualization {
     let html = `
       <div class="detail-header">
         <h4>${narrative.title}</h4>
-        <button class="close-detail" onclick="narrativeViz.hideDetailPanel()">
+        <button class="close-detail" data-action="close">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -534,7 +569,7 @@ class NarrativeClusterVisualization {
             <h5>Related Narratives</h5>
             <div class="related-list">
               ${related.map(r => `
-                <div class="related-item" onclick="narrativeViz.selectNarrative('${r.id}')">
+                <div class="related-item" data-narrative-id="${r.id}">
                   <span class="related-title">${r.title}</span>
                   <span class="related-similarity">${Math.round(r.similarity * 100)}% similar</span>
                 </div>
@@ -546,6 +581,22 @@ class NarrativeClusterVisualization {
     `
     
     panel.innerHTML = html
+    
+    // Add event listeners after rendering
+    const closeBtn = panel.querySelector('.close-detail')
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.hideDetailPanel())
+    }
+    
+    // Add click handlers for related narratives
+    panel.querySelectorAll('.related-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const narrativeId = item.dataset.narrativeId
+        if (narrativeId) {
+          this.navigateToNarrative(narrativeId)
+        }
+      })
+    })
   }
   
   hideDetailPanel() {
@@ -564,75 +615,101 @@ class NarrativeClusterVisualization {
     }
   }
   
-    showTooltip(node) {
+  navigateToNarrative(id) {
+    // Find the target node
+    const targetNode = this.nodes.find(n => n.id === id)
+    if (!targetNode) {
+      console.warn(`Narrative ${id} not found in current view`)
+      return
+    }
+    
+    // Hide current detail panel
+    this.hideDetailPanel()
+    
+    // Calculate the transform to center the target node
+    const centerX = this.config.width / 2
+    const centerY = this.config.height / 2
+    
+    // Apply zoom and pan to center the target node
+    const transform = d3.zoomIdentity
+      .translate(centerX - targetNode.x, centerY - targetNode.y)
+      .scale(1.5) // Zoom in slightly for better focus
+    
+    // Animate the transition
+    this.svg.transition()
+      .duration(750)
+      .call(this.zoom.transform, transform)
+      .on('end', () => {
+        // After transition, select the node
+        this.handleNodeClick(targetNode)
+        
+        // Add visual emphasis
+        this.highlightNode(targetNode)
+      })
+  }
+  
+  highlightNode(node) {
+    // Add a temporary highlight effect
+    const nodeElement = this.nodeGroup.selectAll('.node')
+      .filter(d => d.id === node.id)
+    
+    if (nodeElement.empty()) return
+    
+    // Create a pulse effect
+    const circle = nodeElement.select('circle')
+    const originalRadius = circle.attr('r')
+    
+    // Pulse animation
+    circle.transition()
+      .duration(300)
+      .attr('r', originalRadius * 1.3)
+      .style('stroke-width', 4)
+      .style('stroke', this.colors[node.sentiment])
+      .transition()
+      .duration(300)
+      .attr('r', originalRadius)
+      .style('stroke-width', 2)
+      .style('stroke', document.body.classList.contains('dark-theme') ? 
+        'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)')
+  }
+  
+  showTooltip(node, event) {
     // Create or update tooltip
     let tooltip = document.getElementById('narrative-tooltip')
     if (!tooltip) {
-        tooltip = document.createElement('div')
-        tooltip.id = 'narrative-tooltip'
-        tooltip.className = 'narrative-tooltip'
-        document.body.appendChild(tooltip)
+      tooltip = document.createElement('div')
+      tooltip.id = 'narrative-tooltip'
+      tooltip.className = 'narrative-tooltip'
+      document.body.appendChild(tooltip)
     }
     
     // Get top entities for display
     const topEntities = Array.from(node.entities || [])
-        .slice(0, 5)
-        .map(e => e.charAt(0).toUpperCase() + e.slice(1))
-        .join(', ');
+      .slice(0, 5)
+      .map(e => e.charAt(0).toUpperCase() + e.slice(1))
+      .join(', ')
     
     tooltip.innerHTML = `
-        <strong>${node.title}</strong><br>
-        <div style="margin: 4px 0; font-size: 0.85em; opacity: 0.9;">
+      <strong>${node.title}</strong><br>
+      <div style="margin: 4px 0; font-size: 0.85em; opacity: 0.9;">
         <strong>Entities:</strong> ${topEntities || 'None'}
-        </div>
-        <div style="margin: 4px 0;">
+      </div>
+      <div style="margin: 4px 0;">
         <span style="color: ${node.color}">●</span> ${node.sentiment} sentiment<br>
         ${node.messageCount} messages • ${Math.round(node.strength * 100)}% strength
-        </div>
-        <em style="font-size: 0.8em; opacity: 0.7;">Click for details</em>
+      </div>
+      <em style="font-size: 0.8em; opacity: 0.7;">Click for details</em>
     `
     
-    // Position tooltip
-    const event = d3.event || window.event
-    tooltip.style.left = (event.pageX + 10) + 'px'
-    tooltip.style.top = (event.pageY - 10) + 'px'
+    // Position tooltip - Use event parameter for D3 v7
+    const pageX = event ? event.pageX : window.event.pageX
+    const pageY = event ? event.pageY : window.event.pageY
+    
+    tooltip.style.left = (pageX + 10) + 'px'
+    tooltip.style.top = (pageY - 10) + 'px'
     tooltip.style.display = 'block'
-    }
-// Add this method to the NarrativeClusterVisualization class
-createLegend() {
-  const legendData = [
-    { label: 'Positive', color: this.colors.positive },
-    { label: 'Negative', color: this.colors.negative },
-    { label: 'Neutral', color: this.colors.neutral }
-  ]
+  }
   
-  const legend = this.svg.append('g')
-    .attr('class', 'legend')
-    .attr('transform', `translate(20, 20)`)
-  
-  const legendItems = legend.selectAll('.legend-item')
-    .data(legendData)
-    .enter().append('g')
-    .attr('class', 'legend-item')
-    .attr('transform', (d, i) => `translate(0, ${i * 25})`)
-  
-  legendItems.append('circle')
-    .attr('r', 8)
-    .style('fill', d => d.color)
-    .style('stroke', 'rgba(255, 255, 255, 0.3)')
-    .style('stroke-width', 1)
-  
-  legendItems.append('text')
-    .attr('x', 15)
-    .attr('y', 0)
-    .attr('dy', '0.35em')
-    .style('font-size', '12px')
-    .style('fill', document.body.classList.contains('dark-theme') ? '#fff' : '#333')
-    .text(d => d.label)
-}
-
-// Call it in the init method after setupSVG
-this.createLegend()
   hideTooltip() {
     const tooltip = document.getElementById('narrative-tooltip')
     if (tooltip) {
@@ -640,73 +717,48 @@ this.createLegend()
     }
   }
   
-    // Update the truncateText method to be less aggressive
-    truncateText(text, radius) {
+  truncateText(text, radius) {
     // Calculate max characters based on radius
-    // More generous with space
-    const charsPerPixel = 0.15; // Increased from 0.25
-    const maxLength = Math.floor(radius * 2 * charsPerPixel);
+    const charsPerPixel = 0.15
+    const maxLength = Math.floor(radius * 2 * charsPerPixel)
     
-    if (text.length <= maxLength) return text;
+    if (text.length <= maxLength) return text
     
     // Try to break at word boundary
-    const truncated = text.substring(0, maxLength - 3);
-    const lastSpace = truncated.lastIndexOf(' ');
+    const truncated = text.substring(0, maxLength - 3)
+    const lastSpace = truncated.lastIndexOf(' ')
     if (lastSpace > maxLength * 0.6) {
-        return truncated.substring(0, lastSpace) + '...';
+      return truncated.substring(0, lastSpace) + '...'
     }
     
-    return truncated + '...';
-    }
-
-    // Add method to get display text for a node
-    getNodeDisplayText(node) {
+    return truncated + '...'
+  }
+  
+  getNodeDisplayText(node) {
     // For small nodes, show just the main entity
     if (node.radius < 30) {
-        const entities = Array.from(node.entities || []);
-        if (entities.length > 0) {
+      const entities = Array.from(node.entities || [])
+      if (entities.length > 0) {
         // Get the shortest meaningful entity
         const sorted = entities
-            .filter(e => e.length > 2)
-            .sort((a, b) => a.length - b.length);
-        return sorted[0] ? sorted[0].toUpperCase() : node.title;
-        }
+          .filter(e => e.length > 2)
+          .sort((a, b) => a.length - b.length)
+        return sorted[0] ? sorted[0].toUpperCase() : node.title
+      }
     }
     
     // For medium nodes, show abbreviated title
     if (node.radius < 50) {
-        // Try to get first two words or main entity
-        const words = node.title.split(/[\s\-\(]/);
-        if (words.length >= 2) {
-        return words.slice(0, 2).join(' ');
-        }
+      // Try to get first two words or main entity
+      const words = node.title.split(/[\s\-\(]/)
+      if (words.length >= 2) {
+        return words.slice(0, 2).join(' ')
+      }
     }
     
     // For large nodes, show more of the title
-    return node.title;
-    }
-
-    // In updateNodes method, replace the text setting part:
-    nodeEnter.append('text')
-    .attr('class', 'node-label')
-    .attr('text-anchor', 'middle')
-    .attr('dy', '.35em')
-    .style('fill', isDark ? this.colors.text.dark : this.colors.text.light)
-    .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
-    .style('font-weight', '600')
-    .style('pointer-events', 'none')
-    .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
-    .style('opacity', 0)
-    .transition()
-    .duration(this.config.transitionDuration)
-    .style('opacity', 1)
-
-    // Update existing nodes text
-    node.select('text')
-    .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
-    .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
-
-    
+    return node.title
+  }
   
   resetZoom() {
     this.svg.transition()
@@ -749,6 +801,10 @@ this.createLegend()
     // Update text colors
     this.nodeGroup.selectAll('text')
       .style('fill', isDark ? this.colors.text.dark : this.colors.text.light)
+    
+    // Update legend text colors
+    this.svg.selectAll('.legend text')
+      .style('fill', isDark ? '#fff' : '#333')
   }
   
   showLoading() {
