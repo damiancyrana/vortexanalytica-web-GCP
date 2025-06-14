@@ -12,7 +12,7 @@ from Backend.routes.landing import register_landing_routes
 from Backend.routes.auth import register_auth_routes
 from Backend.routes.contact import register_contact_routes
 from Backend.routes.news import router as news_router
-from Backend.routes.narratives import router as narratives_router
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ def register_routes(app: FastAPI, templates: Jinja2Templates, settings: Settings
         register_auth_routes(app, templates, settings)
         register_contact_routes(app, templates, settings)
         app.include_router(news_router)
-        app.include_router(narratives_router)
         logger.info("Trasy aplikacji zarejestrowane pomyślnie.")
     except Exception as e:
         logger.critical(f"Krytyczny błąd podczas rejestrowania tras: {e}", exc_info=True)
