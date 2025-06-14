@@ -39,32 +39,42 @@ const cssColor = (name) =>
 let scene, camera, renderer, clock, networkGroup;
 let streamPaths = [];
 const particles = [];
+const lines = [];
+let mouseX = 0, mouseY = 0;
 
-/* Build curved “data streams” */
-function buildStreams(count = 10) {
+/* Build spiral vortex paths */
+function buildStreams(count = 6) {
     const paths = [];
     for (let i = 0; i < count; i++) {
-    const pts = [];
-    const steps = 15;
-    for (let j = 0; j < steps; j++) {
-        const t      = j / (steps - 1);
-        const radius = 12 + Math.random() * 18;
-        const angle  = (Math.random() - 0.5) * Math.PI * 3 + t * Math.PI * 1.5;
-        const z      = (Math.random() - 0.5) * 50 +
-                        Math.sin(t * Math.PI * 0.5) * 8;
-        pts.push(new THREE.Vector3(
-        radius * Math.cos(angle),
-        radius * Math.sin(angle),
-        z,
-        ));
-    }
-    paths.push(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.7));
+        const pts = [];
+        const turns = 3;
+        const steps = 40;
+        for (let j = 0; j < steps; j++) {
+            const t = j / (steps - 1);
+            const angle = t * Math.PI * 2 * turns + i * Math.PI * 2 / count;
+            const radius = 5 + t * 15;
+            const y = Math.sin(t * Math.PI * 4) * 4;
+            pts.push(new THREE.Vector3(
+                radius * Math.cos(angle),
+                y,
+                radius * Math.sin(angle)
+            ));
+        }
+        const path = new THREE.CatmullRomCurve3(pts);
+        paths.push(path);
+
+        // glowing line
+        const mat = new THREE.LineBasicMaterial({ color: cssColor('--purple'), transparent:true, opacity:0.4 });
+        const geo = new THREE.BufferGeometry().setFromPoints(path.getPoints(80));
+        const line = new THREE.Line(geo, mat);
+        networkGroup.add(line);
+        lines.push(line);
     }
     return paths;
 }
 
 /* Create particle meshes */
-function buildParticles(count = 120) {
+function buildParticles(count = 220) {
     const matBlue = new THREE.MeshBasicMaterial({
     color: cssColor('--blue'), transparent: true, opacity: 0.6,
     });
@@ -117,6 +127,11 @@ function init() {
     networkGroup = new THREE.Group();
     scene.add(networkGroup);
 
+    window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / innerHeight - 0.5) * 2;
+    });
+
     streamPaths = buildStreams();
     buildParticles();
 
@@ -129,12 +144,15 @@ function animate() {
     requestAnimationFrame(animate);
     const delta = Math.min(clock.getDelta(), 0.1) * 60;
 
-    networkGroup.rotation.y += 0.0001 * delta;
-    networkGroup.rotation.x += 0.00005 * delta;
+    networkGroup.rotation.y += 0.0002 * delta;
+    networkGroup.rotation.x += 0.0001 * delta;
+    camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
 
     particles.forEach(p => {
-    const ud = p.userData;
-    ud.position = (ud.position + ud.speed * delta) % 1;
+        const ud = p.userData;
+        ud.position = (ud.position + ud.speed * delta) % 1;
 
     /* losowa zmiana ścieżki przy każdym pełnym okrążeniu */
     if (ud.position < ud.speed * delta && Math.random() < 0.05) {
@@ -144,6 +162,8 @@ function animate() {
                         ) % streamPaths.length;
     }
     p.position.copy(streamPaths[ud.streamIndex].getPointAt(ud.position));
+    const s = 0.6 + Math.sin(clock.elapsedTime * 2 + ud.position * 10) * 0.3;
+    p.scale.setScalar(s);
     });
 
     renderer.render(scene, camera);
