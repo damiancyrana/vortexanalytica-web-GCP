@@ -45,6 +45,8 @@ async def get_active_narratives(
     """
     try:
         service = get_narrative_service()
+        if not service.narratives:
+            await service.load_from_redis()
         narratives = await service.get_active_narratives(hours=hours)
         
         # Add graph layout hints
