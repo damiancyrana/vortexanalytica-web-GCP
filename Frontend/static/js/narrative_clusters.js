@@ -135,6 +135,9 @@ class NarrativeClusters {
       
       // Load connections
       const connectionsResponse = await window.fetchWithAuth(`/api/narratives/graph/connections?hours=${hours}`)
+      if (!connectionsResponse.ok) {
+        throw new Error(`HTTP ${connectionsResponse.status}`)
+      }
       const connections = await connectionsResponse.json()
       
       this.data = {
