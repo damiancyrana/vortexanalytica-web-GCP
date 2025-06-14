@@ -45,8 +45,32 @@ class NarrativeService:
         self.SENTIMENT_WEIGHT = 0.2
         self.TIME_WEIGHT = 0.1
         self.TIME_WINDOW_HOURS = 24
-        
+
+        # Flag to avoid re-loading existing narratives
+        self._loaded_from_redis = False
+
         logger.info("NarrativeService initialized")
+
+    async def load_from_redis(self, limit: int = 500) -> int:
+        """Load recent messages from Redis and build narrative clusters."""
+        if self._loaded_from_redis:
+            return len(self.narratives)
+
+        try:
+            from Backend.services.news_service import NewsService
+            news_service = NewsService()
+            messages = await news_service.get_messages(limit=limit)
+
+            # Process from oldest to newest for stable clustering
+            for msg in reversed(messages):
+                await self.add_message(msg)
+
+            self._loaded_from_redis = True
+            logger.info(f"Loaded {len(messages)} messages from Redis into narratives")
+            return len(self.narratives)
+        except Exception as e:
+            logger.error(f"Error loading narratives from Redis: {e}", exc_info=True)
+            return 0
     
     def _normalize_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Normalize message format from different analyzers."""
