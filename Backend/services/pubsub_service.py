@@ -192,17 +192,28 @@ class PubSubService:
                     print(f"\nNie można sparsować JSON: {parse_error}")
                 
                 # Dla standardowych i krytycznych wiadomości, przetwarzaj jak wcześniej
-                if topic_type in ["standard", "critical"]:
+                if topic_type in ["standard", "critical", "regular"]:
                     news_data = orjson.loads(decoded_json)
                     news_service = NewsService()
+                    
+                    # Add to narrative clustering
+                    try:
+                        from Backend.services.narrative_service import NarrativeService
+                        narrative_service = NarrativeService()
+                        narrative_id = await narrative_service.add_message(news_data)
+                        if narrative_id:
+                            logger.info(f"Wiadomość {message_id} dodana do narracji {narrative_id}")
+                    except Exception as e:
+                        logger.error(f"Błąd podczas dodawania do narracji: {e}")
                     
                     if topic_type == "critical":
                         news_data['is_critical'] = True
                         await news_service.add_critical_message_async(news_data)
                         logger.info(f"Krytyczna wiadomość {message_id} przetworzona i opublikowana")
-                    else:
+                    elif topic_type == "standard":
                         await news_service.add_message_async(news_data)
                         logger.info(f"Standardowa wiadomość {message_id} przetworzona i opublikowana")
+                    # For regular messages, we only add to narratives, not to news feed
                 
                 # Dla calendar, moc i regular - tylko wyświetlamy (NEW: dodano regular)
                 else:
