@@ -192,7 +192,7 @@ class NewsService:
             "confidence": analysis.get("confidence", 0),
             "timestamp": time.time()
         }
-    
+
     def _simplify_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Upraszcza wiadomość do formatu odpowiedniego dla SSE."""
         narrative_impact = "Unknown"
@@ -206,18 +206,11 @@ class NewsService:
             
             kg_data = message["analysis_payload"]["knowledge_graph_data"]
             
-            if "narrative_impact" in kg_data:
-                narrative_impact = kg_data["narrative_impact"]
+            narrative_impact = kg_data.get("narrative_impact", "Unknown")
+            interpretation = kg_data.get("interpretation", "")
+            interpretation_tags = kg_data.get("interpretation_tags", [])
+            extracted_entities = kg_data.get("extracted_entities", [])
             
-            if "interpretation" in kg_data:
-                interpretation = kg_data["interpretation"]
-            
-            if "interpretation_tags" in kg_data:
-                interpretation_tags = kg_data["interpretation_tags"]
-            
-            if "extracted_entities" in kg_data:
-                extracted_entities = kg_data["extracted_entities"]
-
             if "sentiment" in kg_data:
                 try:
                     if isinstance(kg_data["sentiment"], dict):
@@ -226,6 +219,56 @@ class NewsService:
                         sentiment = str(kg_data["sentiment"])
                 except Exception:
                     sentiment = "Neutral"
+        
+        # Also check for whirlpool_analysis structure (from regular topic)
+        if ("analysis_payload" in message and 
+            "whirlpool_analysis" in message["analysis_payload"]):
+            
+            wp_data = message["analysis_payload"]["whirlpool_analysis"]
+            
+            # Extract from suggested_labels as tags
+            if "suggested_labels" in wp_data and not interpretation_tags:
+                interpretation_tags = wp_data.get("suggested_labels", [])
+            
+            # Extract entities from whirlpool analysis
+            if "extracted_entities" in wp_data and not extracted_entities:
+                entities_data = wp_data["extracted_entities"]
+                extracted_entities = []
+                
+                # Convert whirlpool entities to standard format
+                for org in entities_data.get("organizations", []):
+                    if isinstance(org, dict) and "name" in org:
+                        extracted_entities.append({
+                            "text": org["name"],
+                            "normalized_name": org["name"],
+                            "type": "ORG"
+                        })
+                
+                for person in entities_data.get("individuals", []):
+                    if isinstance(person, dict) and "name" in person:
+                        extracted_entities.append({
+                            "text": person["name"],
+                            "normalized_name": person["name"],
+                            "type": "PERSON"
+                        })
+                
+                for location in entities_data.get("locations", []):
+                    if isinstance(location, dict) and "name" in location:
+                        extracted_entities.append({
+                            "text": location["name"],
+                            "normalized_name": location["name"],
+                            "type": "LOC"
+                        })
+            
+            # Extract sentiment from whirlpool
+            if "sentiment_analysis" in wp_data and sentiment == "Neutral":
+                overall_sentiment = wp_data["sentiment_analysis"].get("overall_sentiment", {})
+                if isinstance(overall_sentiment, dict):
+                    sentiment = overall_sentiment.get("label", "Neutral")
+            
+            # Use summary as interpretation if not already set
+            if "summary" in wp_data and not interpretation:
+                interpretation = wp_data["summary"]
         
         return {
             "news_id": message.get("news_id", ""),
@@ -238,7 +281,8 @@ class NewsService:
             "extracted_entities": extracted_entities,
             "sentiment": sentiment
         }
-    
+
+
     async def _notify_subscribers(self, message: Dict[str, Any], is_critical: bool = False) -> None:
         """Powiadamia odpowiednich subskrybentów o nowej wiadomości."""
         subscribers = self._critical_subscribers if is_critical else self._standard_subscribers

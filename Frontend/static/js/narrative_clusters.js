@@ -564,20 +564,32 @@ class NarrativeClusterVisualization {
     }
   }
   
-  showTooltip(node) {
+    showTooltip(node) {
     // Create or update tooltip
     let tooltip = document.getElementById('narrative-tooltip')
     if (!tooltip) {
-      tooltip = document.createElement('div')
-      tooltip.id = 'narrative-tooltip'
-      tooltip.className = 'narrative-tooltip'
-      document.body.appendChild(tooltip)
+        tooltip = document.createElement('div')
+        tooltip.id = 'narrative-tooltip'
+        tooltip.className = 'narrative-tooltip'
+        document.body.appendChild(tooltip)
     }
     
+    // Get top entities for display
+    const topEntities = Array.from(node.entities || [])
+        .slice(0, 5)
+        .map(e => e.charAt(0).toUpperCase() + e.slice(1))
+        .join(', ');
+    
     tooltip.innerHTML = `
-      <strong>${node.title}</strong><br>
-      ${node.messageCount} messages • ${Math.round(node.strength * 100)}% strength<br>
-      <em>Click for details</em>
+        <strong>${node.title}</strong><br>
+        <div style="margin: 4px 0; font-size: 0.85em; opacity: 0.9;">
+        <strong>Entities:</strong> ${topEntities || 'None'}
+        </div>
+        <div style="margin: 4px 0;">
+        <span style="color: ${node.color}">●</span> ${node.sentiment} sentiment<br>
+        ${node.messageCount} messages • ${Math.round(node.strength * 100)}% strength
+        </div>
+        <em style="font-size: 0.8em; opacity: 0.7;">Click for details</em>
     `
     
     // Position tooltip
@@ -585,8 +597,42 @@ class NarrativeClusterVisualization {
     tooltip.style.left = (event.pageX + 10) + 'px'
     tooltip.style.top = (event.pageY - 10) + 'px'
     tooltip.style.display = 'block'
-  }
+    }
+// Add this method to the NarrativeClusterVisualization class
+createLegend() {
+  const legendData = [
+    { label: 'Positive', color: this.colors.positive },
+    { label: 'Negative', color: this.colors.negative },
+    { label: 'Neutral', color: this.colors.neutral }
+  ]
   
+  const legend = this.svg.append('g')
+    .attr('class', 'legend')
+    .attr('transform', `translate(20, 20)`)
+  
+  const legendItems = legend.selectAll('.legend-item')
+    .data(legendData)
+    .enter().append('g')
+    .attr('class', 'legend-item')
+    .attr('transform', (d, i) => `translate(0, ${i * 25})`)
+  
+  legendItems.append('circle')
+    .attr('r', 8)
+    .style('fill', d => d.color)
+    .style('stroke', 'rgba(255, 255, 255, 0.3)')
+    .style('stroke-width', 1)
+  
+  legendItems.append('text')
+    .attr('x', 15)
+    .attr('y', 0)
+    .attr('dy', '0.35em')
+    .style('font-size', '12px')
+    .style('fill', document.body.classList.contains('dark-theme') ? '#fff' : '#333')
+    .text(d => d.label)
+}
+
+// Call it in the init method after setupSVG
+this.createLegend()
   hideTooltip() {
     const tooltip = document.getElementById('narrative-tooltip')
     if (tooltip) {
@@ -594,11 +640,73 @@ class NarrativeClusterVisualization {
     }
   }
   
-  truncateText(text, radius) {
-    const maxLength = Math.floor(radius / 4)
-    if (text.length <= maxLength) return text
-    return text.substring(0, maxLength - 3) + '...'
-  }
+    // Update the truncateText method to be less aggressive
+    truncateText(text, radius) {
+    // Calculate max characters based on radius
+    // More generous with space
+    const charsPerPixel = 0.15; // Increased from 0.25
+    const maxLength = Math.floor(radius * 2 * charsPerPixel);
+    
+    if (text.length <= maxLength) return text;
+    
+    // Try to break at word boundary
+    const truncated = text.substring(0, maxLength - 3);
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.6) {
+        return truncated.substring(0, lastSpace) + '...';
+    }
+    
+    return truncated + '...';
+    }
+
+    // Add method to get display text for a node
+    getNodeDisplayText(node) {
+    // For small nodes, show just the main entity
+    if (node.radius < 30) {
+        const entities = Array.from(node.entities || []);
+        if (entities.length > 0) {
+        // Get the shortest meaningful entity
+        const sorted = entities
+            .filter(e => e.length > 2)
+            .sort((a, b) => a.length - b.length);
+        return sorted[0] ? sorted[0].toUpperCase() : node.title;
+        }
+    }
+    
+    // For medium nodes, show abbreviated title
+    if (node.radius < 50) {
+        // Try to get first two words or main entity
+        const words = node.title.split(/[\s\-\(]/);
+        if (words.length >= 2) {
+        return words.slice(0, 2).join(' ');
+        }
+    }
+    
+    // For large nodes, show more of the title
+    return node.title;
+    }
+
+    // In updateNodes method, replace the text setting part:
+    nodeEnter.append('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '.35em')
+    .style('fill', isDark ? this.colors.text.dark : this.colors.text.light)
+    .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
+    .style('font-weight', '600')
+    .style('pointer-events', 'none')
+    .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
+    .style('opacity', 0)
+    .transition()
+    .duration(this.config.transitionDuration)
+    .style('opacity', 1)
+
+    // Update existing nodes text
+    node.select('text')
+    .text(d => this.truncateText(this.getNodeDisplayText(d), d.radius))
+    .style('font-size', d => Math.min(d.radius / 3, 14) + 'px')
+
+    
   
   resetZoom() {
     this.svg.transition()

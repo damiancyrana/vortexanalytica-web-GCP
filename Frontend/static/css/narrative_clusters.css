@@ -521,3 +521,32 @@ body.dark-theme .narrative-error {
 .node.new {
   animation: nodeAppear 0.5s ease-out;
 }
+
+
+/* Entity abbreviation badges */
+.node-abbrev {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  fill: currentColor;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+/* Multi-line text support */
+.node-label-line1,
+.node-label-line2 {
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.node-label-line1 {
+  font-weight: 700;
+}
+
+.node-label-line2 {
+  font-size: 0.85em;
+  opacity: 0.8;
+}

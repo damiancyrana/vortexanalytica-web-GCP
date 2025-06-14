@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sseConnection.connect()
   }
   
+
   // Initialize
   const initialize = async () => {
     console.log("Initializing news system...")
@@ -230,6 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Then setup real-time connection
     setupConnection()
+    
+    // Initialize narrative visualization if DOM is ready
+    setTimeout(() => {
+      if (typeof window.NarrativeClusterVisualization === 'function') {
+        const container = document.getElementById('dashboard-container')
+        if (container && !window.narrativeViz) {
+          console.log("Creating narrative visualization...")
+          window.narrativeViz = new window.NarrativeClusterVisualization('dashboard-container')
+        }
+      }
+    }, 1000) // Give time for the dashboard to render
   }
   
   // Wait for auth system to be ready

@@ -93,13 +93,59 @@ class NarrativeService:
         """Extract key entities from a message."""
         entities = set()
         
-        # Extract from interpretation_tags
+        # Handle nested structure: analysis_payload.knowledge_graph_data
+        if "analysis_payload" in message:
+            knowledge_data = message["analysis_payload"].get("knowledge_graph_data", {})
+            
+            # Extract from interpretation_tags
+            if "interpretation_tags" in knowledge_data:
+                for tag in knowledge_data["interpretation_tags"]:
+                    if tag and isinstance(tag, str):
+                        entities.add(tag.lower())
+            
+            # Extract from entities
+            if "extracted_entities" in knowledge_data:
+                for entity in knowledge_data["extracted_entities"]:
+                    if isinstance(entity, dict):
+                        text = entity.get("normalized_name") or entity.get("text")
+                        if text:
+                            entities.add(text.lower())
+        
+        # Also check for whirlpool_analysis structure (from regular topic)
+        if "analysis_payload" in message:
+            whirlpool_data = message["analysis_payload"].get("whirlpool_analysis", {})
+            
+            # Extract from suggested_labels
+            if "suggested_labels" in whirlpool_data:
+                for label in whirlpool_data["suggested_labels"]:
+                    if label and isinstance(label, str):
+                        entities.add(label.lower())
+            
+            # Extract from extracted_entities
+            if "extracted_entities" in whirlpool_data:
+                entities_data = whirlpool_data["extracted_entities"]
+                
+                # Organizations
+                for org in entities_data.get("organizations", []):
+                    if isinstance(org, dict) and "name" in org:
+                        entities.add(org["name"].lower())
+                
+                # Individuals
+                for person in entities_data.get("individuals", []):
+                    if isinstance(person, dict) and "name" in person:
+                        entities.add(person["name"].lower())
+                
+                # Locations
+                for location in entities_data.get("locations", []):
+                    if isinstance(location, dict) and "name" in location:
+                        entities.add(location["name"].lower())
+        
+        # Fallback to direct fields if they exist (for backward compatibility)
         if "interpretation_tags" in message:
             for tag in message["interpretation_tags"]:
                 if tag and isinstance(tag, str):
                     entities.add(tag.lower())
         
-        # Extract from entities
         if "extracted_entities" in message:
             for entity in message["extracted_entities"]:
                 if isinstance(entity, dict):
@@ -107,6 +153,7 @@ class NarrativeService:
                     if text:
                         entities.add(text.lower())
         
+        logger.debug(f"Extracted entities from message {message.get('news_id', 'unknown')}: {entities}")
         return entities
 
     def _calculate_similarity(self, entities1: Set[str], entities2: Set[str]) -> float:
@@ -182,6 +229,7 @@ class NarrativeService:
         try:
             message_id = message.get("news_id")
             if not message_id:
+                logger.debug("Message has no news_id, skipping")
                 return None
             
             # Skip if already processed
@@ -191,7 +239,10 @@ class NarrativeService:
             # Extract entities
             entities = self._extract_key_entities(message)
             if not entities:
+                logger.debug(f"No entities found in message {message_id}: {message.get('title', 'no title')}")
                 return None
+            
+            logger.debug(f"Found entities for message {message_id}: {entities}")
             
             # Find or create narrative
             narrative_id = self._find_narrative_for_message(message, entities)
@@ -204,12 +255,53 @@ class NarrativeService:
                 narrative["last_update"] = time.time()
                 
                 # Update sentiment scores
-                sentiment = message.get("sentiment", "neutral").lower()
+                sentiment = "neutral"  # default
+                
+                # Extract sentiment from nested structure
+                if "analysis_payload" in message:
+                    knowledge_data = message["analysis_payload"].get("knowledge_graph_data", {})
+                    if "sentiment" in knowledge_data:
+                        sentiment_data = knowledge_data["sentiment"]
+                        if isinstance(sentiment_data, dict):
+                            sentiment = sentiment_data.get("label", "neutral").lower()
+                        else:
+                            sentiment = str(sentiment_data).lower()
+                    
+                    # Also check whirlpool analysis
+                    whirlpool_data = message["analysis_payload"].get("whirlpool_analysis", {})
+                    if "sentiment_analysis" in whirlpool_data:
+                        overall_sentiment = whirlpool_data["sentiment_analysis"].get("overall_sentiment", {})
+                        if isinstance(overall_sentiment, dict):
+                            sentiment = overall_sentiment.get("label", "neutral").lower()
+                else:
+                    # Fallback for direct sentiment field
+                    sentiment = message.get("sentiment", "neutral").lower()
+                
                 if sentiment in narrative["sentiment_scores"]:
                     narrative["sentiment_scores"][sentiment] += 1
+                
+                logger.info(f"Added message {message_id} to existing narrative {narrative_id}")
             else:
                 # Create new narrative
                 narrative_id = self._create_narrative_id()
+                
+                # Extract sentiment for new narrative
+                sentiment = "neutral"
+                if "analysis_payload" in message:
+                    knowledge_data = message["analysis_payload"].get("knowledge_graph_data", {})
+                    if "sentiment" in knowledge_data:
+                        sentiment_data = knowledge_data["sentiment"]
+                        if isinstance(sentiment_data, dict):
+                            sentiment = sentiment_data.get("label", "neutral").lower()
+                        else:
+                            sentiment = str(sentiment_data).lower()
+                    
+                    whirlpool_data = message["analysis_payload"].get("whirlpool_analysis", {})
+                    if "sentiment_analysis" in whirlpool_data:
+                        overall_sentiment = whirlpool_data["sentiment_analysis"].get("overall_sentiment", {})
+                        if isinstance(overall_sentiment, dict):
+                            sentiment = overall_sentiment.get("label", "neutral").lower()
+                
                 self._narratives[narrative_id] = {
                     "id": narrative_id,
                     "messages": [message_id],
@@ -217,13 +309,15 @@ class NarrativeService:
                     "created": time.time(),
                     "last_update": time.time(),
                     "sentiment_scores": {
-                        "positive": 1 if message.get("sentiment", "").lower() == "positive" else 0,
-                        "negative": 1 if message.get("sentiment", "").lower() == "negative" else 0,
-                        "neutral": 1 if message.get("sentiment", "").lower() == "neutral" else 0,
+                        "positive": 1 if sentiment == "positive" else 0,
+                        "negative": 1 if sentiment == "negative" else 0,
+                        "neutral": 1 if sentiment == "neutral" else 0,
                     },
                     "title": self._generate_narrative_title(message, entities),
-                    "summary": message.get("interpretation", "")[:200]
+                    "summary": self._extract_summary(message)
                 }
+                
+                logger.info(f"Created new narrative {narrative_id} for message {message_id}")
             
             self._message_to_narrative[message_id] = narrative_id
             self._last_update = time.time()
@@ -239,16 +333,74 @@ class NarrativeService:
             return narrative_id
             
         except Exception as e:
-            logger.error(f"Error adding message to narratives: {e}")
+            logger.error(f"Error adding message to narratives: {e}", exc_info=True)
             return None
 
     def _generate_narrative_title(self, message: Dict[str, Any], entities: Set[str]) -> str:
         """Generate a title for the narrative."""
-        # Use most common entities
-        entity_list = list(entities)[:3]
-        if entity_list:
-            return f"Developments in {', '.join(entity_list)}"
+        # Use the most prominent entities
+        entity_list = list(entities)
+        
+        # Sort entities by relevance (prioritize certain types)
+        priority_entities = []
+        other_entities = []
+        
+        for entity in entity_list:
+            entity_lower = entity.lower()
+            # Prioritize countries, companies, and specific topics
+            if any(keyword in entity_lower for keyword in ['iran', 'israel', 'us', 'united states', 'russia', 'china', 'bitcoin', 'oil', 'gold']):
+                priority_entities.append(entity)
+            else:
+                other_entities.append(entity)
+        
+        # Combine prioritized entities first
+        final_entities = (priority_entities[:2] + other_entities[:1])[:3]
+        
+        if final_entities:
+            # Create more diverse titles based on entity combinations
+            if len(final_entities) == 1:
+                return final_entities[0].title()
+            elif len(final_entities) == 2:
+                return f"{final_entities[0].title()} - {final_entities[1].title()}"
+            else:
+                # For 3+ entities, create a more compact format
+                main_entity = final_entities[0].title()
+                others = ", ".join(e.title() for e in final_entities[1:3])
+                return f"{main_entity} ({others})"
+        
+        # Fallback: extract key words from the first message title
+        if "title" in message:
+            # Extract key words (capitalized words, countries, etc.)
+            words = message["title"].split()
+            key_words = []
+            for word in words:
+                if word[0].isupper() and len(word) > 2 and word not in ['The', 'And', 'For', 'But']:
+                    key_words.append(word)
+            
+            if key_words:
+                return " ".join(key_words[:3])
+        
         return "Market Update"
+
+    def _extract_summary(self, message: Dict[str, Any]) -> str:
+        """Extract summary from message."""
+        # Try to get interpretation from knowledge graph data
+        if "analysis_payload" in message:
+            knowledge_data = message["analysis_payload"].get("knowledge_graph_data", {})
+            if "interpretation" in knowledge_data:
+                return knowledge_data["interpretation"][:200]
+            
+            # Try whirlpool analysis summary
+            whirlpool_data = message["analysis_payload"].get("whirlpool_analysis", {})
+            if "summary" in whirlpool_data:
+                return whirlpool_data["summary"][:200]
+        
+        # Fallback to interpretation field
+        if "interpretation" in message:
+            return message["interpretation"][:200]
+        
+        # Fallback to title
+        return message.get("title", "")[:200]
 
     async def _store_narrative_in_redis(self, narrative_id: str, narrative: Dict[str, Any]) -> None:
         """Store narrative in Redis."""
@@ -307,6 +459,7 @@ class NarrativeService:
                 )[:limit]
                 narratives = sorted_narratives
             
+            logger.info(f"Retrieved {len(narratives)} active narratives")
             return narratives
             
         except Exception as e:
@@ -467,4 +620,3 @@ class NarrativeService:
                 
         except Exception as e:
             logger.warning(f"Error closing narrative Redis connections: {e}")
-            
