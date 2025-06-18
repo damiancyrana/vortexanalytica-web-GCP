@@ -43,7 +43,7 @@ html {
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     font-size: 17px;
-    line-height: 1.47059;
+    line-height: 1.5;
     color: var(--dark);
     background: var(--gray-100);
     overflow-x: hidden;
@@ -476,7 +476,7 @@ body {
     gap: 12px;
 }
 
-.btn-social {
+.social-btn {
     flex: 1;
     display: flex;
     align-items: center;
@@ -494,24 +494,24 @@ body {
     transition: var(--transition);
 }
 
-.btn-social:hover {
+.social-btn:hover {
     border-color: var(--gray-400);
     background: var(--gray-100);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-.btn-social.google:hover {
+.social-btn.google:hover {
     border-color: #db4437;
     color: #db4437;
 }
 
-.btn-social.microsoft:hover {
+.social-btn.microsoft:hover {
     border-color: #0078d4;
     color: #0078d4;
 }
 
-.btn-social i {
+.social-btn i {
     font-size: 18px;
 }
 
@@ -757,7 +757,7 @@ body {
         flex-direction: column;
     }
     
-    .btn-social {
+    .social-btn {
         width: 100%;
     }
 }
