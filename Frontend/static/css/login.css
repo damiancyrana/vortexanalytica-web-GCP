@@ -72,6 +72,12 @@ body {
     justify-content: space-between;
 }
 
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .logo-text {
     background: var(--gradient-text);
     -webkit-background-clip: text;
