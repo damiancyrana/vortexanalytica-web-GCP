@@ -108,6 +108,12 @@
             justify-content: space-between;
         }
 
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
 
         .logo-text {
             background: var(--gradient-text);
@@ -115,14 +121,38 @@
             background-clip: text;
             color: transparent;
             font-family: 'Inter', sans-serif;
-            font-size: 1rem; 
+            font-size: 1rem;
             font-weight: 600;
             letter-spacing: .02em;
             text-transform: uppercase;
             line-height: 1;
             white-space: nowrap;
-            margin-left: 35px; 
+            margin-left: 35px;
             text-decoration: none;
+        }
+
+        @media (min-width: 768px) {
+            .logo-text {
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .logo-text {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 900px) and (max-height: 600px) and (orientation: landscape) {
+            .logo-text {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .logo-text {
+                font-size: 0.9rem;
+            }
         }
 
         .nav-links {
