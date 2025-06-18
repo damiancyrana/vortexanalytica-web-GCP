@@ -1,11 +1,17 @@
 :root {
-  --blue: #00c6ff;
-  --teal: #3affc3;
+  /* Updated with landing page colors while keeping original structure */
+  --primary: #125259;
+  --secondary: #69B7BF;
+  
+  /* Keep original color names but update values */
+  --blue: #125259;
+  --teal: #69B7BF;
   --purple: #b967ff;
   --text-sec: rgba(240, 240, 245, 0.8);
-  --gradient-text: linear-gradient(90deg, var(--blue), var(--teal));
+  --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
   --blur: blur(10px);
 
+  /* Keep all original layout variables unchanged */
   --header-height: 50px;
   --sidebar-width: 210px;
   --sidebar-collapsed-width: 56px;
@@ -13,68 +19,74 @@
   --content-max-width: 95%;
   --t-fast: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 
-  --bg-body-light: #f4f6fb;
+  /* Enhanced light theme with liquid glass feel */
+  --bg-body-light: #f8f9fa;
   --bg-content-light: #ffffff;
-  --bg-container-light: #f9fbfd;
+  --bg-container-light: #ffffff;
   --text-color-light: #1e293b;
   --text-muted-light: #6b7280;
-  --border-color-light: #dfe3ec;
-  --header-bg-light: #0f172a;
-  --header-border-light: var(--border-color-light);
-  --footer-bg-light: #f4f6fb;
-  --footer-border-light: var(--border-color-light);
+  --border-color-light: #e5e7eb;
+  --header-bg-light: rgba(255, 255, 255, 0.85);
+  --header-border-light: rgba(0, 0, 0, 0.06);
+  --footer-bg-light: rgba(248, 249, 250, 0.85);
+  --footer-border-light: rgba(0, 0, 0, 0.06);
   --item-bg-light: #ffffff;
   --item-border-light: rgba(31, 48, 76, 0.08);
-  --control-bg-light: #edf1f7;
-  --link-color-light: var(--blue);
+  --control-bg-light: #f3f4f6;
+  --link-color-light: var(--primary);
 
-  --light-bg: #f4f6fb;
+  /* Keep all other light theme variables as original */
+  --light-bg: #f8f9fa;
   --light-text: #1e293b;
   --light-text-muted: #6b7280;
-  --light-accent: var(--blue);
-  --light-border: #dfe3ec;
-  --light-sidebar-bg: #e9eef5;
-  --light-sidebar-hover: rgba(0, 198, 255, 0.08);
-  --light-sidebar-active: rgba(0, 198, 255, 0.14);
-  --light-header-bg: #0f172a;
-  --light-header-text: #ffffff;
-  --light-btn-bg: #334155;
+  --light-accent: var(--primary);
+  --light-border: #e5e7eb;
+  --light-sidebar-bg: rgba(255, 255, 255, 0.85);
+  --light-sidebar-hover: rgba(18, 82, 89, 0.08);
+  --light-sidebar-active: rgba(18, 82, 89, 0.14);
+  --light-header-bg: rgba(255, 255, 255, 0.85);
+  --light-header-text: #1e293b;
+  --light-btn-bg: var(--primary);
   --light-btn-text: #ffffff;
-  --light-btn-border: #405875;
+  --light-btn-border: var(--primary);
 
+  /* Enhanced dark theme */
   --bg-dark: #0a0a10;
   --bg-dark-medium: #1c2735;
   --text-color-dark: #e2e8f0;
-  --text-muted-dark: #7c8699;
-  --border-color-dark: rgba(0, 229, 255, 0.12);
-  --header-bg-dark: rgba(14, 14, 22, 0.7);
-  --header-border-dark: rgba(0, 229, 255, 0.12);
-  --footer-bg-dark: rgba(14, 14, 22, 0.9);
-  --footer-border-dark: rgba(0, 229, 255, 0.12);
+  --text-muted-dark: #8e96a9;
+  --border-color-dark: rgba(105, 183, 191, 0.12);
+  --header-bg-dark: rgba(14, 14, 22, 0.85);
+  --header-border-dark: rgba(105, 183, 191, 0.12);
+  --footer-bg-dark: rgba(14, 14, 22, 0.85);
+  --footer-border-dark: rgba(105, 183, 191, 0.12);
   --item-bg-dark: rgba(32, 38, 64, 0.7);
   --container-bg-dark: rgba(20, 24, 36, 0.6);
-  --item-border-dark: rgba(0, 229, 255, 0.12);
+  --item-border-dark: rgba(105, 183, 191, 0.12);
   --control-bg-dark: rgba(0, 0, 0, 0.25);
-  --link-color-dark: var(--blue);
+  --link-color-dark: var(--secondary);
 
+  /* Keep all other dark theme variables as original */
   --dark-bg: #0a0a10;
   --dark-text: #e2e8f0;
   --dark-text-muted: #8e96a9;
-  --dark-accent: var(--blue);
-  --dark-border: rgba(0, 229, 255, 0.12);
+  --dark-accent: var(--secondary);
+  --dark-border: rgba(105, 183, 191, 0.12);
   --dark-sidebar-bg: rgba(14, 14, 22, 0.9);
-  --dark-sidebar-hover: rgba(0, 229, 255, 0.08);
-  --dark-sidebar-active: rgba(0, 229, 255, 0.14);
-  --dark-header-bg: #0e0e16;
+  --dark-sidebar-hover: rgba(105, 183, 191, 0.08);
+  --dark-sidebar-active: rgba(105, 183, 191, 0.14);
+  --dark-header-bg: rgba(14, 14, 22, 0.85);
   --dark-header-text: #ffffff;
   --dark-btn-bg: transparent;
   --dark-btn-text: #ffffff;
   --dark-btn-border: rgba(255, 255, 255, 0.2);
 
+  /* Keep all logout variables unchanged */
   --logout-dark: var(--bg-dark, #1f2335);
-  --logout-middle: var(--accent-color, #00c6ff);
+  --logout-middle: var(--accent-color, #125259);
   --logout-light: var(--text-color-dark, #f4f7ff);
 
+  /* Keep all current variables unchanged */
   --current-bg-body: var(--bg-body-light);
   --current-bg-content: var(--bg-content-light);
   --current-bg-container: var(--bg-container-light);
@@ -90,11 +102,11 @@
   --current-control-bg: var(--control-bg-light);
   --current-link-color: var(--link-color-light);
 
-  --accent-color: var(--blue);
-  --accent-color-hover: var(--teal);
+  --accent-color: var(--primary);
+  --accent-color-hover: var(--secondary);
 }
 
-/* Base Styles - Mobile First Approach */
+/* Keep all base styles exactly as original */
 * {
   box-sizing: border-box;
 }
@@ -110,7 +122,7 @@ body {
   margin: 0;
   height: 100vh;
   overflow: hidden;
-  font-family: 'Playfair Display', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
   background-color: var(--current-bg-body);
   color: var(--current-text-color);
   display: flex;
@@ -122,9 +134,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Light theme (default) */
+/* Light theme - enhance with subtle gradients */
 body:not(.dark-theme) {
-  background-color: var(--bg-body-light);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  /* Keep all variable assignments as original */
   --current-bg-body: var(--bg-body-light);
   --current-bg-content: var(--bg-content-light);
   --current-bg-container: var(--bg-container-light);
@@ -141,10 +154,13 @@ body:not(.dark-theme) {
   --current-link-color: var(--link-color-light);
 }
 
+/* Dark theme - enhance gradient */
 body.dark-theme {
-  /* Use consistent gradient across all devices */
-  background: #0a0a10; /* Fallback solid color */
-  background: radial-gradient(circle at center, #003641 0%, #00212b 40%, #00111a 70%, #000a0f 100%);
+  background: #0a0a10;
+  background: radial-gradient(ellipse at top left, rgba(18, 82, 89, 0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(105, 183, 191, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at center, #0a0a10 0%, #000000 100%);
+  /* Keep all variable assignments as original */
   --current-bg-body: var(--bg-dark);
   --current-bg-content: transparent;
   --current-bg-container: var(--container-bg-dark);
@@ -164,7 +180,7 @@ body.dark-theme {
   --logout-light: var(--text-color-dark);
 }
 
-/* Quantum Field Background */
+/* Keep quantum field exactly as original */
 #quantum-field {
   position: fixed;
   top: 0;
@@ -176,20 +192,20 @@ body.dark-theme {
   display: block;
   opacity: 0.25;
   transition: opacity 0.5s ease-in-out;
-  background-color: #0a0a10; /* Fallback for when canvas doesn't render */
+  background-color: #0a0a10;
 }
 
 body.dark-theme #quantum-field {
   opacity: 0.5;
-  background-color: #0a0a10; /* Ensure consistent dark background */
+  background-color: #0a0a10;
 }
 
 body:not(.dark-theme) #quantum-field {
   opacity: 0.25;
-  background-color: #f4f6fb; /* Light theme fallback */
+  background-color: #f4f6fb;
 }
 
-/* Header */
+/* Header - enhance with glass effect */
 header {
   position: fixed;
   top: 0;
@@ -199,20 +215,24 @@ header {
   height: var(--header-height);
   background: var(--current-header-bg);
   border-bottom: 1px solid var(--current-header-border);
-  backdrop-filter: var(--blur);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   padding: 0 1rem;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: background-color var(--t-fast), border-color var(--t-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+/* Keep the light theme header special case */
 body:not(.dark-theme) header {
   background-color: var(--light-header-bg);
   border-bottom: 1px solid var(--light-border);
 }
 
+/* Keep all header child elements exactly as original */
 .header-container {
   display: flex;
   align-items: center;
@@ -233,12 +253,9 @@ body:not(.dark-theme) header {
   gap: 0.5rem;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
 
+
+/* Update logo gradient to use new colors */
 .logo-text {
   background: var(--gradient-text);
   -webkit-background-clip: text;
@@ -247,13 +264,14 @@ body:not(.dark-theme) header {
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: .04em;
+  letter-spacing: .02em;
   text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
+  margin-left: 35px;
 }
 
-/* Mobile Menu Toggle - Always visible on mobile */
+/* Keep all menu toggle styles exactly as original */
 .menu-toggle {
   background: none;
   border: none;
@@ -276,12 +294,12 @@ body:not(.dark-theme) .menu-toggle {
   color: var(--accent-color);
 }
 
-/* Hide nav buttons on mobile - they're in sidebar */
+/* Keep nav buttons hidden on mobile as original */
 .nav-buttons {
   display: none;
 }
 
-/* User Controls */
+/* Keep all user controls styles exactly as original */
 .user-controls {
   display: flex;
   align-items: center;
@@ -290,7 +308,7 @@ body:not(.dark-theme) .menu-toggle {
 }
 
 .user-info {
-  display: none; /* Hidden on mobile by default */
+  display: none;
   color: var(--current-text-color);
   font-size: 0.85rem;
   white-space: nowrap;
@@ -309,14 +327,14 @@ body:not(.dark-theme) #user-display-name {
   color: var(--light-accent);
 }
 
-/* Header Button */
+/* Update header button styles with new colors */
 .header-btn {
-  display: none; /* Hidden on mobile */
+  display: none;
   padding: 6px 14px;
   background-color: var(--dark-btn-bg);
   color: var(--dark-btn-text);
   border: 1px solid var(--dark-btn-border);
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -325,6 +343,7 @@ body:not(.dark-theme) #user-display-name {
   justify-content: center;
   font-family: 'Inter', sans-serif;
   min-width: 80px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 body:not(.dark-theme) .header-btn {
@@ -336,16 +355,18 @@ body:not(.dark-theme) .header-btn {
 .header-btn:hover {
   color: var(--dark-accent);
   border-color: var(--dark-accent);
-  background-color: rgba(0, 229, 255, 0.05);
+  background-color: rgba(105, 183, 191, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 body:not(.dark-theme) .header-btn:hover {
   color: var(--light-btn-text);
   border-color: var(--light-accent);
-  background-color: rgba(0, 198, 255, 0.2);
+  background-color: var(--primary-dark);
 }
 
-/* Main Content */
+/* Keep all main content styles exactly as original */
 .main-content {
   flex-grow: 1;
   overflow: hidden;
@@ -383,7 +404,7 @@ body:not(.dark-theme) .empty-content {
   color: var(--light-text-muted);
 }
 
-/* View Sections */
+/* Keep all view sections exactly as original */
 .view-section {
   flex-grow: 1;
   overflow: hidden;
@@ -411,7 +432,7 @@ body:not(.dark-theme) .empty-content {
   border: none;
 }
 
-/* News Container - Mobile First */
+/* Keep news container exactly as original */
 .news-container {
   width: 100%;
   height: 100%;
@@ -422,14 +443,14 @@ body:not(.dark-theme) .empty-content {
   border: none;
   padding: 0;
   margin-left: 20px;
-  padding-top: 20px; /* Increased padding to prevent content hiding under header */
+  padding-top: 20px;
   box-sizing: border-box;
 }
 
-/* Messages/Narrative Containers */
+/* Messages/Narrative Containers - enhance with liquid glass */
 .messages-container,
 .narrative-clusters-container {
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -437,22 +458,54 @@ body:not(.dark-theme) .empty-content {
   box-sizing: border-box;
   transition: background-color var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
   background-color: transparent;
+  position: relative;
+}
+
+/* Enhanced liquid glass effect */
+.messages-container::before,
+.narrative-clusters-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
 }
 
 body.dark-theme .messages-container,
 body.dark-theme .narrative-clusters-container {
-  background-color: transparent;
+  background-color: rgba(20, 24, 36, 0.6);
   border: 1px solid var(--border-color-dark);
-  backdrop-filter: blur(4px);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+body.dark-theme .messages-container::before,
+body.dark-theme .narrative-clusters-container::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 40%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
 }
 
 body:not(.dark-theme) .messages-container,
 body:not(.dark-theme) .narrative-clusters-container {
-  background-color: rgba(255, 255, 255, 0.65);
+  background-color: rgba(255, 255, 255, 0.85);
   border: 1px solid var(--current-border-color);
-  backdrop-filter: blur(4px);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
+/* Keep all message header styles exactly as original but ensure z-index for glass effect */
 .messages-header {
   display: flex;
   justify-content: space-between;
@@ -462,13 +515,16 @@ body:not(.dark-theme) .narrative-clusters-container {
   border-bottom: 1px solid var(--current-border-color);
   background-color: transparent;
   transition: border-color var(--t-fast), padding var(--t-fast);
+  position: relative;
+  z-index: 2;
 }
 
 body.dark-theme .messages-header {
   background-color: transparent;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+  border-bottom: 1px solid rgba(105, 183, 191, 0.15);
 }
 
+/* Keep all other message styles exactly as original */
 .messages-title {
   display: flex;
   align-items: center;
@@ -481,13 +537,15 @@ body.dark-theme .messages-header {
 .messages-controls {
   display: flex;
   gap: 6px;
+  position: relative;
+  z-index: 2;
 }
 
 .message-filter {
   background-color: var(--current-control-bg);
   color: var(--current-text-color);
   border: 1px solid var(--current-border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 4px 8px;
   font-size: 0.8rem;
   font-family: inherit;
@@ -504,7 +562,7 @@ body.dark-theme .messages-header {
   background-color: var(--current-control-bg);
   color: var(--current-text-muted);
   border: 1px solid var(--current-border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -532,10 +590,13 @@ body.dark-theme .messages-header {
   flex-direction: column;
   gap: 12px;
   transition: padding var(--t-fast), gap var(--t-fast);
+  position: relative;
+  z-index: 2;
 }
 
+/* Enhanced message items with liquid glass */
 .message-item {
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 10px;
   min-height: 70px;
   display: flex;
@@ -543,32 +604,55 @@ body.dark-theme .messages-header {
   justify-content: space-between;
   flex-shrink: 0;
   transition: padding var(--t-fast), transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add liquid glass shimmer to message items */
+.message-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.message-item:hover::before {
+  opacity: 1;
 }
 
 body.dark-theme .message-item {
   background-color: var(--item-bg-dark);
   border: 1px solid var(--item-border-dark);
-  backdrop-filter: blur(1px);
+  backdrop-filter: blur(10px);
 }
 
 body:not(.dark-theme) .message-item {
   background-color: var(--current-item-bg);
   border: 1px solid var(--current-item-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 body.dark-theme .message-item:hover {
   transform: translateY(-2px) scale(1.005);
-  border-color: rgba(0, 229, 255, 0.3);
+  border-color: rgba(105, 183, 191, 0.3);
   background-color: rgba(36, 41, 74, 0.75);
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 12px rgba(105, 183, 191, 0.15);
 }
 
 body:not(.dark-theme) .message-item:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: var(--accent-color);
 }
 
+/* Keep all other message item styles exactly as original */
 .message-item .message-header {
   display: flex;
   justify-content: space-between;
@@ -610,18 +694,19 @@ body:not(.dark-theme) .message-item:hover {
   flex-shrink: 0;
 }
 
+/* Update message categories with new colors */
 .message-category {
   font-size: 0.65rem;
   font-weight: 600;
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: 4px;
   letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
 .message-category.equities {
-  background-color: rgba(52, 152, 219, 0.15);
-  color: #3498db;
+  background-color: rgba(18, 82, 89, 0.15);
+  color: var(--primary);
 }
 
 .message-category.crypto {
@@ -630,8 +715,8 @@ body:not(.dark-theme) .message-item:hover {
 }
 
 .message-category.forex {
-  background-color: rgba(46, 204, 113, 0.15);
-  color: #2ecc71;
+  background-color: rgba(105, 183, 191, 0.15);
+  color: var(--secondary);
 }
 
 .message-category.commodities {
@@ -639,6 +724,7 @@ body:not(.dark-theme) .message-item:hover {
   color: #e67e22;
 }
 
+/* Keep strength bar styles exactly as original */
 .strength-bar-container {
   height: 3px;
   border-radius: 1.5px;
@@ -681,7 +767,7 @@ body.dark-theme .strength-bar {
   }
 }
 
-/* Sidebar - Mobile First */
+/* Sidebar - enhance with glass effect while keeping structure */
 .sidebar {
   position: fixed;
   left: -100%;
@@ -690,13 +776,16 @@ body.dark-theme .strength-bar {
   max-width: 280px;
   height: calc(100vh - var(--header-height));
   background-color: var(--dark-sidebar-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-right: 1px solid var(--dark-border);
   z-index: 998;
-  overflow-y: auto; overflow-x: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   transition: left 0.3s ease-in-out;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column; /* Ensure proper layout */
+  flex-direction: column;
 }
 
 body:not(.dark-theme) .sidebar {
@@ -704,12 +793,11 @@ body:not(.dark-theme) .sidebar {
   border-right: 1px solid var(--light-border);
 }
 
-/* Sidebar Mobile Open State */
+/* Keep all other sidebar styles exactly as original */
 .sidebar.mobile-open {
   left: 0;
 }
 
-/* Sidebar Overlay for Mobile */
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -729,7 +817,6 @@ body:not(.dark-theme) .sidebar {
   visibility: visible;
 }
 
-/* Sidebar Header */
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -737,7 +824,7 @@ body:not(.dark-theme) .sidebar {
   padding: 12px;
   border-bottom: 1px solid var(--dark-border);
   min-height: 48px;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
 body:not(.dark-theme) .sidebar-header {
@@ -754,7 +841,6 @@ body:not(.dark-theme) .sidebar-header {
   white-space: nowrap;
 }
 
-/* Hide pin button on mobile */
 .sidebar-pin-btn {
   display: none;
   background: none;
@@ -795,17 +881,15 @@ body:not(.dark-theme) .sidebar-pin-btn.pinned {
   background-color: var(--light-sidebar-active);
 }
 
-/* Sidebar Content */
 .sidebar-content {
-  flex: 1; /* Take remaining space */
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 0;
   -webkit-overflow-scrolling: touch;
-  margin-bottom: 0; /* Remove any margin that might hide footer */
+  margin-bottom: 0;
 }
 
-/* Sidebar Menu */
 .sidebar-menu {
   list-style: none;
   padding: 0;
@@ -871,9 +955,8 @@ body:not(.dark-theme) .sidebar-menu a.active {
   transition: opacity 0.2s;
 }
 
-/* Sidebar Footer */
 .sidebar-footer {
-  position: relative; /* Changed from absolute for better mobile support */
+  position: relative;
   bottom: auto;
   left: 0;
   right: 0;
@@ -881,12 +964,12 @@ body:not(.dark-theme) .sidebar-menu a.active {
   border-top: 1px solid var(--dark-border);
   background-color: var(--dark-sidebar-bg);
   height: 60px;
-  min-height: 60px; /* Ensure minimum height */
+  min-height: 60px;
   display: flex;
   align-items: center;
   z-index: 10;
-  flex-shrink: 0; /* Prevent shrinking */
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); /* Add shadow for visibility */
+  flex-shrink: 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
 
 body:not(.dark-theme) .sidebar-footer {
@@ -904,8 +987,8 @@ body:not(.dark-theme) .sidebar-footer {
   border-radius: 4px;
   width: 100%;
   -webkit-tap-highlight-color: transparent;
-  background-color: rgba(255, 255, 255, 0.05); /* Slight background for visibility */
-  min-height: 48px; /* Ensure good touch target */
+  background-color: rgba(255, 255, 255, 0.05);
+  min-height: 48px;
 }
 
 .sidebar-theme-toggle:hover,
@@ -924,7 +1007,7 @@ body:not(.dark-theme) .sidebar-theme-toggle:hover {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--dark-accent); /* Make icon more visible */
+  color: var(--dark-accent);
 }
 
 body:not(.dark-theme) .sidebar-theme-toggle i {
@@ -934,17 +1017,17 @@ body:not(.dark-theme) .sidebar-theme-toggle i {
 .sidebar-theme-toggle span {
   margin-left: 12px;
   white-space: nowrap;
-  opacity: 1; /* Always visible */
+  opacity: 1;
   transition: opacity 0.2s;
-  color: var(--dark-text); /* Ensure text color is visible */
-  font-size: 0.9rem; /* Slightly larger text */
+  color: var(--dark-text);
+  font-size: 0.9rem;
 }
 
 body:not(.dark-theme) .sidebar-theme-toggle span {
   color: var(--light-text);
 }
 
-/* Footer - Mobile Optimized */
+/* Footer - enhance with glass effect */
 footer {
   width: 100%;
   background-color: var(--current-footer-bg);
@@ -956,9 +1039,12 @@ footer {
   position: relative;
   z-index: 1;
   transition: background-color var(--t-fast), border-color var(--t-fast), height var(--t-fast), padding var(--t-fast);
-  backdrop-filter: var(--blur);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
 }
 
+/* Keep all footer content styles exactly as original */
 .footer-container {
   display: flex;
   justify-content: space-between;
@@ -987,11 +1073,12 @@ footer .theme-toggle {
   align-items: center;
 }
 
+/* Enhance theme toggle button */
 footer .theme-toggle-btn {
   background: transparent;
   border: 1px solid var(--current-border-color);
   border-radius: 50%;
-  width: 32px; /* Slightly larger for mobile */
+  width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
@@ -1000,21 +1087,27 @@ footer .theme-toggle-btn {
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
-  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+  -webkit-tap-highlight-color: transparent;
 }
 
 footer .theme-toggle-btn i {
-  font-size: 0.85rem; /* Slightly larger icon */
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
 }
 
 footer .theme-toggle-btn:hover {
   color: var(--accent-color);
   border-color: var(--accent-color);
   background-color: rgba(from var(--accent-color) r g b / 0.1);
+  transform: rotate(180deg);
+}
+
+footer .theme-toggle-btn:hover i {
+  transform: scale(1.1);
 }
 
 .footer-links {
-  display: none; /* Hidden on mobile */
+  display: none;
   align-items: center;
   gap: 12px;
 }
@@ -1030,13 +1123,13 @@ footer .theme-toggle-btn:hover {
   color: var(--accent-color);
 }
 
-/* Dashboard Container */
+/* Keep dashboard container exactly as original */
 .dashboard-container {
   width: 100%;
   padding: 0;
 }
 
-/* Logout Button - Mobile Optimized */
+/* Keep all logout button styles and animations exactly as original */
 .logoutButton {
   --figure-duration: 100;
   --transform-figure: none;
@@ -1069,24 +1162,28 @@ footer .theme-toggle-btn:hover {
   border-radius: 50%;
   position: relative;
   margin-left: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Enhanced logout button hover */
+.logoutButton:hover {
+  border-color: #ff3b30;
+  background-color: rgba(255, 59, 48, 0.05);
+  transform: scale(1.05);
 }
 
 body:not(.dark-theme) .logoutButton {
   background-color: transparent;
   color: var(--light-header-text);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.logoutButton:hover {
-  border-color: var(--dark-accent);
-  background-color: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 body:not(.dark-theme) .logoutButton:hover {
-  border-color: var(--light-accent);
-  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #ff3b30;
+  background-color: rgba(255, 59, 48, 0.05);
 }
 
+/* Keep all other logout button styles exactly as original */
 .logoutButton::before,
 .logoutButton .button-text,
 .logoutButton svg {
@@ -1108,7 +1205,7 @@ body:not(.dark-theme) .logoutButton::after {
   color: var(--light-header-text);
 }
 
-/* Tooltip for collapsed sidebar */
+/* Keep tooltip exactly as original */
 .sidebar-tooltip {
   position: absolute;
   left: 100%;
@@ -1127,7 +1224,33 @@ body:not(.dark-theme) .logoutButton::after {
   z-index: 1000;
 }
 
-/* ========== TABLET STYLES (768px - 1023px) ========== */
+/* Custom scrollbar enhancement */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--current-border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Keep all media queries exactly as original */
 @media (min-width: 768px) {
   :root {
     --header-height: 60px;
@@ -1165,15 +1288,13 @@ body:not(.dark-theme) .logoutButton::after {
   .news-container {
     width: 50%;
     max-width: 600px;
-
-    padding-top: 20px; /* Keep padding to prevent hiding under header */
+    padding-top: 20px;
   }
   
   .dashboard-container {
     flex: 1;
   }
   
-  /* Sidebar for Tablet */
   .sidebar {
     left: 0;
     width: var(--sidebar-collapsed-width);
@@ -1181,14 +1302,12 @@ body:not(.dark-theme) .logoutButton::after {
     box-shadow: none;
   }
   
-  /* Fix footer position for tablet */
   .sidebar-footer {
     position: absolute;
     bottom: 0;
-    box-shadow: none; /* Remove shadow on tablet */
+    box-shadow: none;
   }
   
-  /* Restore proper content height for tablet */
   .sidebar-content {
     height: calc(100% - 48px - 60px);
     flex: none;
@@ -1206,7 +1325,6 @@ body:not(.dark-theme) .logoutButton::after {
     display: none;
   }
   
-  /* Show tooltips on collapsed sidebar */
   .sidebar:not(.expanded) .sidebar-menu-text,
   .sidebar:not(.expanded) .sidebar-logo,
   .sidebar:not(.expanded) .sidebar-theme-toggle span {
@@ -1217,7 +1335,6 @@ body:not(.dark-theme) .logoutButton::after {
     opacity: 1;
   }
   
-  /* Content shift when sidebar is pinned */
   body.sidebar-pinned .main-content {
     margin-left: var(--sidebar-collapsed-width);
     width: calc(100% - var(--sidebar-collapsed-width));
@@ -1233,7 +1350,6 @@ body:not(.dark-theme) .logoutButton::after {
     gap: 1rem;
   }
   
-  /* Logout button - expanded on tablet */
   .logoutButton {
     width: auto;
     height: 32px;
@@ -1348,7 +1464,6 @@ body:not(.dark-theme) .logoutButton::after {
     display: none;
   }
   
-  /* Logout button animations */
   .logoutButton .arm1, 
   .logoutButton .arm2, 
   .logoutButton .calf1, 
@@ -1431,11 +1546,11 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* ========== DESKTOP STYLES (1024px+) ========== */
+/* Keep all desktop styles exactly as original */
 @media (min-width: 1024px) {
   :root {
-    --header-height: 50px; /* Keep original size */
-    --footer-height: 45px; /* Keep original size */
+    --header-height: 50px;
+    --footer-height: 45px;
   }
   
   header {
@@ -1454,7 +1569,6 @@ body:not(.dark-theme) .logoutButton::after {
     display: none;
   }
   
-  /* Show nav buttons on desktop */
   .nav-buttons {
     display: flex;
     gap: 1.5rem;
@@ -1536,7 +1650,6 @@ body:not(.dark-theme) .logoutButton::after {
     gap: 0.8rem;
   }
   
-  /* Desktop hover behaviors for sidebar */
   .sidebar:not(.pinned):hover {
     width: var(--sidebar-width);
   }
@@ -1551,18 +1664,16 @@ body:not(.dark-theme) .logoutButton::after {
     opacity: 0 !important;
   }
   
-  /* Restore absolute positioning for desktop sidebar footer */
   .sidebar-footer {
     position: absolute;
     bottom: 0;
-    box-shadow: none; /* Remove shadow on desktop */
+    box-shadow: none;
   }
   
-  /* Restore height-based calculation for desktop sidebar content */
   .sidebar-content {
     height: calc(100% - 48px - 60px);
     flex: none;
-    overflow-y: auto; /* Ensure scrolling works */
+    overflow-y: auto;
   }
   
   .footer-container {
@@ -1587,7 +1698,7 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* ========== LANDSCAPE MOBILE ADJUSTMENTS ========== */
+/* Keep all landscape mobile adjustments exactly as original */
 @media (max-width: 900px) and (max-height: 600px) and (orientation: landscape) {
   :root {
     --header-height: 45px;
@@ -1629,13 +1740,12 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* ========== SMALL MOBILE (< 600px) ========== */
+/* Keep all small mobile styles exactly as original */
 @media (max-width: 600px) {
   :root {
     --footer-height: auto;
   }
   
-  /* Force color recalculation on mobile */
   body {
     background-color: var(--bg-body-light);
     overflow-y: auto;
@@ -1646,7 +1756,6 @@ body:not(.dark-theme) .logoutButton::after {
     background-image: radial-gradient(circle at center, #003641 0%, #00212b 40%, #00111a 70%, #000a0f 100%);
   }
   
-  /* Extra padding for news container on mobile */
   .news-container {
     padding-top: 25px;
     padding-left: 0.5rem;
@@ -1755,7 +1864,7 @@ body:not(.dark-theme) .logoutButton::after {
   
   body.dark-theme .messages-header {
     background-color: rgba(from var(--item-bg-dark) r g b / 0.7);
-    border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+    border-bottom: 1px solid rgba(105, 183, 191, 0.15);
   }
   
   .messages-title {
@@ -1812,7 +1921,7 @@ body:not(.dark-theme) .logoutButton::after {
   }
 }
 
-/* ========== SMALL MOBILE (< 380px) ========== */
+/* Keep all small mobile styles exactly as original */
 @media (max-width: 380px) {
   :root {
     --header-height: 45px;
@@ -1855,21 +1964,20 @@ body:not(.dark-theme) .logoutButton::after {
     font-size: 0.9rem;
   }
   
-  /* Extra padding for very small screens */
   .news-container {
     padding-top: 30px;
     margin-left: 0px;
   }
 }
 
-/* ========== FONT ADJUSTMENT FOR SMALLER SCREENS ========== */
+/* Keep font adjustment exactly as original */
 @media (max-width: 980px) {
   body {
     font-size: 1rem;
   }
 }
 
-/* Logout button animations */
+/* Keep all animations exactly as original */
 @keyframes spin {
   0% { transform: rotate(0deg) scale(.94) }
   to { transform: rotate(359deg) scale(.94) }

@@ -15,7 +15,7 @@
             --accent-light: #69B7BF;
             --success: #30d158;
             --warning: #ff9500;
-            
+            --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
             --max-width: 1200px;
             --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             --transition-slow: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -108,10 +108,21 @@
             justify-content: space-between;
         }
 
-        .logo {
-            font-size: 20px;
+
+        .logo-text {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem; 
             font-weight: 600;
-            letter-spacing: -0.02em;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+            line-height: 1;
+            white-space: nowrap;
+            margin-left: 35px; 
+            text-decoration: none;
         }
 
         .nav-links {

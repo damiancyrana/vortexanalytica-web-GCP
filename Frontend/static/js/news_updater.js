@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let sseConnection = null
   const newsContainer = document.querySelector('.news-container')
-  const MAX_MESSAGES = 50
+  const MAX_MESSAGES = 500
   let isLoading = false
   let messageIds = new Set() // Track message IDs to prevent duplicates
   

@@ -16,7 +16,7 @@
     --success: #30d158;
     --warning: #ff9500;
     --error: #ff3b30;
-    
+    --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
     --max-width: 1200px;
     --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-slow: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -43,7 +43,7 @@ html {
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     font-size: 17px;
-    line-height: 1.5;
+    line-height: 1.47059;
     color: var(--dark);
     background: var(--gray-100);
     overflow-x: hidden;
@@ -72,11 +72,19 @@ body {
     justify-content: space-between;
 }
 
-.logo {
-    font-size: 20px;
+.logo-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; 
     font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--dark);
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+    margin-left: 35px; 
     text-decoration: none;
 }
 
