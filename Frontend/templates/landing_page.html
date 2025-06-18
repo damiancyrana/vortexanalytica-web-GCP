@@ -1,283 +1,2174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Vortex Analytica – See Beyond Data. Act Before Markets Move.</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-        content="Vortex Analytica is a Market Intelligence Layer delivering ultra-fast analytics, satellite-driven commodity predictions and AI-powered disinformation defense. Act before markets move." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Analytica</title>
+    <meta name="description" content="See beyond data. Act before markets move.">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    
+    <style>
+        /* Design System */
+        :root {
+            --primary: #125259;
+            --secondary: #69B7BF;
+            --dark: #0D0D0D;
+            --white: #fff;
+            --gray-100: #fbfbfd;
+            --gray-200: #f5f5f7;
+            --gray-300: #e8e8ed;
+            --gray-400: #d2d2d7;
+            --gray-500: #86868b;
+            --gray-600: #515154;
+            --accent: #125259;
+            --accent-hover: #0a3a3f;
+            --accent-light: #69B7BF;
+            --success: #30d158;
+            --warning: #ff9500;
+            
+            --max-width: 1200px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --transition-slow: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-  <link rel="stylesheet" href="/static/css/landing_page.css" />
-  <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
-  <link rel="shortcut icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 17px;
+            line-height: 1.47059;
+            color: var(--dark);
+            background: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 56px;
+            line-height: 1.07;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            font-size: 48px;
+            line-height: 1.08;
+            font-weight: 600;
+            letter-spacing: -0.003em;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            font-size: 32px;
+            line-height: 1.125;
+            font-weight: 600;
+            letter-spacing: 0.004em;
+        }
+
+        .headline {
+            font-size: 21px;
+            line-height: 1.381;
+            font-weight: 400;
+            color: var(--gray-500);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 40px; }
+            h2 { font-size: 32px; }
+            h3 { font-size: 24px; }
+            .headline { font-size: 19px; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            transition: var(--transition);
+        }
+
+        nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 22px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        .nav-cta {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 7px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+
+        .mobile-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .mobile-menu {
+                display: block;
+            }
+        }
+
+        /* Sections */
+        section {
+            position: relative;
+            padding: 50px 0;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--white) 100%);
+            text-align: center;
+            padding-top: 48px;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            margin-bottom: 26px;
+        }
+
+        .hero-subtitle {
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-metrics {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-top: 8px;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 28px;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 400;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Feature Sections */
+        .feature-section {
+            padding: 120px 0;
+        }
+
+        .feature-section:nth-child(even) {
+            background: var(--gray-100);
+        }
+
+        .feature-header {
+            text-align: center;
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-header.visible {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 40px;
+            text-align: center;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.visible {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 24px;
+        }
+
+        .feature-title {
+            margin-bottom: 16px;
+        }
+
+        .feature-description {
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /* Engine Visualization */
+        .engine-visualization {
+            max-width: 1200px;
+
+        }
+
+        .viz-container {
+            position: relative;
+            height: 800px;
+            background: linear-gradient(135deg, rgba(18, 82, 89, 0.03) 0%, rgba(105, 183, 191, 0.03) 100%);
+            border-radius: 24px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Data Sources */
+        .data-sources {
+            position: absolute;
+            left: 60px;
+            top: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            z-index: 10;
+        }
+
+        /* Market Sources */
+        .market-sources {
+            position: absolute;
+            left: 60px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+        }
+
+        .source-item i {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        /* Chrono Engine */
+        .chrono-engine {
+            position: absolute;
+            left: 50%;
+            top: 120px;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .engine-core, .loom-core{
+            width: 240px;
+            height: 260px;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(18, 82, 89, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+        }
+
+        .core-label, .loom-label {
+            font-weight: bold;
+            font-size: 22px;
+            color: var(--primary);
+            margin-top: 10px;
+            z-index: 2;
+        }
+
+        .truth-engine {
+            position: absolute;
+            font-weight: 700;
+            top: -20px;
+            right: 53px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+        }
+
+        .swarm-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
+        .bee-model {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent-light);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bee-model::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--white);
+            border-radius: 50%;
+        }
+
+        /* Market Loom */
+        .market-loom {
+            position: absolute;
+            left: 50%;
+            top: 500px;  /* 120px (chrono top) + 260px (chrono height) + 120px (increased spacing) */
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+
+        .loom-streams {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stream {
+            width: 20px;
+            height: 160px;
+            background: linear-gradient(to bottom, var(--accent-light), var(--primary));
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+
+        .loom-label {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .loom-streams {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .stream {
+            width: 10px;
+            height: 150px;
+            background: linear-gradient(to bottom, var(--accent-light), var(--primary));
+            border-radius: 3px;
+        }
+
+        /* User Dashboard */
+        .user-dashboard {
+            position: absolute;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .dashboard-screen {
+            width: 180px;
+            height: 140px;
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0;
+        }
+
+        .dashboard-screen i {
+            font-size: 36px;
+            color: var(--accent-light);
+        }
+
+        .output-indicators {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+
+        .output {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .chrono-output {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .loom-output {
+            background: var(--accent-light);
+            color: var(--dark);
+        }
+
+        /* Process Timeline */
+        .process-timeline {
+            margin-top: 50px;
+            position: relative;
+        }
+
+        .timeline-track {
+            height: 5px;
+            background: var(--gray-300);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background: var(--primary);
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .marker {
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 500;
+        }
+
+        /* D3 specific styles */
+        .connection-path {
+            fill: none;
+            stroke-width: 4;
+            opacity: 0.3;
+        }
+
+        .particle {
+            fill: var(--accent-light);
+            r: 5;
+            filter: drop-shadow(0 0 8px var(--accent-light));
+        }
+
+        .bee-connection {
+            stroke: var(--accent-light);
+            stroke-width: 1;
+            opacity: 0.5;
+            fill: none;
+        }
+
+        /* Two-way communication styles */
+        .bidirectional-path {
+            fill: none;
+            stroke-width: 4;
+            opacity: 0.7;
+            stroke-dasharray: 12, 6;
+            animation: dashAnimation 20s linear infinite, pulseWidth 3s ease-in-out infinite;
+        }
+
+        @keyframes dashAnimation {
+            to {
+                stroke-dashoffset: -180;
+            }
+        }
+
+        @keyframes pulseWidth {
+            0%, 100% {
+                stroke-width: 4;
+            }
+            50% {
+                stroke-width: 5;
+            }
+        }
+
+        .comm-particle-up {
+            fill: #125259;
+            stroke: #ffffff;
+            stroke-width: 1;
+            filter: drop-shadow(0 0 12px #125259);
+            r: 7;
+        }
+
+        .comm-particle-down {
+            fill: #69B7BF;
+            stroke: #ffffff;
+            stroke-width: 1;
+            filter: drop-shadow(0 0 12px #69B7BF);
+            r: 7;
+        }
+
+        /* Engine Explanation */
+        .engine-explanation {
+            max-width: 900px;
+            margin: 60px auto 0;
+        }
+
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .explanation-card {
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 16px;
+            padding: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .explanation-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .explanation-card h4 i {
+            color: var(--accent-light);
+            font-size: 20px;
+        }
+
+        .explanation-card p {
+            color: var(--gray-500);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        /* Media Section */
+        #media {
+            background: var(--gray-100);
+            padding: 100px 0;
+        }
+
+        .media-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .media-header h2 {
+            margin-bottom: 24px;
+        }
+
+        .media-content {
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        .award-showcase {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .award-showcase.visible {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .award-icon {
+            font-size: 70px;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .award-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 14px;
+        }
+
+        .award-subtitle {
+            font-size: 18px;
+            color: var(--gray-500);
+            margin-bottom: 20px;
+        }
+
+        .award-description {
+            color: var(--gray-600);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .award-showcase {
+            background-image: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('/static/Images/logos/aword.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .press-coverage {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            height: 100%;
+        }
+
+        .press-items {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .press-item {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .press-item.visible {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .press-item.visible:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .press-logo {
+            height: 35px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .press-logo img {
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .press-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+            line-height: 1.3;
+        }
+
+        .press-excerpt {
+            color: var(--gray-500);
+            line-height: 1.4;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .press-link {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .press-link i {
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .press-item:hover .press-link i {
+            transform: translateX(4px);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .media-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .press-items {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .viz-container {
+                height: auto;
+                padding: 20px;
+            }
+            
+            .data-sources,
+            .chrono-engine,
+            .market-loom,
+            .user-dashboard,
+            .market-sources {
+                position: relative;
+                left: auto;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin: 20px auto;
+                max-width: 200px;
+            }
+            
+            #viz-svg {
+                display: none;
+            }
+
+            .award-showcase {
+                padding: 30px 20px;
+            }
+            
+            .press-items {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Stats Section */
+        #stats {
+            background: var(--dark);
+            color: var(--white);
+            text-align: center;
+            padding: 120px 0;
+        }
+
+        #stats h2 {
+            margin-bottom: 50px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-item.visible {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .stat-number {
+            font-size: 64px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 17px;
+            opacity: 0.8;
+        }
+
+        /* CTA Section */
+        #contact {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 120px 0;
+        }
+
+        #contact h2 {
+            margin-bottom: 24px;
+        }
+
+        #contact .headline {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 60px;
+        }
+
+        .contact-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-light);
+        }
+
+        .final-cta-btn {
+            background: var(--accent-light);
+            color: var(--dark);
+            font-size: 19px;
+            padding: 16px 40px;
+            width: 100%;
+            max-width: 300px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .final-cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gray-100);
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--gray-500);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+        }
+    </style>
 </head>
-
 <body>
-<canvas id="quantum-field"></canvas>
-
-<!-- ========== HEADER ========= -->
-<header>
-  <div class="logo">
-    <span class="logo-text">Vortex Analytica</span>
-  </div>
-
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <nav id="mainNav">
-    <ul class="nav__list">
-      <li><a href="#hero">Home</a></li>
-      <li><a href="#solutions">Solutions</a></li>
-      <li><a href="#industries">Industries</a></li>
-      <li><a href="#case-studies">Case Studies</a></li>
-      <li><a href="#leadership">Leadership</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
-  <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle light mode">Light mode</button>
-</header>
-
-<div class="main-container">
-
-  <!-- ========== HERO ========= -->
-  <section class="hero" id="hero">
-    <div class="hero-content">
-      <h1>See Beyond Data.<br>Act Before Markets Move.</h1>
-      <p class="subtitle">
-        We are the <b>Market Intelligence Layer</b> for professionals who can’t afford latency.  
-        Our platform fuses real-time news, satellite imagery and option-flow analytics while blocking disinformation at the gate.  
-        <strong>Latency Freeze:</strong> insights arrive so fast that time stops being a constraint.
-      </p>
-      <div class="hero-buttons">
-        <a href="/login" class="btn btn-ghost btn-shine btn-login">Log In / Sign Up</a>
-        <a href="#contact" class="btn">Request a Demo</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== KEY SOLUTIONS ========= -->
-  <section id="solutions">
-    <h2 class="section-title"><i class="fas fa-cubes"></i> Key Solutions</h2>
-    <div class="grid-container grid-3-cols">
-
-      <!-- Market Intelligence Layer -->
-      <div class="info-card capability-card">
-        <i class="fas fa-chart-line engine-icon"></i>
-        <h3>Market Intelligence Layer</h3>
-        <p>
-          A fully-integrated stream of news, macro data, option flows and market micro-structure—
-          cross-validated in < 100 ms—so your desk reacts before price re-discounts reality.
-        </p>
-      </div>
-
-      <!-- Disinformation Defense Suite -->
-      <div class="info-card capability-card">
-        <i class="fas fa-shield-virus engine-icon"></i>
-        <h3>Disinformation Defense Suite</h3>
-        <p>
-          AI models detect and neutralise fake narratives in real time, protecting strategies
-          and reputations from manipulation shocks and information warfare.
-        </p>
-      </div>
-
-      <!-- Satellite Intelligence -->
-      <div class="info-card capability-card">
-        <i class="fas fa-satellite-dish engine-icon"></i>
-        <h3>Satellite Intelligence & Commodity Analytics</h3>
-        <p>
-          We monitor crops, logistics and industrial activity from space to forecast
-          wheat, coffee and energy flows—turning ground truth into profitable trades.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========== BENEFITS GRID ========= -->
-  <section id="advantage">
-    <h2 class="section-title"><i class="fas fa-star-of-life"></i> Why It Matters</h2>
-    <div class="grid-container grid-2-cols">
-
-      <div class="info-card usp-item">
-        <h3>Latency Freeze</h3>
-        <p>Sub-100 ms end-to-end processing means you <em>act</em> while others still refresh screens.</p>
-      </div>
-
-      <div class="info-card usp-item">
-        <h3>Cross-Validated Strategy</h3>
-        <p>Signals must agree across news, satellites and options before you ever see them—zero guesswork.</p>
-      </div>
-
-      <div class="info-card usp-item">
-        <h3>Disinformation Immunity</h3>
-        <p>Built-in fact-checking engines quarantine false narratives before they hit your model.</p>
-      </div>
-
-      <div class="info-card usp-item">
-        <h3>Precision from Space</h3>
-        <p>Objective satellite metrics anticipate supply-side shocks weeks ahead of public reports.</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========== AS SEEN IN ========= -->
-  <section id="press">
-    <h2 class="section-title"><i class="fas fa-bullhorn"></i> As Seen In</h2>
-    <div class="press-logos">
-
-      <figure>
-        <a href="https://radio.rzeszow.pl/219245/oto-zwyciezcy-konkursu-diamentowe-tarcze/" target="_blank" rel="noopener">
-          <img src="/static/Images/logos/radiorsz.png" alt="Polskie Radio Rzeszów">
-        </a>
-        <figcaption>“Innowator Bezpieczeństwa” award story</figcaption>
-      </figure>
-
-      <figure>
-        <a href="https://nowiny24.pl/statuetki-diamentowych-tarczy-rozdane-znamy-laureatow-prestizowego-konkursu-kongresu-bezpieczenstwa-polski-zdjecia/ar/c3p2-27680025"
-           target="_blank" rel="noopener">
-          <img src="/static/Images/logos/nowiny24.png" alt="Nowiny24">
-        </a>
-        <figcaption>Award coverage &amp; industry remarks</figcaption>
-      </figure>
-
-      <figure>
-        <a href="https://czytajrzeszow.pl/?id=48956&idd=4&poz=ml0" target="_blank" rel="noopener">
-          <img src="/static/Images/logos/czytajrzeszow.png" alt="Czytaj Rzeszów">
-        </a>
-        <figcaption>Gala highlights &amp; expert quotes</figcaption>
-      </figure>
-
-    </div>
-  </section>
-
-  <!-- ========== PREDICTIVE ENGINES ========= -->
-  <section id="engines">
-    <h2 class="section-title"><i class="fas fa-bolt"></i> Predictive Engines</h2>
-    <div class="grid-container grid-2-cols">
-
-      <!-- MARKET LOOM -->
-      <div class="info-card engine-card">
-        <i class="fas fa-layer-group engine-icon"></i>
-        <h3>Market Loom</h3>
-        <p>
-Fully automated analytical platform that provides real-time technical analysis uniquely optimized for each financial instrument. Market Loom generates unparalleled strategic insights into market dynamics across stocks, indices, Forex, and cryptocurrencies. By continuously adapting analytical methods specifically to each trading symbol, Market Loom transforms raw market data into actionable trading intelligence, consistently outperforming traditional analysis methods and empowering traders to make precise, data-driven decisions with confidence.
-        </p>
-      </div>
-
-      <!-- CHRONO ENGINE -->
-      <div class="info-card engine-card">
-        <i class="fas fa-network-wired engine-icon"></i>
-        <h3>Chrono Engine</h3>
-        <p>
-Engine engineered to revolutionize real-time market data analysis and financial intelligence. Featuring an innovative architecture built on collaborative analytical symbiotes, it processes critical financial data within 100 milliseconds of market events. Its symbiotic AI-driven analytics significantly reduce latency while enhancing the precision and reliability of market intelligence, empowering financial institutions and traders to proactively respond to rapidly evolving market conditions with unmatched speed and clarity.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========== INDUSTRIES ========= -->
-  <section id="industries">
-    <h2 class="section-title"><i class="fas fa-briefcase"></i> Industries We Serve</h2>
-    <ul class="audience-list">
-      <li>Hedge Funds & Global Macro</li>
-      <li>Investment Banks</li>
-      <li>Commodity & Energy Traders</li>
-      <li>Government & Defense (Anti-Disinformation)</li>
-      <li>FinTech & Quant Teams</li>
-    </ul>
-  </section>
-
-  <!-- ========== CASE STUDIES (placeholder) ========= -->
-  <section id="case-studies">
-    <h2 class="section-title"><i class="fas fa-file-alt"></i> Case Studies</h2>
-    <p class="section-subtitle">
-      Selected realworld deployments will appear here soon. Contact us for early-access briefs
-    </p>
-  </section>
-
-  <!-- ========== LEADERSHIP ========= -->
-  <section id="leadership">
-    <h2 class="section-title"><i class="fas fa-users"></i> Meet the Leadership</h2>
-    <p class="section-subtitle">
-      Experience in quantitative research, AI modelling and critical infrastructure security
-    </p>
-    <div class="grid-container grid-2-cols">
-      <div class="info-card team-card">
-        <div class="team-photo-placeholder">
-          <img src="/static/Images/portrait/damian.jpg" alt="Damian Cyrana">
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">Vortex Analytica</div>
+            <ul class="nav-links">
+                <li><a href="#hero">Overview</a></li>
+                <li><a href="#intelligence">Intelligence</a></li>
+                <li><a href="#speed">Speed</a></li>
+                <li><a href="#defense">Defense</a></li>
+                <li><a href="#media">Recognition</a></li>
+                <li><a href="#stats">Impact</a></li>
+                <li><a href="#contact" class="nav-cta">Get Started</a></li>
+            </ul>
+            <button class="mobile-menu" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        <h3>Damian Cyrana</h3>
-        <div class="title">Founder & CTO</div>
-        <a href="https://www.linkedin.com/in/damiancyrana/" target="_blank" class="linkedin-link">
-          <i class="fab fa-linkedin"></i> LinkedIn
-        </a>
-      </div>
+    </nav>
 
-      <div class="info-card team-card">
-        <div class="team-photo-placeholder">
-          <img src="/static/Images/portrait/antek.jpg" alt="Antoni Moskwa">
-        </div>
-        <h3>Antoni Moskwa</h3>
-        <div class="title">Co-Founder & CEO</div>
-        <a href="https://www.linkedin.com/in/antoni-moskwa/" target="_blank" class="linkedin-link">
-          <i class="fab fa-linkedin"></i> LinkedIn
-        </a>
-      </div>
-    </div>
-  </section>
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">See Beyond Data<br>Act Before Markets Move</h1>
+                <p class="headline hero-subtitle">
+                    Lightning speed analysis, Relentless precision, Complete market awareness,<br>
+                    Discover intelligence that outpaces the market. While others analyze the past, you act and see the market as a living organism, not just numbers.<br><strong>This the Vortex difference</strong><br><br>
+                    Enter a new era of the <strong>Market Intelligence</strong> delivered as <strong>Edge-as-a-Service</strong>
+                </p>
 
-  <!-- ========== CONTACT ========= -->
-  <section id="contact">
-    <h2 class="section-title"><i class="fas fa-envelope"></i> Get in Touch</h2>
-    <p class="section-subtitle">
-      Curious how Latency Freeze feels in practice? Let’s discuss a pilot.
-    </p>
-    <div class="contact-container">
-      <form id="contact-form" method="post">
-        <div class="form-group">
-          <label for="name" class="form-label">Full Name</label>
-          <input id="name" name="name" type="text" class="form-input" required />
+                
+                <div class="hero-metrics">
+                    <div class="metric">
+                        <div class="metric-value">100ms</div>
+                        <div class="metric-label">End-to-end latency</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">140</div>
+                        <div class="metric-label">Data Sources</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">11</div>
+                        <div class="metric-label">Languages analyzed</div>
+                    </div>
+                </div>
+                
+                <div class="cta-group">
+                    <a href="/login" class="btn btn-primary">Log In / Sign Up</a>
+                    <a href="#contact" class="btn btn-secondary">Request Demo</a>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-          <label for="email" class="form-label">Email Address</label>
-          <input id="email" name="email" type="email" class="form-input" required />
-        </div>
-        <div class="form-group">
-          <label for="message" class="form-label">Message</label>
-          <textarea id="message" name="message" class="form-textarea" required></textarea>
-        </div>
-        <button type="submit" class="submit-button">
-          <i class="fas fa-paper-plane"></i> Send Message
-        </button>
-      </form>
-    </div>
-  </section>
-</div>
+    </section>
 
-<!-- ========== FOOTER ========= -->
-<footer>
-  <div class="footer-links">
-    <a href="#">Terms of Service</a>
-    <a href="#">Privacy Policy</a>
-    <a href="#contact">Contact Us</a>
-  </div>
-  <div class="footer-coffee-button">
-    <a href="https://www.buymeacoffee.com/vortexanalytica" class="btn btn-ghost btn-shine btn-coffee">Buy Me a Coffee</a>
-  </div>
-  <p class="copy">&copy; 2025 Vortex Analytica. All rights reserved.</p>
-</footer>
+    <!-- Market Intelligence Section -->
+    <section id="intelligence" class="feature-section">
+        <div class="container">
+            <div class="feature-header">
+                <h2>Market Intelligence Layer</h2>
+                <p class="headline">
+                    A unified data pipeline that consolidates fragmented market chaos into one verified stream. 
+                    No more switching between terminals. No more conflicting data sources. Just pure, actionable intelligence.
+                </p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-brain feature-icon"></i>
+                    <h3 class="feature-title">Cognitive Fusion</h3>
+                    <p class="feature-description">
+                        Real-time synthesis of news, satellite imagery, and option flows. 
+                        Every signal verified across multiple sources before you see it.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-satellite feature-icon"></i>
+                    <h3 class="feature-title">Orbital Intelligence</h3>
+                    <p class="feature-description">
+                        Space-based analytics track global supply chains, commodity flows, 
+                        and industrial activity weeks before official reports.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <h3 class="feature-title">Truth Engine</h3>
+                    <p class="feature-description">
+                        Advanced AI neutralizes disinformation in real-time, protecting 
+                        your models from weaponized narratives and manipulated news.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<script type="module" src="/static/js/quantum_bg.js"></script>
-<script type="module" src="/static/js/contact_form.js"></script>
-<script type="module" src="/static/js/mobile_nav.js"></script>
-<script type="module" src="/static/js/site_theme.js"></script>
+    <!-- Speed Section -->
+    <section id="speed" class="feature-section">
+        <div class="container">
+            <div class="feature-header">
+                <h2>Speed is Everything</h2>
+                <p class="headline">Witness the symphony of swarm intelligence that delivers insights in 100ms.<br>
+                <strong>Be present at the birth of information</strong></p>
+            </div>
+            
+            <!-- Animated Engine Visualization -->
+            <div class="engine-visualization">
+                <div class="viz-container">
+                    <!-- SVG for D3 animations will be inserted here -->
+                    <svg id="viz-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></svg>
+                    
+                    <!-- Data Sources -->
+                    <div class="data-sources">
+                        <div class="source-item" data-type="news">
+                            <i class="fas fa-newspaper"></i>
+                            <span>News</span>
+                        </div>
+                        <div class="source-item" data-type="satellite">
+                            <i class="fas fa-satellite"></i>
+                            <span>Satellite</span>
+                        </div>
+                        <div class="source-item" data-type="social">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Social</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Sources -->
+                    <div class="market-sources">
+                        <div class="source-item" data-type="stocks">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Stocks</span>
+                        </div>
+                        <div class="source-item" data-type="crypto">
+                            <i class="fas fa-coins"></i>
+                            <span>Crypto</span>
+                        </div>
+                        <div class="source-item" data-type="forex">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Forex</span>
+                        </div>
+                        <div class="source-item" data-type="options">
+                            <i class="fas fa-poll"></i>
+                            <span>Options</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Chrono Engine -->
+                    <div class="chrono-engine">
+                        <div class="engine-core">
+                            <div class="core-label">Chrono Engine</div>
+                            <div class="swarm-container">
+                                <svg id="swarm-svg" viewBox="0 0 180 180" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                                    <!-- D3 will render swarm here -->
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="truth-engine">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Truth Engine</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Loom -->
+                    <div class="market-loom">
+                        <div class="loom-core">
+                            <div class="loom-label">Market Loom</div>
+                            <div class="loom-streams">
+                                <div class="stream" data-market="crypto"></div>
+                                <div class="stream" data-market="stocks"></div>
+                                <div class="stream" data-market="forex"></div>
+                                <div class="stream" data-market="commodities"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Dashboard -->
+                    <div class="user-dashboard">
+                        <div class="dashboard-screen">
+                            <i class="fas fa-desktop"></i>
+                            <span>Vortex Dashboard</span>
+                        </div>
+                        <div class="output-indicators">
+                            <div class="output chrono-output">Alert</div>
+                        </div>
+                        <div class="output-indicators">
+                            <div class="output chrono-output">SMS notification</div>
+                        </div>
+                        <div class="output-indicators">
+                            <div class="output chrono-output">Daily Report on Email</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline -->
+                <div class="process-timeline">
+                    <div class="timeline-track">
+                        <div class="timeline-progress"></div>
+                    </div>
+                    <div class="timeline-markers">
+                        <div class="marker" data-time="0"><span>0ms</span></div>
+                        <div class="marker" data-time="25"><span>25ms</span></div>
+                        <div class="marker" data-time="50"><span>50ms</span></div>
+                        <div class="marker" data-time="75"><span>75ms</span></div>
+                        <div class="marker" data-time="100"><span>100ms</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="engine-explanation">
+                <div class="explanation-grid">
+                    <div class="explanation-card">
+                        <h4><i class="fas fa-layer-group"></i> Chrono Engine: The Swarm Intelligence</h4>
+                        <p>Imagine a form of market intelligence that behaves like a living swarm of thinking, collaborating symbionts. Each element instantly senses change and shares its findings, forming a vibrant, dynamic ecosystem of analysis. Chrono Engine processes critical financial data faster than the blink of an eye, identifying signals before they even appear on a competitor’s radar. Its architecture, founded on collective AI intelligence, eliminates latency, sharpens decision-making, and introduces a new dimension of intuitive clarity to the financial world.
+                        </p>
+                    </div>
+                    <div class="explanation-card">
+                        <h4><i class="fas fa-exchange-alt"></i> Market Loom: The Data Weaver</h4>
+                        <p>Inspired by the Marvel universe of data weaving, blends raw information with unique intelligence to unveil a living map of opportunities and risks across the financial landscape. Every instrument is analyzed individually, with precisely tailored tick and volume insights that offer unmatched depth and flexibility. In continuous dialogue with Chrono Engine, unifies analysis with the pulse of real-time price, presenting a seamless and coherent vision. This transforms the complexity of the markets into actionable clarity and confident decisions in every situation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Defense Section -->
+    <section id="defense" class="feature-section">
+        <div class="container">
+            <div class="feature-header">
+                <h2>Your First Line of Defense</h2>
+                <p class="headline">In the age of information warfare, truth is your greatest advantage</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-virus-slash feature-icon"></i>
+                    <h3 class="feature-title">Narrative Protection</h3>
+                    <p class="feature-description">
+                        Identify and neutralize malicious market narratives before they 
+                        contaminate your sentiment models or trigger false signals.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-fingerprint feature-icon"></i>
+                    <h3 class="feature-title">Fake News Detection</h3>
+                    <p class="feature-description">
+                        Advanced neural networks verify the authenticity of every piece 
+                        of content, protecting you from synthetic media attacks.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-network-wired feature-icon"></i>
+                    <h3 class="feature-title">Pattern Recognition</h3>
+                    <p class="feature-description">
+                        Machine learning identifies coordinated disinformation campaigns 
+                        across global information networks in real-time.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Media Section -->
+    <section id="media">
+        <div class="container">
+            <div class="media-header">
+                <h2>Industry Recognition</h2>
+                <p class="headline">Leading the future of market intelligence and security innovation</p>
+            </div>
+
+            <div class="media-content">
+                <div class="award-showcase">
+                    <h3 class="award-title">Diamond Shields Award Winner</h3>
+                    <p class="award-subtitle"><strong>Security Innovator 2025</strong></p>
+                    <p class="award-description">
+                        Vortex Analytica was honored with the prestigious Diamond Shields Award at the Congress Polish Security 2025 in Jasionka. 
+                        This recognition highlights our significant impact on the security sector through our revolutionary 
+                        real-time analytics systems. The award positions us among the leading  innovators in Poland.
+                    </p>
+                </div>
+
+                <div class="press-coverage">
+                    <div class="press-items">
+                        <a href="https://radio.rzeszow.pl/219245/oto-zwyciezcy-konkursu-diamentowe-tarcze/" class="press-item" target="_blank" rel="noopener noreferrer">
+                            <div class="press-logo">
+                                <img src="/static/Images/logos/radiorsz.png" alt="Radio Rzeszów">
+                            </div>
+                            <h4 class="press-title">Diamond Shields Award Winners Announced</h4>
+                            <p class="press-excerpt">
+                                Radio Rzeszów reports on Vortex Analytica's recognition as a Security Innovator for our groundbreaking 
+                                technology solutions that have made a significant impact on the security sector.
+                            </p>
+                            <span class="press-link">
+                                Read more <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </a>
+
+                        <a href="https://nowiny24.pl/kongres-bezpieczenstwo-polski-2025-rzeszow-gosci-ekspertow-ds-bezpieczenstwa-z-calej-polski/ar/c3p2-27675675" class="press-item" target="_blank" rel="noopener noreferrer">
+                            <div class="press-logo">
+                                <img src="/static/Images/logos/nowiny24.png" alt="Nowiny24">
+                            </div>
+                            <h4 class="press-title">Polish Security Congress 2025 Gathers Top Experts</h4>
+                            <p class="press-excerpt">
+                                Nowiny24 covers the Congress Polish Security 2025 in Rzeszów, where Vortex Analytica was recognized 
+                                among industry experts from across Poland for our innovative contributions to the field.
+                            </p>
+                            <span class="press-link">
+                                Read more <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </a>
+
+                        <a href="https://czytajrzeszow.pl/?id=48956&idd=4&poz=ml0" class="press-item" target="_blank" rel="noopener noreferrer">
+                            <div class="press-logo">
+                                <img src="/static/Images/logos/czytajrzeszow.png" alt="Czytaj Rzeszów">
+                            </div>
+                            <h4 class="press-title">Vortex Analytica Among Security Innovation Leaders</h4>
+                            <p class="press-excerpt">
+                                Czytaj Rzeszów highlights our achievement at the Polish Security Congress, showcasing our Truth Engine 
+                                technology as a breakthrough in real-time market intelligence protection.
+                            </p>
+                            <span class="press-link">
+                                Read more <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </a>
+
+                        <a href="https://www.podkarpackie.pl/index.php/edukacja/aktualnosci/gala-kongresu-bezpieczenstwa-polski" class="press-item" target="_blank" rel="noopener noreferrer">
+                            <div class="press-logo">
+                                <img src="/static/Images/logos/samorzad.jpg" alt="Samorząd Województwa Podkarpackiego">
+                            </div>
+                            <h4 class="press-title">Gala of Polish Security Congress</h4>
+                            <p class="press-excerpt">
+                                The Podkarpackie Regional Government reports on the prestigious gala where Vortex Analytica received 
+                                the Diamond Shields Award for security innovation excellence.
+                            </p>
+                            <span class="press-link">
+                                Read more <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats">
+        <div class="container">
+            <h2>Proven at Scale</h2>
+            
+            <div class="stats-grid">
+                
+                <div class="stat-item">
+                    <div class="stat-number" data-target="46300">0</div>
+                    <div class="stat-label">Ticks price processed per second</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="1460">0</div>
+                    <div class="stat-label">Financial instruments monitored</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="10000">0</div>
+                    <div class="stat-label">News items analyzed daily</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="140">0</div>
+                    <div class="stat-label">Data Sources</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="11"></div>
+                    <div class="stat-label">Languages of news sources</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="95.0">0</div>
+                    <div class="stat-label">Uptime guarantee</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA / Contact -->
+    <section id="contact" class="final-cta">
+        <div class="container">
+            <h2>Experience the Edge</h2>
+            <p class="headline">
+                Join leading hedge funds and investment banks who've discovered<br>
+                what it means to move at the speed of intelligence.
+            </p>
+            
+            <div class="contact-container">
+                <form id="contact-form" method="post">
+                    <div class="form-group">
+                        <input type="text" name="name" placeholder="Full Name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Email Address" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Tell us about your needs" class="form-textarea" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary final-cta-btn">
+                        <i class="fas fa-paper-plane"></i> Request Demo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Security</a>
+                <a href="#">Contact</a>
+            </div>
+            <p class="copyright">©2025 Vortex Analytica. All rights reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll behavior for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navigation background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Stagger animations for multiple elements
+                    if (entry.target.classList.contains('feature-card') || 
+                        entry.target.classList.contains('timeline-step') ||
+                        entry.target.classList.contains('stat-item')) {
+                        const siblings = Array.from(entry.target.parentElement.children);
+                        siblings.forEach((sibling, index) => {
+                            setTimeout(() => {
+                                sibling.classList.add('visible');
+                            }, index * 150);
+                        });
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements
+        document.querySelectorAll('.feature-header, .feature-card, .timeline-step, .stat-item, .fade-in, .award-showcase, .press-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // D3.js Engine Animation System
+        class VortexEngineAnimation {
+            constructor() {
+                this.svg = null;
+                this.container = null;
+                this.particles = [];
+                this.connectionPaths = [];
+                this.swarmNodes = [];
+                this.animationRunning = false;
+                this.init();
+            }
+
+            init() {
+                this.container = document.querySelector('.viz-container');
+                if (!this.container) return;
+
+                const rect = this.container.getBoundingClientRect();
+                this.svg = d3.select('#viz-svg')
+                    .attr('width', rect.width)
+                    .attr('height', rect.height);
+
+                // Initialize components
+                this.initializeConnectionPaths();
+                this.initializeSwarm();
+            }
+
+            // Get element positions relative to container
+            getElementPosition(selector) {
+                const element = document.querySelector(selector);
+                if (!element) return null;
+                
+                const containerRect = this.container.getBoundingClientRect();
+                const elementRect = element.getBoundingClientRect();
+                
+                return {
+                    x: elementRect.left - containerRect.left + elementRect.width / 2,
+                    y: elementRect.top - containerRect.top + elementRect.height / 2
+                };
+            }
+
+            initializeConnectionPaths() {
+                const pathData = [
+                    // Data sources to chrono engine
+                    { from: '.source-item[data-type="news"]', to: '.engine-core', color: '#125259' },
+                    { from: '.source-item[data-type="satellite"]', to: '.engine-core', color: '#125259' },
+                    { from: '.source-item[data-type="social"]', to: '.engine-core', color: '#125259' },
+                    // Market sources to Market Loom only
+                    { from: '.source-item[data-type="stocks"]', to: '.loom-core', color: '#69B7BF' },
+                    { from: '.source-item[data-type="crypto"]', to: '.loom-core', color: '#69B7BF' },
+                    { from: '.source-item[data-type="forex"]', to: '.loom-core', color: '#69B7BF' },
+                    { from: '.source-item[data-type="options"]', to: '.loom-core', color: '#69B7BF' },
+                    // Engine to Dashboard
+                    { from: '.engine-core', to: '.dashboard-screen', color: '#125259' },
+                    // Loom to Dashboard
+                    { from: '.loom-core', to: '.dashboard-screen', color: '#69B7BF' }
+                ];
+
+                const paths = this.svg.append('g').attr('class', 'connection-paths');
+
+                pathData.forEach((path, i) => {
+                    const fromPos = this.getElementPosition(path.from);
+                    const toPos = this.getElementPosition(path.to);
+
+                    if (fromPos && toPos) {
+                        const pathGenerator = d3.line()
+                            .x(d => d.x)
+                            .y(d => d.y)
+                            .curve(d3.curveBasis);
+
+                        const midX = (fromPos.x + toPos.x) / 2;
+                        const midY = (fromPos.y + toPos.y) / 2 + 20;
+
+                        const pathElement = paths.append('path')
+                            .datum([fromPos, { x: midX, y: midY }, toPos])
+                            .attr('class', 'connection-path')
+                            .attr('d', pathGenerator)
+                            .attr('stroke', path.color)
+                            .attr('stroke-dasharray', function() {
+                                return this.getTotalLength();
+                            })
+                            .attr('stroke-dashoffset', function() {
+                                return this.getTotalLength();
+                            });
+
+                        // Animate path drawing
+                        pathElement.transition()
+                            .duration(2000)
+                            .delay(i * 200)
+                            .attr('stroke-dashoffset', 0);
+
+                        this.connectionPaths.push({
+                            element: pathElement,
+                            from: fromPos,
+                            to: toPos,
+                            color: path.color,
+                            path: [fromPos, { x: midX, y: midY }, toPos]
+                        });
+                    }
+                });
+
+                // Add bidirectional communication between Chrono Engine and Market Loom
+                setTimeout(() => this.initializeBidirectionalCommunication(), 2000);
+            }
+
+            initializeBidirectionalCommunication() {
+                const enginePos = this.getElementPosition('.engine-core');
+                const loomPos = this.getElementPosition('.loom-core');
+
+                if (enginePos && loomPos) {
+                    // Create bidirectional group at the top level
+                    const bidirectionalGroup = this.svg.append('g')
+                        .attr('class', 'bidirectional-comm')
+                        .style('z-index', 100);
+
+                    // Create gradient for the path
+                    const gradient = this.svg.append('defs')
+                        .append('linearGradient')
+                        .attr('id', 'bidirectional-gradient')
+                        .attr('x1', '0%')
+                        .attr('y1', '0%')
+                        .attr('x2', '0%')
+                        .attr('y2', '100%');
+
+                    gradient.append('stop')
+                        .attr('offset', '0%')
+                        .attr('stop-color', '#125259')
+                        .attr('stop-opacity', 1);
+
+                    gradient.append('stop')
+                        .attr('offset', '50%')
+                        .attr('stop-color', '#408b94')
+                        .attr('stop-opacity', 1);
+
+                    gradient.append('stop')
+                        .attr('offset', '100%')
+                        .attr('stop-color', '#69B7BF')
+                        .attr('stop-opacity', 1);
+
+                    // Create the main communication path
+                    const pathGenerator = d3.line()
+                        .x(d => d.x)
+                        .y(d => d.y)
+                        .curve(d3.curveBasis);
+
+                    // Calculate control points for a visible curve
+                    const engineBottom = enginePos.y + 130;
+                    const loomTop = loomPos.y - 130;
+                    const gap = loomTop - engineBottom;
+                    const midY = engineBottom + gap / 2;
+
+                    // Simple curved path that avoids overlapping with components
+                    const commPath = [
+                        { x: enginePos.x + 20, y: engineBottom },     // Slightly offset from center
+                        { x: enginePos.x + 150, y: engineBottom + 30 }, // Curve out
+                        { x: loomPos.x + 150, y: loomTop - 30 },      // Continue curve
+                        { x: loomPos.x + 20, y: loomTop }             // Back to loom
+                    ];
+
+                    // Draw the bidirectional path with glow effect
+                    const glowPath = bidirectionalGroup.append('path')
+                        .datum(commPath)
+                        .attr('d', pathGenerator)
+                        .attr('stroke', 'url(#bidirectional-gradient)')
+                        .attr('stroke-width', 8)
+                        .attr('fill', 'none')
+                        .style('opacity', 0)
+                        .style('filter', 'blur(3px)');
+
+                    const bidirectionalPath = bidirectionalGroup.append('path')
+                        .datum(commPath)
+                        .attr('class', 'bidirectional-path')
+                        .attr('d', pathGenerator)
+                        .attr('stroke', 'url(#bidirectional-gradient)')
+                        .attr('stroke-width', 4)
+                        .attr('fill', 'none')
+                        .style('opacity', 0);
+
+                    // Animate path appearance
+                    glowPath.transition()
+                        .duration(1500)
+                        .delay(3000)
+                        .style('opacity', 0.4);
+
+                    bidirectionalPath.transition()
+                        .duration(1500)
+                        .delay(3000)
+                        .style('opacity', 0.9);
+
+                    // Store path info for particle animation
+                    this.bidirectionalPath = {
+                        element: bidirectionalPath,
+                        glowElement: glowPath,
+                        path: commPath,
+                        pathString: pathGenerator(commPath),
+                        group: bidirectionalGroup
+                    };
+
+                    // Start bidirectional particle animation after paths are drawn
+                    setTimeout(() => this.animateBidirectionalFlow(), 5000);
+                }
+            }
+
+            animateBidirectionalFlow() {
+                if (!this.bidirectionalPath) return;
+
+                const createBidirectionalParticle = (direction) => {
+                    const particleClass = direction === 'up' ? 'comm-particle-up' : 'comm-particle-down';
+                    const path = this.bidirectionalPath.path;
+                    const startY = direction === 'up' ? path[path.length - 1].y : path[0].y;
+                    const startX = direction === 'up' ? path[path.length - 1].x : path[0].x;
+
+                    const particle = this.bidirectionalPath.group.append('circle')
+                        .attr('class', particleClass)
+                        .attr('r', 7)
+                        .attr('cx', startX)
+                        .attr('cy', startY)
+                        .style('opacity', 0);
+
+                    const pathElement = this.svg.append('path')
+                        .attr('d', this.bidirectionalPath.pathString)
+                        .style('display', 'none');
+
+                    const pathLength = pathElement.node().getTotalLength();
+
+                    particle.transition()
+                        .duration(2500)
+                        .ease(d3.easeLinear)
+                        .attrTween('transform', () => {
+                            return (t) => {
+                                const adjustedT = direction === 'up' ? (1 - t) : t;
+                                const point = pathElement.node().getPointAtLength(adjustedT * pathLength);
+                                return `translate(${point.x - startX}, ${point.y - startY})`;
+                            };
+                        })
+                        .style('opacity', d3.scaleLinear().domain([0, 0.1, 0.9, 1]).range([0, 1, 1, 0]))
+                        .on('end', () => {
+                            particle.remove();
+                            pathElement.remove();
+                        });
+                };
+
+                // Create particles going both directions
+                const bidirectionalFlow = () => {
+                    createBidirectionalParticle('up');
+                    setTimeout(() => createBidirectionalParticle('down'), 1000);
+                };
+
+                // Initial flow
+                bidirectionalFlow();
+                
+                // Continuous flow
+                this.bidirectionalInterval = setInterval(bidirectionalFlow, 3000);
+            }
+
+            initializeSwarm() {
+                const swarmSvg = d3.select('#swarm-svg');
+                const centerX = 90;
+                const centerY = 90;
+                const nodeCount = 8;
+
+                // Create swarm nodes
+                const nodes = d3.range(nodeCount).map((d, i) => {
+                    const angle = (i / nodeCount) * Math.PI * 2;
+                    const radius = 50 + (i % 3) * 10;
+                    return {
+                        id: i,
+                        x: centerX + Math.cos(angle) * radius,
+                        y: centerY + Math.sin(angle) * radius,
+                        radius: 8,
+                        angle: angle,
+                        orbitRadius: radius
+                    };
+                });
+
+                this.swarmNodes = nodes;
+
+                // Create connections between nodes
+                const links = [];
+                nodes.forEach((node, i) => {
+                    // Connect to next 2 nodes
+                    for (let j = 1; j <= 2; j++) {
+                        const targetIndex = (i + j) % nodeCount;
+                        links.push({
+                            source: node,
+                            target: nodes[targetIndex]
+                        });
+                    }
+                });
+
+                // Draw connections
+                const linkGroup = swarmSvg.append('g').attr('class', 'swarm-links');
+                
+                linkGroup.selectAll('.bee-connection')
+                    .data(links)
+                    .enter()
+                    .append('line')
+                    .attr('class', 'bee-connection')
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y)
+                    .style('opacity', 0)
+                    .transition()
+                    .duration(1000)
+                    .delay((d, i) => i * 50)
+                    .style('opacity', 0.5);
+
+                // Draw nodes
+                const nodeGroup = swarmSvg.append('g').attr('class', 'swarm-nodes');
+                
+                const nodeElements = nodeGroup.selectAll('.bee-node')
+                    .data(nodes)
+                    .enter()
+                    .append('g')
+                    .attr('class', 'bee-node')
+                    .attr('transform', d => `translate(${d.x}, ${d.y})`);
+
+                nodeElements.append('circle')
+                    .attr('r', 0)
+                    .attr('fill', '#69B7BF')
+                    .attr('filter', 'drop-shadow(0 0 8px #69B7BF)')
+                    .transition()
+                    .duration(800)
+                    .delay((d, i) => i * 100)
+                    .attr('r', d => d.radius);
+
+                nodeElements.append('circle')
+                    .attr('r', 0)
+                    .attr('fill', '#fff')
+                    .transition()
+                    .duration(800)
+                    .delay((d, i) => i * 100 + 200)
+                    .attr('r', 4);
+
+                // Animate swarm rotation
+                this.animateSwarm(nodeElements, linkGroup, nodes, links, centerX, centerY);
+            }
+
+            animateSwarm(nodeElements, linkGroup, nodes, links, centerX, centerY) {
+                const animate = () => {
+                    nodes.forEach((node, i) => {
+                        node.angle += 0.003 * (1 + (i % 3) * 0.2);
+                        node.x = centerX + Math.cos(node.angle) * node.orbitRadius;
+                        node.y = centerY + Math.sin(node.angle) * node.orbitRadius;
+                    });
+
+                    nodeElements
+                        .attr('transform', d => `translate(${d.x}, ${d.y})`);
+
+                    linkGroup.selectAll('.bee-connection')
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+
+                    if (this.animationRunning) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                this.animationRunning = true;
+                animate();
+            }
+
+            startParticleFlow() {
+                const createParticle = (pathData) => {
+                    const particle = this.svg.append('circle')
+                        .attr('class', 'particle')
+                        .attr('r', 3)
+                        .attr('cx', pathData.from.x)
+                        .attr('cy', pathData.from.y);
+
+                    const pathGenerator = d3.line()
+                        .x(d => d.x)
+                        .y(d => d.y)
+                        .curve(d3.curveBasis);
+
+                    const path = pathGenerator(pathData.path);
+                    const pathElement = this.svg.append('path')
+                        .attr('d', path)
+                        .style('display', 'none');
+
+                    const pathLength = pathElement.node().getTotalLength();
+
+                    particle.transition()
+                        .duration(2000)
+                        .ease(d3.easeLinear)
+                        .attrTween('transform', () => {
+                            return (t) => {
+                                const point = pathElement.node().getPointAtLength(t * pathLength);
+                                return `translate(${point.x - pathData.from.x}, ${point.y - pathData.from.y})`;
+                            };
+                        })
+                        .style('opacity', d3.scaleLinear().domain([0, 0.8, 1]).range([1, 1, 0]))
+                        .on('end', () => {
+                            particle.remove();
+                            pathElement.remove();
+                        });
+                };
+
+                // Create particles for each connection path
+                const flowData = () => {
+                    this.connectionPaths.forEach((pathData, i) => {
+                        setTimeout(() => createParticle(pathData), i * 200);
+                    });
+                };
+
+                // Initial flow
+                flowData();
+                
+                // Continuous flow
+                this.particleInterval = setInterval(flowData, 3000);
+            }
+
+            animateOutputs() {
+                const outputs = d3.selectAll('.output');
+                
+                const pulseAnimation = () => {
+                    outputs
+                        .style('opacity', 0)
+                        .transition()
+                        .duration(600)
+                        .delay((d, i) => i * 200)
+                        .style('opacity', 1)
+                        .style('transform', 'scale(1.1)')
+                        .transition()
+                        .duration(400)
+                        .style('transform', 'scale(1)');
+                };
+
+                pulseAnimation();
+                this.outputInterval = setInterval(pulseAnimation, 3000);
+            }
+
+            animateStreamData() {
+                const streams = d3.selectAll('.stream');
+                
+                streams.each(function(d, i) {
+                    const stream = d3.select(this);
+                    const animate = () => {
+                        stream
+                            .style('transform', 'scaleY(0.8)')
+                            .style('opacity', 0.6)
+                            .transition()
+                            .duration(1000)
+                            .delay(i * 250)
+                            .style('transform', 'scaleY(1)')
+                            .style('opacity', 1)
+                            .transition()
+                            .duration(1000)
+                            .style('transform', 'scaleY(0.8)')
+                            .style('opacity', 0.6);
+                    };
+                    
+                    animate();
+                    setInterval(animate, 2000);
+                });
+            }
+
+            animateTimeline() {
+                const progress = d3.select('.timeline-progress');
+                
+                progress
+                    .style('width', '0%')
+                    .transition()
+                    .duration(3000)
+                    .delay(1500)
+                    .style('width', '100%');
+            }
+
+            destroy() {
+                this.animationRunning = false;
+                if (this.particleInterval) clearInterval(this.particleInterval);
+                if (this.outputInterval) clearInterval(this.outputInterval);
+                if (this.bidirectionalInterval) clearInterval(this.bidirectionalInterval);
+            }
+        }
+
+        // Initialize Engine Animation when Speed section is visible
+        let engineAnimation = null;
+        const speedSection = document.getElementById('speed');
+        const engineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    entry.target.classList.add('animated');
+                    
+                    // Animate component appearances
+                    const timeline = [
+                        { selector: '.source-item', delay: 100 },
+                        { selector: '.engine-core', delay: 500 },
+                        { selector: '.truth-engine', delay: 1000 },
+                        { selector: '.loom-core', delay: 700 },
+                        { selector: '.dashboard-screen', delay: 1200 },
+                        { selector: '.output', delay: 2000 },
+                        { selector: '.explanation-card', delay: 2200 }
+                    ];
+
+                    timeline.forEach(item => {
+                        d3.selectAll(item.selector)
+                            .style('opacity', 0)
+                            .transition()
+                            .duration(800)
+                            .delay((d, i) => item.delay + i * 150)
+                            .style('opacity', 1)
+                            .style('transform', 'translateY(0) scale(1)');
+                    });
+
+                    // Initialize D3 animations
+                    setTimeout(() => {
+                        engineAnimation = new VortexEngineAnimation();
+                        engineAnimation.startParticleFlow();
+                        engineAnimation.animateOutputs();
+                        engineAnimation.animateStreamData();
+                        engineAnimation.animateTimeline();
+                    }, 1000);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        if (speedSection) {
+            engineObserver.observe(speedSection);
+        }
+
+        // Stats Counter Animation with D3
+        const animateStats = () => {
+            const statNumbers = document.querySelectorAll('.stat-number');
+
+            statNumbers.forEach((element, index) => {
+                const target = parseFloat(element.getAttribute('data-target'));
+                const isLanguageCount = element.getAttribute('data-target') === "11";
+                const isPercentage = element.getAttribute('data-target') === "95.0";
+                const selection = d3.select(element);
+                const interpolator = d3.interpolateNumber(0, target);
+
+                selection
+                    .transition()
+                    .duration(2500)
+                    .delay(index * 200)
+                    .tween('text', function() {
+                        return function(t) {
+                            const value = interpolator(t);
+                            if (isPercentage) {
+                                this.textContent = value.toFixed(2) + '%';
+                            } else if (target === 10000) {
+                                this.textContent = Math.floor(value).toLocaleString() + (t === 1 ? '+' : '');
+                            } else if (isLanguageCount) {
+                                this.textContent = Math.floor(value);
+                            } else {
+                                this.textContent = Math.floor(value).toLocaleString();
+                            }
+                        };
+                    });
+            });
+        };
+
+
+        // Trigger stats animation when visible
+        const statsSection = document.getElementById('stats');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Contact form handling
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(contactForm);
+                const button = contactForm.querySelector('button[type="submit"]');
+                const originalText = button.innerHTML;
+                
+                try {
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    button.disabled = true;
+                    
+                    // Simulate form submission
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    button.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
+                    contactForm.reset();
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 3000);
+                } catch (error) {
+                    button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error. Try again.';
+                    button.disabled = false;
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                    }, 3000);
+                }
+            });
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuBtn?.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '48px';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.background = 'white';
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.padding = '20px';
+            navLinks.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        });
+
+        // Clean up animations on page unload
+        window.addEventListener('beforeunload', () => {
+            if (engineAnimation) {
+                engineAnimation.destroy();
+            }
+        });
+    </script>
 </body>
 </html>
-

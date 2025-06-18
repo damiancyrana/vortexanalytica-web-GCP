@@ -67,7 +67,6 @@ class NarrativeClusterVisualization {
     const header = document.createElement('div')
     header.className = 'narrative-header'
     header.innerHTML = `
-      <h3><i class="fas fa-network-wired"></i> Narrative Clusters</h3>
       <div class="narrative-controls">
         <button id="refresh-narratives" class="narrative-btn">
           <i class="fas fa-sync-alt"></i> Refresh
