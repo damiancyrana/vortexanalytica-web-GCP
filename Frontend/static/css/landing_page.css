@@ -101,7 +101,7 @@
         .nav-container {
             max-width: var(--max-width);
             margin: 0 auto;
-            padding: 0 22px;
+            padding: 0 20px;
             height: 48px;
             display: flex;
             align-items: center;
@@ -117,7 +117,7 @@
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 40px;
+            gap: 30px;
             list-style: none;
         }
 
