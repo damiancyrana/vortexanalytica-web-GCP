@@ -145,7 +145,7 @@ class VortexApplication:
                 cookie_name="csrftoken",
                 cookie_secure=self._settings.SESSION_COOKIE_SECURE,
                 cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
-                exempt_urls=["/webhook/stripe"]
+                exempt_urls=["/webhook/stripe", "/webhook/stripe/"]
             )
             logger.info("CSRFMiddleware dodane pomyślnie.")
         except ImportError:
