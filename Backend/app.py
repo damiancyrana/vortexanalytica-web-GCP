@@ -139,13 +139,19 @@ class VortexApplication:
         """Konfiguruje middleware CSRF"""
         try:
             logger.info("Dodawanie CSRFMiddleware...")
+            import re
+
+            exempt_patterns = [
+                re.compile(r"^/webhook/stripe/?$")
+            ]
+
             self._app.add_middleware(
                 CSRFMiddleware,
                 secret=self._settings.SESSION_SECRET_KEY,
                 cookie_name="csrftoken",
                 cookie_secure=self._settings.SESSION_COOKIE_SECURE,
                 cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
-                exempt_urls=["/webhook/stripe", "/webhook/stripe/"]
+                exempt_urls=exempt_patterns
             )
             logger.info("CSRFMiddleware dodane pomyślnie.")
         except ImportError:
