@@ -10,6 +10,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette_csrf import CSRFMiddleware
+import re
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -145,7 +146,7 @@ class VortexApplication:
                 cookie_name="csrftoken",
                 cookie_secure=self._settings.SESSION_COOKIE_SECURE,
                 cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
-                exempt_urls=["/webhook/stripe"]
+                exempt_urls=[re.compile(r"^/webhook/stripe/?$")]
             )
             logger.info("CSRFMiddleware dodane pomyślnie.")
         except ImportError:
