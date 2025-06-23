@@ -150,8 +150,7 @@ window.NewsSSE = (() => {
     const entitiesHtml = (message.extracted_entities || [])
       .map(entity => {
         const name = entity.normalized_name || entity.text || 'N/A'
-        const type = entity.type || 'Unknown'
-        return `<span class="news-label">${utils.escapeHtml(name)} (${utils.escapeHtml(type)})</span>`
+        return `<span class="news-label">${utils.escapeHtml(name)}</span>`
       })
       .join('')
     
