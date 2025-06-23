@@ -676,3 +676,71 @@
                 engineAnimation.destroy();
             }
         });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Observe pricing cards for animation
+    const pricingObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.pricing-card, .pricing-trust').forEach(el => {
+        pricingObserver.observe(el);
+    });
+
+    // Email trigger buttons
+    document.querySelectorAll('.email-trigger').forEach(button => {
+        button.addEventListener('click', async function() {
+            const plan = this.getAttribute('data-plan');
+            const originalContent = this.innerHTML;
+            
+            // Disable button and show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            try {
+                // Simulate sending email (in real implementation, this would be an API call)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Show success state
+                this.innerHTML = '<i class="fas fa-check"></i> Sent!';
+                
+                // Show notification
+                showNotification(plan === 'enterprise' ? 
+                    'You\'re on the waitlist! We\'ll notify you when Enterprise launches.' : 
+                    'Request received! Our team will contact you within 24 hours.');
+                
+                // Reset button after delay
+                setTimeout(() => {
+                    this.innerHTML = originalContent;
+                    this.disabled = false;
+                }, 3000);
+                
+            } catch (error) {
+                // Handle error
+                this.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error. Try again.';
+                setTimeout(() => {
+                    this.innerHTML = originalContent;
+                    this.disabled = false;
+                }, 3000);
+            }
+        });
+    });
+
+    // Show notification function
+    function showNotification(message) {
+        const notification = document.getElementById('pricing-notification');
+        const textElement = notification.querySelector('.notification-text');
+        textElement.textContent = message;
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 5000);
+    }
+});
