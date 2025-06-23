@@ -47,13 +47,23 @@ def register_error_handlers(app: FastAPI, templates: Jinja2Templates) -> None:
             # Map status codes to template names including the 'error/' subdirectory
             template_map = {
                 400: "error/400.html", # ZAKTUALIZOWANO ścieżkę
-                401: "error/401.html", # ZAKTUALIZOWANO ścieżkę (This shouldn't be used due to redirect above)
+                401: "error/401.html", # ZAKTUALIZOWANO ścieżkę
                 403: "error/403.html", # ZAKTUALIZOWANO ścieżkę
                 404: "error/404.html", # ZAKTUALIZOWANO ścieżkę
                 429: "error/429.html", # ZAKTUALIZOWANO ścieżkę
                 500: "error/500.html", # ZAKTUALIZOWANO ścieżkę
                 503: "error/503.html"  # ZAKTUALIZOWANO ścieżkę
             }
+
+            # Redirect to login page for unauthorized users
+            if status_code == status.HTTP_401_UNAUTHORIZED:
+                logger.info(f"Unauthorized access attempt to {request.url.path}, redirecting to login")
+                return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
+
+            # Redirect to payment required page for 402
+            if status_code == status.HTTP_402_PAYMENT_REQUIRED:
+                logger.info(f"Payment required for {request.url.path}, redirecting to payment page")
+                return RedirectResponse(url="/payment-required", status_code=status.HTTP_302_FOUND)
 
             # Use specific template if available, otherwise use an appropriate fallback
             if status_code in template_map:
@@ -69,6 +79,8 @@ def register_error_handlers(app: FastAPI, templates: Jinja2Templates) -> None:
                 {"request": request},
                 status_code=status_code
             )
+        
+
         except Exception as e:
             # Fallback to a basic HTML response if template rendering fails
             # Log error including which template failed

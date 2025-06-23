@@ -94,8 +94,15 @@ class Settings(BaseSettings):
     )
 
     NARRATIVE_REDIS_PREFIX: str = "narrative"
-    NARRATIVE_MAX_AGE_HOURS: int = 48
-    NARRATIVE_CLUSTER_THRESHOLD: float = 0.3
+    NARRATIVE_MAX_AGE_HOURS: int = 24
+    NARRATIVE_CLUSTER_THRESHOLD: float = 0.4
+
+    STRIPE_PUBLISHABLE_KEY: Optional[str] = Field(None)
+    STRIPE_SECRET_KEY: Optional[str] = Field(None)
+    STRIPE_WEBHOOK_SECRET: Optional[str] = Field(None)
+    STRIPE_PUBLISHABLE_KEY_NAME: str = "STRIPE_PUBLISHABLE_KEY_NAME"
+    STRIPE_SECRET_KEY_NAME: str = "STRIPE_SECRET_KEY_NAME"
+    STRIPE_WEBHOOK_SECRET_NAME: str = "STRIPE_WEBHOOK_SECRET_NAME"
 
     def model_post_init(self, __context: Any) -> None:
         """ Ustawienia po inicjalizacji Pydantic. """
@@ -242,6 +249,9 @@ class Settings(BaseSettings):
             "smtp_pass": ("smtp-pass", False),
             "firebase_api_key": ("Identity-Platform-apiKey", False),
             "firebase_auth_domain": ("Identity-Platform-authDomain", False),
+            "STRIPE_PUBLISHABLE_KEY": (self.STRIPE_PUBLISHABLE_KEY_NAME, True),
+            "STRIPE_SECRET_KEY": (self.STRIPE_SECRET_KEY_NAME, True),
+            "STRIPE_WEBHOOK_SECRET": (self.STRIPE_WEBHOOK_SECRET_NAME, True),
         }
         all_loaded = True
         for attr_name, (secret_id, is_required) in secrets_to_load.items():

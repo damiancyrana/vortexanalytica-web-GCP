@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Vortex Analytica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/index.css" />
+  <link rel="stylesheet" href="/static/css/settings.css" />
+  <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
+</head>
+<body class="dark-theme">
+  <header>
+    <div class="header-container">
+      <div class="logo-section">
+        <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="logo">
+          <div class="logo-text">Vortex Analytica</div>
+        </div>
+      </div>
+
+      <div class="header-right-group">
+        <a href="/index" class="header-btn">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <button id="logout-btn" class="logoutButton">
+          <span class="button-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="settings-container">
+      <h1 class="settings-title">Account Settings</h1>
+      
+      <!-- User Information Section -->
+      <div class="settings-section">
+        <h2 class="section-title">
+          <i class="fas fa-user"></i> Account Information
+        </h2>
+        <div class="info-group">
+          <div class="info-item">
+            <span class="info-label">Email:</span>
+            <span class="info-value">{{ user.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">User ID:</span>
+            <span class="info-value">{{ user.user_id }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription Section -->
+      <div class="settings-section">
+        <h2 class="section-title">
+          <i class="fas fa-credit-card"></i> Subscription
+        </h2>
+        
+        {% if subscription.status == 'active' or subscription.status == 'trialing' %}
+          <div class="subscription-active">
+            <div class="status-badge status-active">
+              <i class="fas fa-check-circle"></i>
+              {% if subscription.status == 'trialing' %}
+                Trial Period - {{ subscription.trial_days_remaining }} days remaining
+              {% else %}
+                Active Subscription
+              {% endif %}
+            </div>
+            
+            <div class="subscription-details">
+              <div class="detail-item">
+                <span class="detail-label">Plan:</span>
+                <span class="detail-value">Professional</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Amount:</span>
+                <span class="detail-value">{{ subscription.formatted_amount }} {{ subscription.currency }}/month</span>
+              </div>
+              {% if subscription.current_period_end %}
+              <div class="detail-item">
+                <span class="detail-label">Next billing date:</span>
+                <span class="detail-value" data-timestamp="{{ subscription.current_period_end }}"></span>
+              </div>
+              {% endif %}
+              {% if subscription.cancel_at_period_end %}
+              <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value warning">Cancels at period end</span>
+              </div>
+              {% endif %}
+            </div>
+            
+            <button id="manage-subscription" class="btn btn-secondary">
+              <i class="fas fa-cog"></i> Manage Subscription
+            </button>
+          </div>
+        
+        {% elif subscription.status == 'past_due' %}
+          <div class="subscription-warning">
+            <div class="status-badge status-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              Payment Past Due
+            </div>
+            <p>Your payment is past due. Please update your payment method to continue accessing premium features.</p>
+            <button id="update-payment" class="btn btn-primary">
+              <i class="fas fa-credit-card"></i> Update Payment Method
+            </button>
+          </div>
+        
+        {% else %}
+          <div class="subscription-inactive">
+            <div class="status-badge status-inactive">
+              <i class="fas fa-times-circle"></i>
+              No Active Subscription
+            </div>
+            <p>Upgrade to Professional to unlock all features:</p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check"></i> Real-time market analysis</li>
+              <li><i class="fas fa-check"></i> Satellite intelligence</li>
+              <li><i class="fas fa-check"></i> AI-powered insights</li>
+              <li><i class="fas fa-check"></i> Priority support</li>
+            </ul>
+            <div class="pricing-info">
+              <div class="price">
+                <span class="amount">499</span>
+                <span class="currency">PLN</span>
+                <span class="period">/month</span>
+              </div>
+              <div class="trial-info">
+                <i class="fas fa-gift"></i> 14-day free trial included
+              </div>
+            </div>
+            <button id="start-subscription" class="btn btn-primary">
+              <i class="fas fa-rocket"></i> Start Free Trial
+            </button>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Theme Settings -->
+      <div class="settings-section">
+        <h2 class="section-title">
+          <i class="fas fa-palette"></i> Appearance
+        </h2>
+        <div class="theme-toggle-container">
+          <label class="theme-toggle-label">
+            <input type="checkbox" id="theme-toggle" {% if not request.cookies.get('theme') or request.cookies.get('theme') == 'dark' %}checked{% endif %}>
+            <span class="toggle-text">Dark Theme</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script>
+    // Format timestamps
+    document.querySelectorAll('[data-timestamp]').forEach(el => {
+      const timestamp = parseInt(el.dataset.timestamp);
+      if (timestamp) {
+        const date = new Date(timestamp * 1000);
+        el.textContent = date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+    });
+
+    // Subscription management
+    document.getElementById('start-subscription')?.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/payments/create-checkout-session', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          window.location.href = data.checkout_url;
+        } else {
+          alert('Unable to start checkout. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    });
+
+    document.getElementById('manage-subscription')?.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/payments/create-portal-session', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          window.location.href = data.portal_url;
+        } else {
+          alert('Unable to open subscription management. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    });
+
+    document.getElementById('update-payment')?.addEventListener('click', () => {
+      document.getElementById('manage-subscription')?.click();
+    });
+
+    // Theme toggle
+    document.getElementById('theme-toggle')?.addEventListener('change', (e) => {
+      const isDark = e.target.checked;
+      document.body.classList.toggle('dark-theme', isDark);
+      document.cookie = `theme=${isDark ? 'dark' : 'light'};path=/;max-age=31536000`;
+    });
+
+    // Logout
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
+      window.location.href = '/login';
+    });
+  </script>
+</body>
+</html>

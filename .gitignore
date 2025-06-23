@@ -39,6 +39,7 @@ coverage.xml
 *.pot
 instance/
 *.pem
+firebase_update.py
 
 # 🌐 FastAPI (Swagger docs, static files, etc.)
 staticfiles/

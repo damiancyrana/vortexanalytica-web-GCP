@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscription Required - Vortex Analytica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/index.css" />
+  <link rel="stylesheet" href="/static/css/payment_required.css" />
+  <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
+</head>
+<body class="dark-theme">
+  <div class="payment-required-container">
+    <div class="payment-card">
+      <div class="icon-container">
+        <i class="fas fa-lock"></i>
+      </div>
+      
+      <h1 class="title">Premium Access Required</h1>
+      
+      <p class="subtitle">
+        Unlock the full power of Vortex Analytica with our Professional plan
+      </p>
+      
+      <div class="features-grid">
+        <div class="feature">
+          <i class="fas fa-bolt"></i>
+          <h3>Real-time Analysis</h3>
+          <p>100ms latency market intelligence</p>
+        </div>
+        
+        <div class="feature">
+          <i class="fas fa-satellite"></i>
+          <h3>Satellite Intelligence</h3>
+          <p>See what others can't from space</p>
+        </div>
+        
+        <div class="feature">
+          <i class="fas fa-brain"></i>
+          <h3>AI-Powered Insights</h3>
+          <p>Machine learning that predicts trends</p>
+        </div>
+        
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Truth Engine</h3>
+          <p>Protection against market manipulation</p>
+        </div>
+      </div>
+      
+      <div class="pricing-section">
+        <div class="price-tag">
+          <div class="price">
+            <span class="amount">499</span>
+            <span class="currency">PLN</span>
+            <span class="period">/month</span>
+          </div>
+          <div class="trial-badge">
+            <i class="fas fa-gift"></i>
+            14-day free trial
+          </div>
+        </div>
+        
+        <button id="start-trial-btn" class="cta-button">
+          <i class="fas fa-rocket"></i>
+          Start Your Free Trial
+        </button>
+        
+        <p class="guarantee">
+          <i class="fas fa-shield-check"></i>
+          No credit card required for trial • Cancel anytime
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <a href="/" class="link">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <span class="separator">•</span>
+        <a href="/settings" class="link">
+          <i class="fas fa-cog"></i> Account Settings
+        </a>
+        <span class="separator">•</span>
+        <a href="/logout" class="link" id="logout-link">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Start trial button
+    document.getElementById('start-trial-btn').addEventListener('click', async () => {
+      try {
+        const btn = document.getElementById('start-trial-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        
+        const response = await fetch('/api/payments/create-checkout-session', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          window.location.href = data.checkout_url;
+        } else {
+          alert('Unable to start checkout. Please try again.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-rocket"></i> Start Your Free Trial';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        const btn = document.getElementById('start-trial-btn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-rocket"></i> Start Your Free Trial';
+      }
+    });
+
+    // Logout link
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
+      window.location.href = '/login';
+    });
+
+    // Apply theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.remove('dark-theme');
+    }
+  </script>
+</body>
+</html>
