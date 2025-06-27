@@ -158,7 +158,7 @@ window.NewsSSE = (() => {
       <div class="news-item ${impactClass} fade-in">
         <div class="news-header">
           <div class="news-title">${utils.escapeHtml(message.title || 'No title')}</div>
-          <div class="news-date">${utils.formatDate(message.time_reported)}</div>
+          <div class="news-date">${utils.formatDate(message.time_reported)}, UTC timezone</div>
         </div>
         <div class="news-content">
           <p>${utils.escapeHtml(message.interpretation || '')}</p>
