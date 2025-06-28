@@ -23,6 +23,10 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
         """ Obsługa strony głównej (landing page) - publiczna. """
         return templates.TemplateResponse("landing_page.html", context)
 
+    @app.get("/daily_report", response_class=HTMLResponse, summary="Daily report subscription page")
+    async def daily_report(context: dict = Depends(get_template_context)) -> HTMLResponse:
+        """ Displays the daily report subscription page - public. """
+        return templates.TemplateResponse("daily_report.html", context)
 
     @app.get("/index", response_class=HTMLResponse, name="index_page_route")
     async def index(request: Request, current_user_session: Dict[str, Any] = Depends(get_current_active_user),context: dict = Depends(get_template_context)) -> HTMLResponse:

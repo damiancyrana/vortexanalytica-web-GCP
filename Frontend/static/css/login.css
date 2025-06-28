@@ -42,8 +42,8 @@ html {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    font-size: 17px;
-    line-height: 1.47059;
+    font-size: 20px;
+    line-height: 1.48;
     color: var(--dark);
     background: var(--gray-100);
     overflow-x: hidden;
@@ -329,6 +329,7 @@ body {
     font-family: inherit;
     font-size: 16px;
     transition: var(--transition);
+    appearance: none;
     -webkit-appearance: none;
 }
 

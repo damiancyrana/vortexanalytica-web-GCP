@@ -27,8 +27,9 @@
                 <li><a href="#media">Recognition</a></li>
                 <li><a href="#stats">Impact</a></li>
                 <li><a href="#pricing">Pricing</a></li>
+                <li><a href="/daily_report" class="nav-cta">Subscribe</a></li>
                 <li><a href="#contact" class="nav-cta">Conntact</a></li>
-                <li><a href="/login" class="nav-cta">Access Platform</a></li>
+                <li><a href="/login" class="nav-cta">Log in / Sign up</a></li>
             </ul>
             <button class="mobile-menu" aria-label="Menu">
                 <i class="fas fa-bars"></i>
@@ -64,7 +65,7 @@
                 </div>
                 
                 <div class="cta-group">
-                    <a href="/login" class="btn btn-primary">Access Platform</a>
+                    <a href="/login" class="btn btn-primary">Log in / Sign up</a>
                     <a href="#contact" class="btn btn-secondary">Contact with us</a>
                 </div>
             </div>
@@ -449,9 +450,9 @@
             </div>
 
             <div class="report-cta-wrapper">
-                <button class="btn btn-secondary plan-cta report-cta email-trigger" data-plan="reports">
+                <a href="/daily_report" class="btn btn-secondary plan-cta report-cta">
                     <i class="fas fa-envelope"></i> Subscribe to Daily Reports
-                </button>
+                </a>
             </div>
         </div>
     </section>
@@ -646,6 +647,47 @@
             }
         });
     });
+    document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navLinks = document.querySelector('.nav-links');
+    const navbar = document.getElementById('navbar');
+    
+    // Toggle mobile menu
+    mobileMenu.addEventListener('click', function() {
+        navLinks.classList.toggle('active');
+        
+        // Change icon
+        const icon = this.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+    
+    // Close menu when clicking a link
+    const links = navLinks.querySelectorAll('a');
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            navLinks.classList.remove('active');
+            const icon = mobileMenu.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!navbar.contains(event.target) && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = mobileMenu.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+});
     </script>
 
 </body>

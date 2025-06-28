@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Vortex Analytica - Daily Reports Subscription</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Subscribe to Vortex Analytica Daily Reports - Professional market intelligence delivered twice daily" />
+  <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
+  <link rel="shortcut icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/css/daily_report.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="nav-container">
+      <div class="logo-section">
+        <div class="logo">
+          <a href="/" class="logo-text">Vortex Analytica</a>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <a href="/" class="nav-link">
+          <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Subscription -->
+  <section class="auth-hero">
+    <div class="hero-background">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+      <div class="gradient-orb orb-3"></div>
+    </div>
+    
+    <div class="auth-container">
+      <!-- Left Column - Information -->
+      <div class="info-column">
+        <!-- Hero Message -->
+        <div class="hero-message">
+
+          <h1 class="main-headline">Read the Market Before<br/>Everyone Else Wakes Up</h1>
+          <p class="main-subtitle">
+            Two precision reports daily. 250+ data sources. One decision advantage.<br/>
+            <strong>Join 200+ traders who see tomorrow, today.</strong>
+          </p>
+        </div>
+
+        <!-- Value Proposition Grid -->
+        <div class="value-grid">
+          <div class="value-card morning">
+   
+            <h3>Morning Intelligence Brief</h3>
+            <ul class="value-points">
+              <li>Cross-market contagion mapping & correlation dynamics</li>
+              <li>Bayesian probability analysis of market scenarios</li>
+              <li>Historical pattern recognition with similarity scoring</li>
+              <li>5-stage chain of thought analysis with validation</li>
+            </ul>
+          </div>
+          
+          <div class="value-card evening">
+            
+            <h3>Evening Strategic Analysis</h3>
+            <ul class="value-points">
+              <li>Asset class impact rankings with contagion risks</li>
+              <li>Probability-weighted scenario trees</li>
+              <li>Leading indicator monitoring across 6 asset classes</li>
+              <li>Critical risk scenarios with contingency triggers</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Trust Proof -->
+        <div class="trust-proof">
+          <div class="trust-metrics">
+            <div class="metric">
+              <div class="metric-value">200+</div>
+              <div class="metric-label">Active Subscribers</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">95%</div>
+              <div class="metric-label">Renewal Rate</div>
+            </div>
+            <div class="metric">
+              <div class="metric-value">4.9/5</div>
+              <div class="metric-label">User Rating</div>
+            </div>
+          </div>
+          
+          <div class="testimonial-highlight">
+            <div class="quote-mark">"</div>
+            <p>The cross-market analysis and contagion mapping alone justify the subscription. The Bayesian probability framework has transformed how I assess market risks.</p>
+            <div class="testimonial-author">
+              <strong>Michael Chen</strong>
+              <span>Hedge Fund Manager, Singapore</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beta Notice -->
+        <div class="beta-notice">
+          <i class="fas fa-info-circle"></i>
+          <p><strong>Early Beta Access:</strong> You're joining at the ground floor. Our AI analyzes 250+ sources and maps complex market interconnections. Lock in founder pricing before we reach 500 subscribers.</p>
+        </div>
+      </div>
+
+      <!-- Right Column - Subscription Form -->
+      <div class="subscription-column">
+        <div class="subscription-card">
+          <!-- Pricing Hero -->
+          <div class="pricing-hero">
+            <div class="price-lockup">
+              <div class="original-price">
+                <span>Regular Price: 499 PLN</span>
+              </div>
+              <div class="current-price">
+                <span class="currency">PLN</span>
+                <span class="amount">299</span>
+                <span class="period">/month</span>
+              </div>
+              <div class="savings-badge">
+                Save 200 PLN monthly • Locked forever
+              </div>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <form id="subscription-form" class="subscription-form" novalidate>            
+            <div class="form-group">
+              <label for="sub-email">Work Email</label>
+              <div class="input-wrapper">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="sub-email" name="email" class="form-input" required placeholder="you@company.com">
+              </div>
+
+            </div>
+
+            <div class="form-group">
+              <label for="sub-name">Full Name</label>
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="sub-name" name="name" class="form-input" required placeholder="John Doe">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sub-company">Company <span class="optional">(Optional)</span></label>
+              <div class="input-wrapper">
+                <i class="fas fa-building input-icon"></i>
+                <input type="text" id="sub-company" name="company" class="form-input" placeholder="Your Fund or Firm">
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="payment-section">
+              <label>Payment Method</label>
+              <div class="payment-placeholder" id="stripe-payment-element">
+                <div class="placeholder-content">
+                  <i class="fas fa-lock"></i>
+                  <p>Bank-grade encryption • Powered by Stripe</p>
+                  <span class="coming-soon-text">Complete integration in progress</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group terms-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="sub-terms" name="terms" required>
+                <span class="checkbox-text">
+                  I agree to receive daily reports and accept the 
+                  <a href="/terms" class="link-primary" target="_blank">Terms</a> & 
+                  <a href="/privacy" class="link-primary" target="_blank">Privacy Policy</a>
+                </span>
+              </label>
+            </div>
+
+            <div id="subscription-message" class="auth-message"></div>
+
+            <button type="submit" class="btn btn-primary btn-full subscribe-btn" id="subscribe-button">
+              <span class="btn-text">Start 30-Day Trial • 299 PLN/mo</span>
+              <span class="btn-subtext">Cancel anytime • No questions asked</span>
+            </button>
+
+            <div class="guarantee-text">
+              <i class="fas fa-shield-alt"></i>
+              <span>30-day money-back guarantee</span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Urgency Indicator -->
+        <div class="urgency-indicator">
+          <div class="spots-remaining">
+            <i class="fas fa-users"></i>
+            <span><strong>287 of 500</strong> beta spots remaining</span>
+          </div>
+          <div class="price-increase-notice">
+            Price increases to 399 PLN at 500 subscribers
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Subscribe Footer Section -->
+  <section class="why-subscribe-footer">
+    <div class="container">
+      <h2>The Intelligence Advantage</h2>
+      <p class="section-subtitle">Every successful trade starts with superior information architecture</p>
+      
+      <div class="advantage-grid">
+        
+        <div class="advantage-item">
+          <div class="advantage-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>Advanced Market Frameworks</h3>
+          <p>Bayesian probability updates, cross-asset contagion mapping, correlation regime analysis. See how events cascade through markets before others notice the ripples.</p>
+        </div>
+        
+        <div class="advantage-item">
+          <div class="advantage-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3>Scenario-Based Risk Analysis</h3>
+          <p>Every report includes probability-weighted scenarios with specific trigger points and market implications. Know exactly what to watch for and how to position.</p>
+        </div>
+        
+        <div class="advantage-item">
+          <div class="advantage-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3>Perfect Timing</h3>
+          <p>6 AM: Full cross-market analysis before markets open. 6 PM: Updated scenarios and overnight positioning guidance. Never miss critical market regime shifts.</p>
+        </div>
+      </div>
+
+      <div class="final-cta">
+        <h3>Join 200+ Traders Who Start Every Day with an Edge</h3>
+        <p>Professional-grade market intelligence with institutional depth. Limited beta pricing ends at 500 subscribers.</p>
+        <a href="#subscription-form" class="btn btn-primary btn-large">
+          Claim Your Spot
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Modal (reusing from landing page) -->
+  <div id="report-modal" class="report-modal">
+    <div class="report-modal-backdrop"></div>
+    <div class="report-modal-content">
+      <button class="report-modal-close">&times;</button>
+      <div class="report-modal-body">
+        <iframe id="report-iframe" src="/static/Product_demo/report.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close close-modal">&times;</button>
+      <div class="modal-icon success">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 class="modal-title">Welcome to Vortex Analytica!</h2>
+      <p class="modal-text">Your subscription is being processed. You'll receive your first comprehensive market analysis within 24 hours.</p>
+      <div class="modal-actions">
+        <a href="/" class="btn btn-primary">
+          <i class="fas fa-home"></i> Return to Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stripe.js placeholder -->
+  <script src="https://js.stripe.com/v3/"></script>
+  
+  <script>
+    // Initialize when Stripe is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Report preview functionality
+      const reportPreview = document.getElementById('report-preview');
+      const reportModal = document.getElementById('report-modal');
+      const modalClose = reportModal.querySelector('.report-modal-close');
+      const modalBackdrop = reportModal.querySelector('.report-modal-backdrop');
+      
+      reportPreview.addEventListener('click', function() {
+        reportModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+      
+      function closeModal() {
+        reportModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      
+      modalClose.addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', closeModal);
+      
+      // Form submission (placeholder)
+      const form = document.getElementById('subscription-form');
+      const submitButton = document.getElementById('subscribe-button');
+      const messageArea = document.getElementById('subscription-message');
+      
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Basic validation
+        const email = document.getElementById('sub-email').value;
+        const name = document.getElementById('sub-name').value;
+        const terms = document.getElementById('sub-terms').checked;
+        
+        if (!email || !name || !terms) {
+          showMessage('Please fill in all required fields and accept the terms', 'error');
+          return;
+        }
+        
+        // Show loading state
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        // Simulate API call (replace with actual Stripe integration)
+        setTimeout(() => {
+          // Show success modal
+          document.getElementById('success-modal').style.display = 'flex';
+          submitButton.disabled = false;
+          submitButton.innerHTML = '<i class="fas fa-lock"></i> Start Subscription - 299 PLN/month';
+        }, 2000);
+      });
+      
+      function showMessage(message, type) {
+        messageArea.textContent = message;
+        messageArea.className = `auth-message ${type}`;
+        messageArea.style.display = 'block';
+      }
+      
+      // Close success modal
+      document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.modal').style.display = 'none';
+        });
+      });
+      
+      // Stripe initialization placeholder
+      // const stripe = Stripe('your-publishable-key');
+      // const elements = stripe.elements();
+      // ... mount payment element when ready
+    });
+  </script>
+</body>
+</html>
