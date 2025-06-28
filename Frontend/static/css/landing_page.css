@@ -263,10 +263,7 @@ nav.scrolled {
     opacity: 0.8;
 }
 
-.nav-links a:hover {
-    opacity: 1;
-    background: rgba(18, 82, 89, 0.05);
-}
+.nav-links a:hover { color: var(--dark); background: var(--gray-50); }
 
 .nav-links .nav-cta {
     background: var(--secondary);
@@ -322,12 +319,7 @@ nav.scrolled {
         color: var(--dark);
         font-size: 14px;
         padding: 0;
-        opacity: 0.8;
-    }
-    
-    .nav-links a:hover {
-        opacity: 1;
-        background: transparent;
+        opacity: 0.7;
     }
     
     .nav-links .nav-cta {
@@ -342,7 +334,7 @@ nav.scrolled {
     }
     
     .nav-links .nav-cta:hover {
-        background: var(--primary);
+
         transform: scale(1.05);
     }
     
