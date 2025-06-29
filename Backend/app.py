@@ -187,7 +187,10 @@ def get_optimal_workers():
 
 # Przykładowe polecenie z optymalną liczbą workerów:
 # uvicorn --factory Backend.app:create_app --workers $(python -c "from Backend.app import get_optimal_workers; print(get_optimal_workers())") --host 0.0.0.0 --port 8040
-# uvicorn --factory Backend.app:create_app  --workers 4 --host 0.0.0.0 --port 8040
+
 # uvicorn --factory Backend.app:create_app --reload --host 0.0.0.0 --port 8040
 # sudo fuser -k 8040/tcp
 # ps aux | grep uvicorn
+
+# sudo nginx -t
+# sudo systemctl reload nginx
