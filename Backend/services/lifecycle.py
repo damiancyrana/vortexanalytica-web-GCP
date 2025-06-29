@@ -1,6 +1,6 @@
 """
-Moduł cyklu życia aplikacji (Wersja Produkcyjna).
-Inicjalizuje Firebase Admin SDK, serwis Pub/Sub oraz Redis.
+Application lifecycle module (Production Only).
+Initializes Firebase Admin SDK, Pub/Sub service, and Redis.
 """
 from __future__ import annotations
 
@@ -11,191 +11,149 @@ from orjson import JSONDecodeError
 import firebase_admin
 from firebase_admin import credentials
 
-from Backend.core.config import get_settings, Settings
+from Backend.core.config import get_settings
 from Backend.services.email_service import EmailService
 from Backend.services.pubsub_service import PubSubService
 from Backend.services.news_service import NewsService
 
 logger = logging.getLogger(__name__)
 
-# Zmienne do przechowywania instancji serwisów globalnie
+# Global service instances
 _pubsub_service = None
 _news_service = None
 
 
 async def app_startup() -> None:
-    """ Inicjalizuje serwisy przy starcie aplikacji. """
+    """Initializes services at application startup."""
     global _pubsub_service, _news_service
     
-    logger.info("Uruchamianie aplikacji Vortex Analytica...")
+    logger.info("Starting Vortex Analytica application...")
     try:
         settings = get_settings()
     except Exception as e:
-        logger.critical("Zatrzymanie aplikacji z powodu błędu konfiguracji.")
-        raise SystemExit(f"Application cannot start due to configuration error on startup: {e}")
-
-    # Inicjalizacja Firebase Admin SDK
+        logger.critical("Stopping application due to configuration error.")
+        raise SystemExit(f"Application cannot start due to configuration error: {e}")
+    
+    # Initialize Firebase Admin SDK
     try:
         if not firebase_admin._apps:
-            logger.info(f"Pobieranie klucza Firebase Admin SDK z sekretu: {settings.firebase_service_account_secret_id}")
+            logger.info(f"Fetching Firebase Admin SDK key from secret: {settings.firebase_service_account_secret_id}")
             firebase_key_json_str = settings.get_secret(settings.firebase_service_account_secret_id)
             
-            # Weryfikacja czy zawartość nie jest pusta
+            # Verify content is not empty
             if not firebase_key_json_str:
-                logger.critical("Klucz Firebase jest pusty!")
+                logger.critical("Firebase key is empty!")
                 raise ValueError("Firebase service account key is empty")
-                
-            # Parsowanie JSON
+            
+            # Parse JSON
             try:
                 firebase_credentials_dict = orjson.loads(firebase_key_json_str)
             except JSONDecodeError as json_err:
-                logger.critical(f"Nieprawidłowy format klucza Firebase: {json_err}")
+                logger.critical(f"Invalid Firebase key format: {json_err}")
                 raise ValueError(f"Invalid Firebase key format: {json_err}")
             
-            # Walidacja minimalnych wymaganych pól w kluczu Firebase
+            # Validate required fields in Firebase key
             required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email']
             missing_fields = [field for field in required_fields if field not in firebase_credentials_dict]
             
             if missing_fields:
-                logger.critical(f"Brak wymaganych pól w kluczu Firebase: {', '.join(missing_fields)}")
+                logger.critical(f"Missing required fields in Firebase key: {', '.join(missing_fields)}")
                 raise ValueError(f"Firebase key missing required fields: {', '.join(missing_fields)}")
             
-            # Dodatkowe sprawdzenie typu konta usługowego
+            # Additional check for service account type
             if firebase_credentials_dict.get('type') != 'service_account':
-                logger.critical("Niewłaściwy typ klucza Firebase: oczekiwano 'service_account'")
+                logger.critical("Invalid Firebase key type: expected 'service_account'")
                 raise ValueError("Invalid Firebase key type: expected 'service_account'")
             
-            # Tworzenie i inicjalizacja
+            # Create and initialize
             cred = credentials.Certificate(firebase_credentials_dict)
             firebase_admin.initialize_app(cred)
-            logger.info("Firebase Admin SDK zainicjalizowany pomyślnie.")
+            logger.info("Firebase Admin SDK initialized successfully.")
         else:
-             logger.info("Firebase Admin SDK jest już zainicjalizowane.")
+            logger.info("Firebase Admin SDK already initialized.")
     except (JSONDecodeError, ValueError, FileNotFoundError, TypeError) as e:
-        logger.critical(f"Krytyczny błąd podczas inicjalizacji Firebase Admin SDK: {e}", exc_info=True)
+        logger.critical(f"Critical error initializing Firebase Admin SDK: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Could not initialize Firebase Admin SDK: {e}") from e
     except Exception as e:
-        logger.critical(f"Nieznany błąd podczas inicjalizacji Firebase Admin SDK: {e}", exc_info=True)
+        logger.critical(f"Unknown error initializing Firebase Admin SDK: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Unexpected error initializing Firebase: {e}") from e
-
-    # Inicjalizacja NewsService z Redis
+    
+    # Initialize NewsService with Redis
     try:
-        logger.info("Inicjalizacja NewsService z Redis...")
+        logger.info("Initializing NewsService with Redis...")
         _news_service = NewsService()
         
-        # Test podstawowych operacji Redis (asynchroniczny)
+        # Test basic Redis operations (asynchronous)
         test_count = await _news_service.get_messages_count()
-        logger.info(f"Połączenie z Redis sprawdzone. Wiadomości w bazie: {test_count}")
+        logger.info(f"Redis connection verified. Messages in database: {test_count}")
         
-        # Opcjonalne: wyczyść stare wiadomości przy starcie
-        cleaned_count = await _news_service.cleanup_old_messages(max_age_seconds=7 * 24 * 3600)  # 7 dni
+        # Optional: clean old messages at startup
+        cleaned_count = await _news_service.cleanup_old_messages(max_age_seconds=7 * 24 * 3600)  # 7 days
         if cleaned_count > 0:
-            logger.info(f"Wyczyszczono {cleaned_count} starych wiadomości przy starcie")
+            logger.info(f"Cleaned {cleaned_count} old messages at startup")
             
     except Exception as e:
-        logger.critical(f"Krytyczny błąd podczas inicjalizacji NewsService z Redis: {e}", exc_info=True)
+        logger.critical(f"Critical error initializing NewsService with Redis: {e}", exc_info=True)
         raise SystemExit(f"Application startup failed: Could not initialize NewsService with Redis: {e}") from e
-
-
-    # Initialize NarrativeService and load existing messages
+    
+    # Initialize Pub/Sub Service
     try:
-        logger.info("Initializing NarrativeService...")
-        from Backend.services.narrative_service import NarrativeService
-        narrative_service = NarrativeService()
-        
-        # Load recent messages into narrative clustering
-        logger.info("Loading existing messages into narrative clusters...")
-        recent_messages = await _news_service.get_messages(limit=200)
-        
-        processed_count = 0
-        for message in recent_messages:
-            try:
-                await narrative_service.add_message(message)
-                processed_count += 1
-            except Exception as e:
-                logger.warning(f"Could not add message to narratives: {e}")
-        
-        logger.info(f"Loaded {processed_count} messages into narrative clusters")
-        
-        # Get initial stats
-        active_narratives = await narrative_service.get_active_narratives(limit=10)
-        logger.info(f"Active narratives: {len(active_narratives)}")
-        
-    except Exception as e:
-        logger.error(f"Error initializing NarrativeService: {e}")
-        # Non-critical, continue startup
-
-
-    # Inicjalizacja Pub/Sub Service
-    try:
-        logger.info("Inicjalizacja serwisu Pub/Sub...")
+        logger.info("Initializing Pub/Sub service...")
         _pubsub_service = PubSubService(settings)
         
-        # Uruchom nasłuchiwanie asynchronicznie dla obu topiców
+        # Start listening asynchronously for all topics
         if await _pubsub_service.start_listener_async():
-            logger.info("Serwis Pub/Sub uruchomiony pomyślnie (standard + critical).")
+            logger.info("Pub/Sub service started successfully (standard + critical + calendar + moc + regular).")
         else:
-            logger.warning("Nie udało się uruchomić nasłuchiwania Pub/Sub, ale aplikacja kontynuuje działanie.")
+            logger.warning("Failed to start Pub/Sub listening, but application continues.")
     except Exception as e:
-        logger.error(f"Błąd podczas inicjalizacji serwisu Pub/Sub: {e}", exc_info=True)
-        logger.warning("Aplikacja będzie kontynuować działanie bez serwisu Pub/Sub.")
+        logger.error(f"Error initializing Pub/Sub service: {e}", exc_info=True)
+        logger.warning("Application will continue without Pub/Sub service.")
     
-    logger.info(f"Aplikacja uruchomiona pomyślnie w trybie: {settings.environment}")
+    logger.info("Application started successfully in production mode.")
 
-    
+
 async def app_shutdown() -> None:
-    """ Zwalnia zasoby przy zamykaniu aplikacji. """
+    """Releases resources at application shutdown."""
     global _pubsub_service, _news_service
     
-    logger.info("Zamykanie aplikacji Vortex Analytica...")
+    logger.info("Shutting down Vortex Analytica application...")
     
-    # Zatrzymaj serwis Pub/Sub
+    # Stop Pub/Sub service
     if _pubsub_service:
         try:
-            logger.info("Zatrzymywanie serwisu Pub/Sub...")
+            logger.info("Stopping Pub/Sub service...")
             await _pubsub_service.stop_listener_async()
         except Exception as e:
-            logger.warning(f"Błąd podczas zatrzymywania serwisu Pub/Sub: {e}", exc_info=True)
+            logger.warning(f"Error stopping Pub/Sub service: {e}", exc_info=True)
     
-    # Zamknij połączenia Redis w NewsService
+    # Close Redis connections in NewsService
     if _news_service:
         try:
-            logger.info("Zamykanie połączeń Redis w NewsService...")
+            logger.info("Closing Redis connections in NewsService...")
             await _news_service.close_connections()
         except Exception as e:
-            logger.warning(f"Błąd podczas zamykania połączeń Redis: {e}", exc_info=True)
+            logger.warning(f"Error closing Redis connections: {e}", exc_info=True)
     
-
-    # Close NarrativeService connections
-    try:
-        from Backend.services.narrative_service import NarrativeService
-        narrative_service = NarrativeService._instance
-        if narrative_service:
-            logger.info("Closing NarrativeService connections...")
-            await narrative_service.close_connections()
-    except Exception as e:
-        logger.warning(f"Error closing NarrativeService connections: {e}")
-
-
-    # Zamknij pulę połączeń SMTP, jeśli EmailService był używany
+    # Close SMTP connection pool if EmailService was used
     try:
         email_service = EmailService._instance
         if email_service and hasattr(email_service, 'close_all_connections'):
-            logger.info("Zamykanie połączeń EmailService...")
+            logger.info("Closing EmailService connections...")
             email_service.close_all_connections()
     except Exception as e:
-         logger.warning(f"Błąd podczas zamykania puli połączeń EmailService: {e}", exc_info=True)
-
-    # Spróbuj wyczyścić aplikacje Firebase, jeśli istnieją
+        logger.warning(f"Error closing EmailService connection pool: {e}", exc_info=True)
+    
+    # Try to clean up Firebase apps if they exist
     try:
         if firebase_admin._apps:
-            logger.info("Czyszczenie aplikacji Firebase...")
+            logger.info("Cleaning up Firebase applications...")
             for app in list(firebase_admin._apps.values()):
                 try:
                     app.delete()
                 except Exception as fe:
-                    logger.warning(f"Nie można wyczyścić aplikacji Firebase: {fe}")
+                    logger.warning(f"Cannot clean up Firebase application: {fe}")
     except Exception as e:
-        logger.warning(f"Błąd podczas czyszczenia aplikacji Firebase: {e}")
-
-    logger.info("Aplikacja zamknięta pomyślnie.")
+        logger.warning(f"Error cleaning up Firebase applications: {e}")
+    
+    logger.info("Application shut down successfully.")

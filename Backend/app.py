@@ -1,5 +1,5 @@
 """
-Vortex Analytica - Główny moduł aplikacji (Wersja Produkcyjna)
+Vortex Analytica - Main application module (Production Only)
 """
 import logging, os, multiprocessing
 from functools import lru_cache
@@ -13,9 +13,9 @@ from starlette_csrf import CSRFMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-# Konfiguracja logowania
+# Logging configuration
 def setup_logging():
-    """Centralizowana konfiguracja logowania"""
+    """Centralized logging configuration"""
     log_level_str = os.getenv("LOG_LEVEL", "INFO").upper()
     log_level = getattr(logging, log_level_str, logging.INFO)
     logging.basicConfig(
@@ -26,10 +26,10 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
-# Inicjalizacja loggera na początku
+# Initialize logger at the beginning
 logger = setup_logging()
 
-# Importy modułów aplikacji PO konfiguracji logów
+# Import application modules AFTER logging configuration
 from Backend.core.config import get_settings, Settings
 from Backend.routes import register_routes
 from Backend.services import lifecycle
@@ -37,7 +37,7 @@ from Backend.core.error_handlers import register_error_handlers
 
 
 class VortexApplication:
-    """ Główna klasa aplikacji (Singleton) """
+    """Main application class (Singleton)"""
     _instance: Optional["VortexApplication"] = None
     _app: Optional[FastAPI] = None
     _templates: Optional[Jinja2Templates] = None
@@ -56,14 +56,14 @@ class VortexApplication:
         self._settings = get_settings()
         self._initialize_app()
         self._initialized = True
-        logger.info("Inicjalizacja VortexApplication zakończona")
+        logger.info("VortexApplication initialization complete")
 
     def _initialize_app(self) -> None:
-        """ Inicjalizuje aplikację FastAPI """
+        """Initializes FastAPI application"""
         self._app = FastAPI(
             title=self._settings.app_name,
-            docs_url=None,  # Wyłącz Swagger na produkcji
-            redoc_url=None,  # Wyłącz ReDoc na produkcji
+            docs_url=None,  # Disable Swagger in production
+            redoc_url=None,  # Disable ReDoc in production
             default_response_class=ORJSONResponse,
         )
 
@@ -75,29 +75,29 @@ class VortexApplication:
         self._app.add_event_handler("startup", lifecycle.app_startup)
         self._app.add_event_handler("shutdown", lifecycle.app_shutdown)
         self._configure_static_cache()
-        logger.info("Inicjalizacja aplikacji FastAPI zakończona.")
+        logger.info("FastAPI application initialization complete.")
 
     def _configure_static_cache(self) -> None:
-        """Konfiguruje cache dla plików statycznych (tryb produkcyjny)"""
+        """Configures cache for static files (production mode)"""
         @self._app.middleware("http")
         async def add_cache_headers(request, call_next):
             response = await call_next(request)
 
             if not self._settings:
-                logger.warning("Settings nie są dostępne w _configure_static_cache")
+                logger.warning("Settings not available in _configure_static_cache")
                 return response
 
-            # Nagłówki cache dla trybu produkcyjnego
+            # Cache headers for production mode
             if request.url.path.startswith("/static/"):
                 if "js" in request.url.path or "css" in request.url.path:
-                    response.headers["Cache-Control"] = "public, max-age=604800" # 7 dni
+                    response.headers["Cache-Control"] = "public, max-age=604800"  # 7 days
                 elif any(ext in request.url.path for ext in [".jpg", ".png", ".gif", ".ico", ".svg"]):
-                    response.headers["Cache-Control"] = "public, max-age=2592000" # 30 dni
+                    response.headers["Cache-Control"] = "public, max-age=2592000"  # 30 days
 
             return response
 
     def _configure_middleware(self) -> None:
-        """ Konfiguruje middleware aplikacji. """
+        """Configures application middleware."""
         # Trusted Host Middleware
         allowed_hosts = [
             "www.vortexanalytica.com",
@@ -107,7 +107,7 @@ class VortexApplication:
         ]
         self._app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-        # GZip Middleware (kompresja odpowiedzi)
+        # GZip Middleware (response compression)
         self._app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=9)
 
         # CORS Middleware
@@ -116,10 +116,10 @@ class VortexApplication:
         # CSRF Middleware
         self._configure_csrf()
 
-        logger.info("Konfiguracja middleware zakończona.")
+        logger.info("Middleware configuration complete.")
 
     def _configure_cors(self) -> None:
-        """Konfiguruje middleware CORS"""
+        """Configures CORS middleware"""
         allowed_origins = [
             "https://www.vortexanalytica.com",
             "https://vortexanalytica.com",
@@ -136,9 +136,9 @@ class VortexApplication:
         )
 
     def _configure_csrf(self) -> None:
-        """Konfiguruje middleware CSRF"""
+        """Configures CSRF middleware"""
         try:
-            logger.info("Dodawanie CSRFMiddleware...")
+            logger.info("Adding CSRFMiddleware...")
             self._app.add_middleware(
                 CSRFMiddleware,
                 secret=self._settings.SESSION_SECRET_KEY,
@@ -146,46 +146,46 @@ class VortexApplication:
                 cookie_secure=self._settings.SESSION_COOKIE_SECURE,
                 cookie_samesite=self._settings.SESSION_COOKIE_SAMESITE,
             )
-            logger.info("CSRFMiddleware dodane pomyślnie.")
+            logger.info("CSRFMiddleware added successfully.")
         except ImportError:
-            logger.critical("BIBLIOTEKA starlette-csrf NIE JEST ZAINSTALOWANA - APLIKACJA JEST PODATNA NA ATAKI CSRF")
+            logger.critical("LIBRARY starlette-csrf NOT INSTALLED - APPLICATION IS VULNERABLE TO CSRF ATTACKS")
             raise RuntimeError("CSRF protection library (starlette-csrf) not installed. Application cannot run securely.")
         except Exception as e:
-            logger.critical(f"Nie można skonfigurować CSRFMiddleware: {e}", exc_info=True)
+            logger.critical(f"Cannot configure CSRFMiddleware: {e}", exc_info=True)
             raise RuntimeError(f"Failed to configure CSRF protection: {e}")
 
     @property
     def app(self) -> FastAPI:
-        """ Zwraca zainicjalizowaną instancję FastAPI. """
+        """Returns initialized FastAPI instance."""
         if self._app is None:
-             logger.error("Krytyczny błąd: Próba dostępu do self.app przed pełną inicjalizacją VortexApplication!")
+             logger.error("Critical error: Attempting to access self.app before full VortexApplication initialization!")
              raise RuntimeError("FastAPI application instance is not available.")
         return self._app
 
 
 @lru_cache()
 def create_app() -> FastAPI:
-    """ Funkcja fabryczna tworząca aplikację FastAPI (Singleton). """
+    """Factory function creating FastAPI application (Singleton)."""
     app_instance = VortexApplication()
     return app_instance.app
 
 
 def get_optimal_workers():
-    """Oblicza optymalną liczbę workerów na podstawie liczby dostępnych rdzeni CPU."""
+    """Calculates optimal number of workers based on available CPU cores."""
     try:
         cores = multiprocessing.cpu_count()
         if cores <= 4:
-            optimal = max(4, cores * 4)  # 2-4 dla małych maszyn
+            optimal = max(4, cores * 4)  # 4 for small machines
         else:
-            optimal = min(cores * 4, 16)  # 2 na rdzeń, max 16
-        logger.info(f"Wykryto {cores} rdzeni CPU, optymalna liczba workerów: {optimal}")
+            optimal = min(cores * 4, 16)  # 4 per core, max 16
+        logger.info(f"Detected {cores} CPU cores, optimal worker count: {optimal}")
         return optimal
     except Exception as e:
-        logger.warning(f"Nie można określić liczby rdzeni CPU: {e}, używam domyślnej wartości 4")
+        logger.warning(f"Cannot determine CPU core count: {e}, using default value 6")
         return 6
 
 
-# Przykładowe polecenie z optymalną liczbą workerów:
+# Example command with optimal worker count:
 # uvicorn --factory Backend.app:create_app --workers $(python -c "from Backend.app import get_optimal_workers; print(get_optimal_workers())") --host 0.0.0.0 --port 8040
 
 # uvicorn --factory Backend.app:create_app --reload --host 0.0.0.0 --port 8040
