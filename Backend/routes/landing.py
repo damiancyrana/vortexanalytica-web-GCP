@@ -21,12 +21,12 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
     @app.get("/", response_class=HTMLResponse, summary="Publiczna strona powitalna")
     async def landing(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Obsługa strony głównej (landing page) - publiczna. """
-        return templates.TemplateResponse("landing_page.html", context)
+        return templates.TemplateResponse("landing_page/landing_page.html", context)
 
     @app.get("/daily_report", response_class=HTMLResponse, summary="Daily report subscription")
     async def daily_report(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Displays the daily report subscription page - public. """
-        return templates.TemplateResponse("daily_report.html", context)
+        return templates.TemplateResponse("landing_page/daily_report.html", context)
 
     @app.get("/index", response_class=HTMLResponse, name="index_page_route")
     async def index(request: Request, current_user_session: Dict[str, Any] = Depends(get_current_active_user),context: dict = Depends(get_template_context)) -> HTMLResponse:
@@ -38,17 +38,17 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
     @app.get("/terms", response_class=HTMLResponse, summary="Terms of Service page")
     async def terms_of_service(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Displays the Terms of Service page - public. """
-        return templates.TemplateResponse("documents/terms_service.html", context)
+        return templates.TemplateResponse("landing_page/documents/terms_service.html", context)
     
     @app.get("/intellectual-property", response_class=HTMLResponse, summary="Intellectual Property page")
     async def intellectual_property(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Displays the Intellectual Property Statement page - public. """
-        return templates.TemplateResponse("documents/intellectual_property.html", context)
+        return templates.TemplateResponse("landing_page/documents/intellectual_property.html", context)
     
     @app.get("/security", response_class=HTMLResponse, summary="Security page")
     async def security(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Displays the Security page - public. """
-        return templates.TemplateResponse("documents/security.html", context)
+        return templates.TemplateResponse("landing_page/documents/security.html", context)
     
     
     # Chroniony endpoint API
@@ -68,4 +68,3 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
              "messages": []  # Dane wiadomości są teraz dostarczane przez endpoint /api/news
          }
          return data
-    

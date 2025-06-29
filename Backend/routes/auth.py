@@ -50,7 +50,7 @@ def register_auth_routes(app: FastAPI, templates: Jinja2Templates, settings: Set
                  index_url = "/index" # Fallback, jeśli nazwa trasy nie działa
             return RedirectResponse(url=index_url, status_code=status.HTTP_303_SEE_OTHER)
         # Jeśli nie ma sesji, zwróć szablon logowania
-        return templates.TemplateResponse("login.html", context)
+        return templates.TemplateResponse("landing_page/login.html", context)
 
     # Trasa POST do tworzenia sesji na podstawie tokenu Firebase
     @app.post("/auth/firebase-session-login", status_code=status.HTTP_200_OK, summary="Tworzy sesję na podstawie tokenu Firebase")
