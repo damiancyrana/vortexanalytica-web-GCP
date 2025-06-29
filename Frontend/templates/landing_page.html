@@ -27,8 +27,9 @@
                 <li><a href="#media">Recognition</a></li>
                 <li><a href="#stats">Impact</a></li>
                 <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#terms">Terms</a></li>
+                <li><a href="#contact">Contact</a></li>
                 <li><a href="/daily_report" class="nav-cta">Subscribe</a></li>
-                <li><a href="#contact" class="nav-cta">Conntact</a></li>
                 <li><a href="/login" class="nav-cta">Log in / Sign up</a></li>
             </ul>
             <button class="mobile-menu" aria-label="Menu">
@@ -434,15 +435,11 @@
                 <div class="report-preview-column">
                     <div id="report-preview">
                         <div class="report-page-preview"></div>
+                            <a href="/daily_report" class="btn btn-secondary plan-cta report-cta"><i class="fas fa-envelope"></i> Subscribe to Daily Reports</a>
                     </div>
                 </div>
             </div>
 
-            <div class="report-cta-wrapper">
-                <a href="/daily_report" class="btn btn-secondary plan-cta report-cta">
-                    <i class="fas fa-envelope"></i> Subscribe to Daily Reports
-                </a>
-            </div>
         </div>
     </section>
 
@@ -507,7 +504,7 @@
                     <div class="plan-headline">Outpace the market. Lock in your lifetime rate now only!</div>
                     <div class="price-container">
                         <div class="coming-soon-info">
-                            <h2 style="color: var(--secondary); margin: 20px 0;">Q4 2025 LAUNCH</h2>
+                            <h2 style="color: var(--secondary); margin: 20px 0;">Q1 2026 LAUNCH</h2>
                         </div>
                     </div>
                     <p class="plan-description">
@@ -529,7 +526,7 @@
                     <div class="plan-headline">All Professional features and more. Built to command and scale</div>
                     <div class="price-container">
                         <div class="coming-soon-info">
-                            <h2 style="color: var(--secondary); margin: 20px 0;">Q2 2026 LAUNCH</h2>
+                            <h2 style="color: var(--secondary); margin: 20px 0;">Q4 2026 LAUNCH</h2>
                         </div>
                     </div>
                     <p class="plan-description">
@@ -598,86 +595,17 @@
 
     <!-- Footer -->
     <footer>
-        <div class="container">
+        <div class="container" id="terms">
             <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Security</a>
-                <a href="#">Contact</a>
+                <a href="/intellectual-property">Intellectual Property</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/security">Security</a>
             </div>
             <p class="copyright">©2025 Vortex Analytica. All rights reserved</p>
         </div>
     </footer>
 
     <script src="/static/js/landing_page.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const reportPreview = document.getElementById('report-preview');
-        const reportModal = document.getElementById('report-modal');
-        const modalClose = reportModal.querySelector('.report-modal-close');
-        const modalBackdrop = reportModal.querySelector('.report-modal-backdrop');
-        
-        reportPreview.addEventListener('click', function() {
-            reportModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-        
-        function closeModal() {
-            reportModal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        
-        modalClose.addEventListener('click', closeModal);
-        modalBackdrop.addEventListener('click', closeModal);
-        
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && reportModal.classList.contains('active')) {
-                closeModal();
-            }
-        });
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenu = document.querySelector('.mobile-menu');
-    const navLinks = document.querySelector('.nav-links');
-    const navbar = document.getElementById('navbar');
-    
-    // Toggle mobile menu
-    mobileMenu.addEventListener('click', function() {
-        navLinks.classList.toggle('active');
-        
-        // Change icon
-        const icon = this.querySelector('i');
-        if (navLinks.classList.contains('active')) {
-            icon.classList.remove('fa-bars');
-            icon.classList.add('fa-times');
-        } else {
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
-    });
-    
-    // Close menu when clicking a link
-    const links = navLinks.querySelectorAll('a');
-    links.forEach(link => {
-        link.addEventListener('click', function() {
-            navLinks.classList.remove('active');
-            const icon = mobileMenu.querySelector('i');
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        });
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!navbar.contains(event.target) && navLinks.classList.contains('active')) {
-            navLinks.classList.remove('active');
-            const icon = mobileMenu.querySelector('i');
-            icon.classList.remove('fa-times');
-            icon.classList.add('fa-bars');
-        }
-    });
-});
-    </script>
 
 </body>
 </html>

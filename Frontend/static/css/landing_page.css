@@ -158,6 +158,7 @@ section {
     section { padding: 80px 0; }
 }
 
+
 /* ========================================
    5. NAVIGATION
    ======================================== */
@@ -167,10 +168,11 @@ nav {
     left: 0;
     right: 0;
     z-index: 9999;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     transition: var(--transition);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 nav.scrolled {
@@ -181,18 +183,11 @@ nav.scrolled {
 .nav-container {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 var(--spacing-sm);
+    padding: 0 32px;
     height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-
-@media (min-width: 768px) {
-    .nav-container {
-        height: 48px;
-        padding: 0 var(--spacing-md);
-    }
 }
 
 /* Logo */
@@ -208,22 +203,18 @@ nav.scrolled {
     background-clip: text;
     color: transparent;
     font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: .02em;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: .01em;
     text-transform: uppercase;
     line-height: 1;
     white-space: nowrap;
-    margin-left: 0;
     text-decoration: none;
+    transition: opacity 0.2s ease;
 }
 
-@media (min-width: 768px) {
-    .logo-text { font-size: 1.1rem; margin-left: 20px; }
-}
-
-@media (min-width: 1024px) {
-    .logo-text { font-size: 1.2rem; margin-left: 35px; }
+.logo-text:hover {
+    opacity: 0.85;
 }
 
 /* Navigation Links */
@@ -257,18 +248,21 @@ nav.scrolled {
     color: var(--dark);
     text-decoration: none;
     font-size: 16px;
-    padding: 12px 24px;
+    padding: 12px 14px;
     display: block;
     transition: var(--transition);
     opacity: 0.8;
 }
 
-.nav-links a:hover { color: var(--dark); background: var(--gray-50); }
+.nav-links a:hover { 
+    color: var(--dark); 
+    background: var(--gray-100); 
+}
 
 .nav-links .nav-cta {
     background: var(--secondary);
     color: var(--white);
-    margin: 8px 24px;
+    margin: 8px 14px;
     padding: 12px 24px;
     border-radius: 20px;
     text-align: center;
@@ -292,22 +286,13 @@ nav.scrolled {
     color: var(--dark);
 }
 
-.mobile-menu {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    padding: var(--spacing-xs);
-    color: var(--dark);
-}
-
 @media (min-width: 1080px) {
     .nav-links {
         display: flex;
         position: static;
         flex-direction: row;
         align-items: center;
-        gap: 20px;
+        gap: 10px;
         padding: 0;
         background: transparent;
         box-shadow: none;
@@ -316,30 +301,56 @@ nav.scrolled {
     }
     
     .nav-links a {
-        color: var(--dark);
+        color: var(--gray-500);
         font-size: 14px;
-        padding: 0;
-        opacity: 0.7;
+        padding: 8px 16px;
+        border-radius: 8px;
+        opacity: 1;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .nav-links a:hover {
+        color: var(--primary);
+        background: rgba(18, 82, 89, 0.04);
     }
     
     .nav-links .nav-cta {
         background: var(--secondary);
         color: var(--white);
-        padding: 7px 16px;
+        padding: 8px 10px;
         margin: 0;
         border-radius: 20px;
-        font-size: 13px;
+        font-size: 14px;
         display: inline-block;
         white-space: nowrap;
     }
     
     .nav-links .nav-cta:hover {
-
+        background: var(--primary);
         transform: scale(1.05);
+        color: var(--white);
     }
     
     .mobile-menu { 
         display: none; 
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 20px;
+    }
+    
+    .logo-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 0.9rem;
     }
 }
 
@@ -1356,21 +1367,19 @@ nav.scrolled {
 }
 
 @media (min-width: 768px) {
-    .report-cta-wrapper { margin-top: 60px; }
+    .report-cta-wrapper { margin-top: 20px; }
 }
 
 .report-cta {
-    background: transparent;
-    border: 2px solid var(--secondary);
-    color: var(--secondary);
+    color: var(--white);
+    background-color: var(--secondary);
     font-size: 16px;
     padding: 16px 32px;
+    margin-top: 20px;
+    border: none;
 }
 
-.report-cta:hover {
-    background: var(--secondary);
-    color: var(--white);
-}
+
 
 /* Report Preview */
 .report-preview-column {
@@ -2086,29 +2095,27 @@ nav.scrolled {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-/* ========================================
-   14. FOOTER
-   ======================================== */
+
+/* Alternative: Everything centered in one line */
 footer {
     background: var(--gray-100);
-    padding: var(--spacing-xl) 0 var(--spacing-lg);
+    padding: 20px 0;
     text-align: center;
 }
 
-@media (min-width: 768px) {
-    footer { padding: 60px 0 40px; }
-}
-
-.footer-links {
+footer .container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    align-items: center;
+    gap: 0;
 }
 
-@media (min-width: 768px) {
-    .footer-links { gap: 40px; margin-bottom: 40px; }
+.footer-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
 }
 
 .footer-links a {
@@ -2118,18 +2125,29 @@ footer {
     transition: var(--transition);
 }
 
-@media (min-width: 768px) {
-    .footer-links a { font-size: 14px; }
+.footer-links a:hover { 
+    color: var(--primary); 
 }
 
-.footer-links a:hover { color: var(--primary); }
+/* Separator between links and copyright */
+.footer-links::after {
+    content: "|";
+    margin: 0 16px;
+    color: var(--gray-400);
+}
 
 .copyright {
     color: var(--gray-500);
     font-size: 13px;
+    margin: 0;
+    display: inline;
 }
 
 @media (min-width: 768px) {
+    footer { padding: 25px 0; }
+    .footer-links { gap: 24px; }
+    .footer-links a { font-size: 14px; }
+    .footer-links::after { margin: 0 24px; }
     .copyright { font-size: 14px; }
 }
 

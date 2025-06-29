@@ -23,7 +23,7 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
         """ Obsługa strony głównej (landing page) - publiczna. """
         return templates.TemplateResponse("landing_page.html", context)
 
-    @app.get("/daily_report", response_class=HTMLResponse, summary="Daily report subscription page")
+    @app.get("/daily_report", response_class=HTMLResponse, summary="Daily report subscription")
     async def daily_report(context: dict = Depends(get_template_context)) -> HTMLResponse:
         """ Displays the daily report subscription page - public. """
         return templates.TemplateResponse("daily_report.html", context)
@@ -35,6 +35,22 @@ def register_landing_routes(app: FastAPI, templates: Jinja2Templates, settings: 
         return templates.TemplateResponse("index.html", context)
 
 
+    @app.get("/terms", response_class=HTMLResponse, summary="Terms of Service page")
+    async def terms_of_service(context: dict = Depends(get_template_context)) -> HTMLResponse:
+        """ Displays the Terms of Service page - public. """
+        return templates.TemplateResponse("documents/terms_service.html", context)
+    
+    @app.get("/intellectual-property", response_class=HTMLResponse, summary="Intellectual Property page")
+    async def intellectual_property(context: dict = Depends(get_template_context)) -> HTMLResponse:
+        """ Displays the Intellectual Property Statement page - public. """
+        return templates.TemplateResponse("documents/intellectual_property.html", context)
+    
+    @app.get("/security", response_class=HTMLResponse, summary="Security page")
+    async def security(context: dict = Depends(get_template_context)) -> HTMLResponse:
+        """ Displays the Security page - public. """
+        return templates.TemplateResponse("documents/security.html", context)
+    
+    
     # Chroniony endpoint API
     @app.get("/api/index-data", summary="Pobiera dane dla strony głównej (wymaga sesji)")
     async def get_index_data(current_user_session: Dict[str, Any] = Depends(get_current_active_user)) -> Dict[str, Any]:

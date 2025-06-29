@@ -677,6 +677,72 @@
             }
         });
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportPreview = document.getElementById('report-preview');
+        const reportModal = document.getElementById('report-modal');
+        const modalClose = reportModal.querySelector('.report-modal-close');
+        const modalBackdrop = reportModal.querySelector('.report-modal-backdrop');
+        
+        reportPreview.addEventListener('click', function() {
+            reportModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        function closeModal() {
+            reportModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        modalClose.addEventListener('click', closeModal);
+        modalBackdrop.addEventListener('click', closeModal);
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && reportModal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navLinks = document.querySelector('.nav-links');
+    const navbar = document.getElementById('navbar');
+    
+    // Toggle mobile menu
+    mobileMenu.addEventListener('click', function() {
+        navLinks.classList.toggle('active');
+        
+        // Change icon
+        const icon = this.querySelector('i');
+        if (navLinks.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+    
+    // Close menu when clicking a link
+    const links = navLinks.querySelectorAll('a');
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            navLinks.classList.remove('active');
+            const icon = mobileMenu.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!navbar.contains(event.target) && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = mobileMenu.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     // Observe pricing cards for animation

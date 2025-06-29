@@ -1,0 +1,640 @@
+/* Design System - Matching Landing Page and Login */
+:root {
+    --primary: #125259;
+    --secondary: #69B7BF;
+    --dark: #0D0D0D;
+    --white: #fff;
+    --gray-100: #fbfbfd;
+    --gray-200: #f5f5f7;
+    --gray-300: #e8e8ed;
+    --gray-400: #d2d2d7;
+    --gray-500: #86868b;
+    --gray-600: #515154;
+    --accent: #125259;
+    --accent-hover: #0a3a3f;
+    --accent-light: #69B7BF;
+    --success: #30d158;
+    --warning: #ff9500;
+    --error: #ff3b30;
+    --gradient-text: linear-gradient(90deg, var(--primary), var(--secondary));
+    --gradient-card: linear-gradient(135deg, rgba(18, 82, 89, 0.03) 0%, rgba(105, 183, 191, 0.03) 100%);
+    --max-width: 1200px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-slow: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--dark);
+    background: var(--gray-100);
+    overflow-x: hidden;
+}
+
+/* Navigation - Matching Login Page */
+#navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    transition: var(--transition);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.nav-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.logo-text:hover {
+    opacity: 0.85;
+}
+
+.nav-link {
+    color: var(--gray-500);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.nav-link:hover {
+    color: var(--primary);
+    background: rgba(18, 82, 89, 0.04);
+}
+
+/* Hero Section */
+.ip-hero {
+    min-height: 100vh;
+    padding-top: 56px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: -1;
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--white) 100%);
+}
+
+.gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.3;
+    animation: float 25s infinite ease-in-out;
+}
+
+.orb-1 {
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+    top: -300px;
+    left: -300px;
+}
+
+.orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+    bottom: -150px;
+    right: -150px;
+    animation-delay: -7s;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -14s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -40px) scale(1.05); }
+    66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+/* IP Container */
+.ip-container {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* IP Card */
+.ip-card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: var(--shadow-xl);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease forwards;
+    overflow: hidden;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* IP Header */
+.ip-header {
+    text-align: center;
+    padding: 48px 48px 32px;
+    border-bottom: 1px solid var(--gray-200);
+    background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
+}
+
+.ip-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(18, 82, 89, 0.2);
+}
+
+.ip-icon i {
+    font-size: 36px;
+    color: var(--white);
+}
+
+.ip-header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.last-update {
+    color: var(--gray-500);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.last-update span {
+    color: var(--gray-600);
+    font-weight: 600;
+}
+
+/* IP Content */
+.ip-content {
+    padding: 48px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* IP Sections */
+.ip-section {
+    margin-bottom: 48px;
+}
+
+.ip-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-number {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.ip-section p {
+    color: var(--gray-600);
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.section-intro {
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 24px;
+}
+
+/* Technology Grid */
+.technology-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.tech-card {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.tech-card.visible {
+    animation: techCardFadeIn 0.6s ease forwards;
+}
+
+@keyframes techCardFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tech-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--gray-300);
+}
+
+.tech-card.highlight {
+    background: var(--gradient-card);
+    border: 1px solid rgba(18, 82, 89, 0.15);
+}
+
+.tech-card.highlight:hover {
+    box-shadow: 0 12px 40px rgba(18, 82, 89, 0.15);
+    border-color: rgba(18, 82, 89, 0.25);
+}
+
+.tech-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.tech-header i {
+    font-size: 24px;
+    color: var(--primary);
+    width: 40px;
+    height: 40px;
+    background: rgba(18, 82, 89, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tech-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.tech-card p {
+    color: var(--gray-600);
+    line-height: 1.6;
+    font-size: 15px;
+    margin-bottom: 0;
+}
+
+.tech-benefit {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(105, 183, 191, 0.08);
+    border-radius: 12px;
+    border-left: 3px solid var(--secondary);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.tech-benefit i {
+    color: var(--secondary);
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.tech-benefit span {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--dark);
+}
+
+/* Protection Notice */
+.protection-notice {
+    background: rgba(255, 59, 48, 0.08);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.protection-notice i {
+    color: var(--error);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.protection-notice p {
+    margin: 0;
+    font-weight: 500;
+    color: var(--dark);
+}
+
+/* Contact Section */
+.contact-info {
+    margin-top: 16px;
+}
+
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 12px 20px;
+    background: rgba(18, 82, 89, 0.08);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.contact-link:hover {
+    background: rgba(18, 82, 89, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Final Statement */
+.final-statement {
+    margin-top: 48px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(18, 82, 89, 0.05) 0%, rgba(105, 183, 191, 0.05) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(18, 82, 89, 0.1);
+}
+
+.final-statement i {
+    color: var(--primary);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.final-statement p {
+    margin: 0;
+    font-style: italic;
+    color: var(--gray-600);
+}
+
+/* IP Footer */
+.ip-footer {
+    padding: 32px 48px;
+    background: var(--gray-100);
+    text-align: center;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Button */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 32px;
+    border-radius: 28px;
+    border: none;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(18, 82, 89, 0.25);
+}
+
+.security-note {
+    margin-top: 16px;
+    color: var(--gray-500);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.security-note i {
+    color: var(--primary);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .ip-container {
+        padding: 30px 16px;
+    }
+    
+    .ip-content {
+        padding: 40px 32px;
+    }
+    
+    .technology-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 20px;
+    }
+    
+    .logo-text {
+        font-size: 1rem;
+    }
+    
+    .nav-link {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    
+    .ip-container {
+        padding: 20px 16px;
+    }
+    
+    .ip-header {
+        padding: 32px 24px 24px;
+    }
+    
+    .ip-header h1 {
+        font-size: 28px;
+    }
+    
+    .ip-icon {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .ip-icon i {
+        font-size: 28px;
+    }
+    
+    .ip-content {
+        padding: 32px 24px;
+    }
+    
+    .ip-section {
+        margin-bottom: 32px;
+    }
+    
+    .ip-section h2 {
+        font-size: 20px;
+    }
+    
+    .section-number {
+        font-size: 18px;
+    }
+    
+    .tech-card {
+        padding: 20px;
+    }
+    
+    .tech-header h3 {
+        font-size: 18px;
+    }
+    
+    .tech-header i {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .protection-notice {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .protection-notice i {
+        font-size: 18px;
+    }
+    
+    .ip-footer {
+        padding: 24px;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ip-header h1 {
+        font-size: 24px;
+    }
+    
+    .ip-content {
+        padding: 24px 16px;
+    }
+    
+    .ip-section p {
+        font-size: 15px;
+    }
+    
+    .tech-card p {
+        font-size: 14px;
+    }
+    
+    .tech-benefit span {
+        font-size: 13px;
+    }
+    
+    .contact-link {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+}
