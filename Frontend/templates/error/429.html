@@ -1,21 +1,21 @@
 {% extends "error/error_base.html" %}
 
-{% block title %}Zbyt wiele żądań{% endblock %}
+{% block title %}Too Many Requests{% endblock %}
 
 {% block error_code %}429{% endblock %}
 
 {% block error_icon %}fas fa-hourglass-half{% endblock %}
 
-{% block error_title %}Zbyt wiele żądań{% endblock %}
+{% block error_title %}Too Many Requests{% endblock %}
 
 {% block error_message %}
-Wysłano zbyt wiele żądań w krótkim czasie.
-Prosimy odczekać chwilę przed ponowną próbą.
+Too many requests were sent in a short time.
+Please wait a moment before trying again
 {% endblock %}
 
 {% block error_actions %}
-<a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
-<a id="retry-btn" class="error-btn secondary" style="cursor: not-allowed; opacity: 0.5;"><i class="fas fa-sync-alt"></i> <span id="retry-text">Spróbuj ponownie za <span id="countdown">30</span>s</span></a>
+<a href="/" class="error-btn"><i class="fas fa-home"></i> Home Page</a>
+<a id="retry-btn" class="error-btn secondary" style="cursor: not-allowed; opacity: 0.5;"><i class="fas fa-sync-alt"></i> <span id="retry-text">Try again in <span id="countdown">30</span>s</span></a>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -25,7 +25,7 @@ Prosimy odczekać chwilę przed ponowną próbą.
     const retryBtn = document.getElementById('retry-btn');
     const retryText = document.getElementById('retry-text');
     
-    let seconds = 30; // Czas oczekiwania
+    let seconds = 30; // Wait time
     
     const countdown = setInterval(() => {
       seconds--;
@@ -38,7 +38,7 @@ Prosimy odczekać chwilę przed ponowną próbą.
           retryBtn.style.opacity = '1';
           retryBtn.href = window.location.href;
         }
-        if (retryText) retryText.textContent = 'Spróbuj ponownie';
+        if (retryText) retryText.textContent = 'Try Again';
       }
     }, 1000);
   });

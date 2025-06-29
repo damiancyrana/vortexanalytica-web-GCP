@@ -1,19 +1,19 @@
 {% extends "error/error_base.html" %}
 
-{% block title %}Nieautoryzowany dostęp{% endblock %}
+{% block title %}Unauthorized Access{% endblock %}
 
 {% block error_code %}401{% endblock %}
 
 {% block error_icon %}fas fa-user-lock{% endblock %}
 
-{% block error_title %}Wymagane logowanie{% endblock %}
+{% block error_title %}Login Required{% endblock %}
 
 {% block error_message %}
-Dostęp do tej strony wymaga zalogowania się.
-Proszę zalogować się, aby kontynuować.
+Access to this page requires you to be logged in.
+Please sign in to continue
 {% endblock %}
 
 {% block error_actions %}
-<a href="/login" class="error-btn"><i class="fas fa-sign-in-alt"></i> Zaloguj się</a>
-<a href="/" class="error-btn secondary"><i class="fas fa-home"></i> Strona główna</a>
+<a href="/login" class="error-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+<a href="/" class="error-btn secondary"><i class="fas fa-home"></i> Home Page</a>
 {% endblock %}

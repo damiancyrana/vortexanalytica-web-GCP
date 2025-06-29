@@ -1,19 +1,19 @@
 {% extends "error/error_base.html" %}
 
-{% block title %}Usługa niedostępna{% endblock %}
+{% block title %}Service Unavailable{% endblock %}
 
 {% block error_code %}503{% endblock %}
 
 {% block error_icon %}fas fa-tools{% endblock %}
 
-{% block error_title %}Usługa tymczasowo niedostępna{% endblock %}
+{% block error_title %}Service Temporarily Unavailable{% endblock %}
 
 {% block error_message %}
-Przepraszamy, ale Vortex Analytica jest obecnie w trakcie konserwacji lub aktualizacji.
-Prosimy spróbować ponownie za kilka minut.
+Sorry, Vortex Analytica is currently undergoing maintenance or updates.
+Please try again in a few minutes.
 {% endblock %}
 
 {% block error_actions %}
-<a href="javascript:window.location.reload()" class="error-btn"><i class="fas fa-sync-alt"></i> Odśwież stronę</a>
-<a href="mailto:vortexanalytica@gmail.com" class="error-btn secondary"><i class="fas fa-envelope"></i> Kontakt z administracją</a>
+<a href="javascript:window.location.reload()" class="error-btn"><i class="fas fa-sync-alt"></i> Refresh Page</a>
+<a href="mailto:vortexanalytica@gmail.com" class="error-btn secondary"><i class="fas fa-envelope"></i> Contact Admin</a>
 {% endblock %}
