@@ -4,270 +4,380 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Błąd{% endblock %} - Vortex Analytica</title>
+    <link rel="icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="/static/Images/portrait/icon.jpg">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <link rel="stylesheet" href="/static/css/landing_page.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
     
     <style>
-        /* Grid-Based Error Page Styles */
+        /* Vortex Analytica Design System - Refined */
         :root {
-            --error-grid-gap: 24px;
-            --error-padding: 32px;
-            --error-border-radius: 16px;
-            --error-transition: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --primary: #125259;
+            --secondary: #69B7BF;
+            --surface: #ffffff;
+            --background: #fafafa;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --text-tertiary: #d2d2d7;
+            --error-soft: #ff6b6b;
+            --error-softer: #ffe0e0;
+            
+            --radius: 40px;
+            --transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-slow: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 20px 60px rgba(18, 82, 89, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            display: grid;
-            place-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-height: 100vh;
-            background: var(--bg-dark);
-            color: var(--text-main);
-            padding: var(--error-padding);
-            margin: 0;
-            font-family: 'Exo 2', sans-serif;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-weight: 400;
+            letter-spacing: -0.014em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle breathing gradient */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(105, 183, 191, 0.06) 0%, transparent 50%);
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.1) rotate(180deg); opacity: 0.6; }
         }
         
+        /* Main container */
         .error-container {
-            display: grid;
-            gap: var(--error-grid-gap);
-            justify-items: center;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: var(--error-border-radius);
-            padding: 3rem 2rem;
-            backdrop-filter: var(--blur);
-            text-align: center;
-            max-width: 600px;
+            position: relative;
+            z-index: 1;
             width: 100%;
-            transition: all var(--error-transition);
+            max-width: 520px;
+            text-align: center;
+            opacity: 0;
+            animation: arrive 1s ease forwards;
         }
-        
-        .error-icon {
-            font-size: 4rem;
-            color: var(--pink);
-            margin-bottom: 0;
+
+        @keyframes arrive {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* The pulse - a living, breathing element */
+        .pulse-container {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .pulse {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            position: relative;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        .error-pulse .pulse {
+            background: linear-gradient(135deg, var(--error-soft) 0%, rgba(255, 107, 107, 0.8) 100%);
+        }
+
+        .pulse::before,
+        .pulse::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            transform: translate(-50%, -50%);
+            animation: ripple 3s ease-out infinite;
+        }
+
+        .pulse::after {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
         }
         
         .error-code {
-            font-size: 5rem;
-            font-weight: 700;
-            color: var(--text-dim);
+            font-size: 120px;
+            font-weight: 200;
             line-height: 1;
-            margin: 0;
+            letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: revealCode 0.8s ease 0.4s forwards;
+            transition: all 0.6s ease;
+            cursor: default;
+            position: relative;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.05));
+        }
+
+        .error-code:hover {
+            transform: scale(0.97);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 4px 12px rgba(18, 82, 89, 0.1));
+        }
+
+        @keyframes revealCode {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
         
+        /* Typography - the soul of the design */
         .error-title {
-            font-size: 1.8rem;
+            font-size: 32px;
             font-weight: 600;
-            color: var(--text-main);
-            margin: 0;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
         }
         
         .error-message {
-            color: var(--text-sec);
-            line-height: 1.7;
-            margin: 0;
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 48px;
+            letter-spacing: -0.016em;
         }
         
+        /* The single action - refined to perfection */
         .error-actions {
-            display: grid;
-            grid-auto-flow: column;
-            gap: 1rem;
+            display: flex;
             justify-content: center;
-            width: 100%;
+            margin-bottom: 24px;
         }
         
         .error-btn {
-            display: grid;
-            grid-auto-flow: column;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1.5rem;
-            border-radius: 6px;
-            text-decoration: none;
+            background: var(--surface);
+            color: var(--primary);
+            border: none;
+            padding: 18px 40px;
+            border-radius: var(--radius);
+            font-size: 17px;
             font-weight: 500;
-            transition: all var(--error-transition);
-            border: 1px solid var(--card-border);
-            background: var(--bg-light);
-            color: var(--text-main);
-            justify-content: center;
-            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+            letter-spacing: -0.014em;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .error-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(105, 183, 191, 0.1), transparent);
+            transition: left 0.8s ease;
+        }
+
         .error-btn:hover {
-            background: var(--bg-medium);
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 229, 255, 0.1);
-        }
-        
-        .error-btn.secondary {
-            background: transparent;
-            color: var(--text-sec);
-        }
-        
-        .error-btn.secondary:hover {
-            background: var(--bg-light);
-            color: var(--text-main);
+            box-shadow: var(--shadow-hover);
         }
 
-        /* Desktop (1400px+) */
-        @media (min-width: 1400px) {
-            :root {
-                --error-padding: 40px;
-                --error-grid-gap: 32px;
-            }
-            
-            .error-container {
-                padding: 4rem 3rem;
-            }
-            
-            .error-icon {
-                font-size: 5rem;
-            }
-            
+        .error-btn:hover::before {
+            left: 100%;
+        }
+
+        .error-btn svg,
+        .error-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .error-btn:hover svg,
+        .error-btn:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* Status indicator - subtle and informative */
+        .status-indicator {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            font-weight: 400;
+            letter-spacing: -0.012em;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Responsive refinements */
+        @media (max-width: 640px) {
             .error-code {
-                font-size: 6rem;
+                font-size: 96px;
             }
             
             .error-title {
-                font-size: 2.2rem;
+                font-size: 28px;
             }
             
             .error-message {
-                font-size: 1.1rem;
+                font-size: 18px;
+                margin-bottom: 40px;
             }
             
             .error-btn {
-                padding: 1rem 2rem;
-                font-size: 1rem;
+                padding: 16px 32px;
+                font-size: 16px;
+            }
+            
+            .pulse-container {
+                height: 100px;
+                margin-bottom: 40px;
+            }
+            
+            .pulse {
+                width: 64px;
+                height: 64px;
             }
         }
 
-        /* Laptop (1024-1399px) */
-        @media (min-width: 1024px) and (max-width: 1399px) {
-            :root {
-                --error-padding: 32px;
-                --error-grid-gap: 24px;
-            }
-            
-            .error-container {
-                padding: 3.5rem 2.5rem;
-            }
-        }
-
-        /* Tablet (768-1023px) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            :root {
-                --error-padding: 24px;
-                --error-grid-gap: 20px;
-            }
-            
-            .error-container {
-                padding: 2.5rem 2rem;
-            }
-            
-            .error-actions {
-                grid-auto-flow: row;
-                gap: 0.8rem;
-            }
-            
-            .error-btn {
-                width: 100%;
-                max-width: 250px;
-                justify-self: center;
-            }
-        }
-
-        /* Mobile (≤767px) */
-        @media (max-width: 767px) {
-            :root {
-                --error-padding: 20px;
-                --error-grid-gap: 16px;
-            }
-            
-            .error-container {
-                padding: 2rem 1.5rem;
-            }
-            
-            .error-icon {
-                font-size: 3rem;
-            }
-            
-            .error-code {
-                font-size: 4rem;
-            }
-            
-            .error-title {
-                font-size: 1.5rem;
-            }
-            
-            .error-message {
-                font-size: 0.95rem;
-            }
-            
-            .error-actions {
-                grid-auto-flow: row;
-                gap: 0.8rem;
-                width: 100%;
-            }
-            
-            .error-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Small Mobile (≤380px) */
         @media (max-width: 380px) {
-            :root {
-                --error-padding: 16px;
-                --error-grid-gap: 12px;
-            }
-            
-            .error-container {
-                padding: 1.5rem 1rem;
-            }
-            
-            .error-icon {
-                font-size: 2.5rem;
+            body {
+                padding: 16px;
             }
             
             .error-code {
-                font-size: 3.5rem;
+                font-size: 80px;
+                margin-bottom: 20px;
             }
             
             .error-title {
-                font-size: 1.3rem;
+                font-size: 24px;
             }
             
             .error-message {
-                font-size: 0.9rem;
+                font-size: 16px;
             }
             
             .error-btn {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.9rem;
+                padding: 14px 28px;
+                font-size: 15px;
             }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pulse,
+            .pulse::before,
+            .pulse::after,
+            body::before,
+            .error-code {
+                animation: none;
+            }
+            
+            .error-code {
+                opacity: 1;
+            }
+            
+            .error-btn::before {
+                display: none;
+            }
+            
+            * {
+                transition-duration: 0.01ms !important;
+            }
+        }
+        .error-icon {
+            display: none;
         }
     </style>
+    {% block extra_styles %}{% endblock %}
 </head>
 <body>
     <div class="error-container">
-        <div class="error-icon">
-            <i class="{% block error_icon %}fas fa-exclamation-circle{% endblock %}"></i>
+        <div class="pulse-container {% block pulse_class %}{% endblock %}">
+            <div class="pulse"></div>
         </div>
-        <div class="error-code">{% block error_code %}Błąd{% endblock %}</div>
-        <h1 class="error-title">{% block error_title %}Wystąpił błąd{% endblock %}</h1>
+
+        <div class="error-code" aria-label="Error {% block error_code %}{% endblock %}">{% block error_code %}{% endblock %}</div>
+
+        <h1 class="error-title">{% block error_title %}An error occurred{% endblock %}</h1>
+        
         <p class="error-message">
-            {% block error_message %}Przepraszamy, napotkano nieoczekiwany problem.{% endblock %}
+            {% block error_message %}We apologize, an unexpected problem has occurred. Our engineers are already aware{% endblock %}
         </p>
+
         <div class="error-actions">
             {% block error_actions %}
-            <a href="/" class="error-btn"><i class="fas fa-home"></i> Strona główna</a>
+            <a href="/" class="error-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to home page
+            </a>
             {% endblock %}
         </div>
+
+        <p class="status-indicator">{% block status_indicator %}{% endblock %}</p>
     </div>
 
     {% block extra_scripts %}{% endblock %}
