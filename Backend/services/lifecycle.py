@@ -34,11 +34,12 @@ async def app_startup() -> None:
         logger.critical("Stopping application due to configuration error.")
         raise SystemExit(f"Application cannot start due to configuration error: {e}")
     
-    # Initialize Firebase Admin SDK
-    try:
-        if not firebase_admin._apps:
-            logger.info(f"Fetching Firebase Admin SDK key from secret: {settings.firebase_service_account_secret_id}")
-            firebase_key_json_str = settings.get_secret(settings.firebase_service_account_secret_id)
+    # Initialize Firebase Admin SDK (skip in development mode)
+    if settings.is_production:
+        try:
+            if not firebase_admin._apps:
+                logger.info(f"Fetching Firebase Admin SDK key from secret: {settings.firebase_service_account_secret_id}")
+                firebase_key_json_str = settings.get_secret(settings.firebase_service_account_secret_id)
             
             # Verify content is not empty
             if not firebase_key_json_str:
@@ -71,12 +72,14 @@ async def app_startup() -> None:
             logger.info("Firebase Admin SDK initialized successfully.")
         else:
             logger.info("Firebase Admin SDK already initialized.")
-    except (JSONDecodeError, ValueError, FileNotFoundError, TypeError) as e:
-        logger.critical(f"Critical error initializing Firebase Admin SDK: {e}", exc_info=True)
-        raise SystemExit(f"Application startup failed: Could not initialize Firebase Admin SDK: {e}") from e
-    except Exception as e:
-        logger.critical(f"Unknown error initializing Firebase Admin SDK: {e}", exc_info=True)
-        raise SystemExit(f"Application startup failed: Unexpected error initializing Firebase: {e}") from e
+        except (JSONDecodeError, ValueError, FileNotFoundError, TypeError) as e:
+            logger.critical(f"Critical error initializing Firebase Admin SDK: {e}", exc_info=True)
+            raise SystemExit(f"Application startup failed: Could not initialize Firebase Admin SDK: {e}") from e
+        except Exception as e:
+            logger.critical(f"Unknown error initializing Firebase Admin SDK: {e}", exc_info=True)
+            raise SystemExit(f"Application startup failed: Unexpected error initializing Firebase: {e}") from e
+    else:
+        logger.info("Development mode - skipping Firebase Admin SDK initialization")
     
     # Initialize NewsService with Redis
     try:

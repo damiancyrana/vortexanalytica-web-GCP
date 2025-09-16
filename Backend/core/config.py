@@ -131,8 +131,9 @@ class Settings(BaseSettings):
     
     @property
     def is_production(self) -> bool:
-        """Always production mode."""
-        return True
+        """Returns True if running in production mode."""
+        environment = os.getenv("ENVIRONMENT", "production").lower()
+        return environment == "production"
     
     @property
     def secret_manager_client(self) -> SecretManagerServiceClient:
@@ -199,9 +200,39 @@ class Settings(BaseSettings):
             self._secrets_cache.clear()
     
     def load_secrets(self) -> None:
-        """Loads all required secrets from Secret Manager."""
-        logger.info("Loading secrets from Secret Manager...")
-        
+        """Loads all required secrets from Secret Manager or environment variables in development."""
+        environment = os.getenv("ENVIRONMENT", "production").lower()
+
+        if environment == "development":
+            logger.info("Development mode detected - loading secrets from environment variables...")
+            self._load_secrets_from_env()
+        else:
+            logger.info("Loading secrets from Secret Manager...")
+            self._load_secrets_from_gcp()
+
+    def _load_secrets_from_env(self) -> None:
+        """Loads secrets from environment variables for development."""
+        secrets_mapping = {
+            "SESSION_SECRET_KEY": "SESSION_SECRET_KEY",
+            "smtp_user": "SMTP_USER",
+            "smtp_pass": "SMTP_PASS",
+            "firebase_api_key": "FIREBASE_API_KEY",
+            "firebase_auth_domain": "FIREBASE_AUTH_DOMAIN",
+        }
+
+        for attr_name, env_var in secrets_mapping.items():
+            value = os.getenv(env_var)
+            if value:
+                setattr(self, attr_name, value)
+                logger.info(f"Loaded '{attr_name}' from environment variable.")
+            elif attr_name == "SESSION_SECRET_KEY":
+                logger.error(f"Required environment variable {env_var} not set!")
+                raise ValueError(f"Environment variable {env_var} is required in development mode.")
+
+        logger.info("Finished loading secrets.")
+
+    def _load_secrets_from_gcp(self) -> None:
+        """Loads secrets from Google Secret Manager for production."""
         secrets_to_load = {
             "SESSION_SECRET_KEY": ("SESSION_SECRET_KEY", True),  # Using same name as the attribute
             "smtp_user": ("smtp-user", False),

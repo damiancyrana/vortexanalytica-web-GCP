@@ -194,3 +194,6 @@ def get_optimal_workers():
 
 # sudo nginx -t
 # sudo systemctl reload nginx
+
+# For compatibility with uvicorn without --factory flag
+app = create_app()
