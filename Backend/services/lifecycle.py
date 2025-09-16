@@ -40,38 +40,38 @@ async def app_startup() -> None:
             if not firebase_admin._apps:
                 logger.info(f"Fetching Firebase Admin SDK key from secret: {settings.firebase_service_account_secret_id}")
                 firebase_key_json_str = settings.get_secret(settings.firebase_service_account_secret_id)
-            
-            # Verify content is not empty
-            if not firebase_key_json_str:
-                logger.critical("Firebase key is empty!")
-                raise ValueError("Firebase service account key is empty")
-            
-            # Parse JSON
-            try:
-                firebase_credentials_dict = orjson.loads(firebase_key_json_str)
-            except JSONDecodeError as json_err:
-                logger.critical(f"Invalid Firebase key format: {json_err}")
-                raise ValueError(f"Invalid Firebase key format: {json_err}")
-            
-            # Validate required fields in Firebase key
-            required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email']
-            missing_fields = [field for field in required_fields if field not in firebase_credentials_dict]
-            
-            if missing_fields:
-                logger.critical(f"Missing required fields in Firebase key: {', '.join(missing_fields)}")
-                raise ValueError(f"Firebase key missing required fields: {', '.join(missing_fields)}")
-            
-            # Additional check for service account type
-            if firebase_credentials_dict.get('type') != 'service_account':
-                logger.critical("Invalid Firebase key type: expected 'service_account'")
-                raise ValueError("Invalid Firebase key type: expected 'service_account'")
-            
-            # Create and initialize
-            cred = credentials.Certificate(firebase_credentials_dict)
-            firebase_admin.initialize_app(cred)
-            logger.info("Firebase Admin SDK initialized successfully.")
-        else:
-            logger.info("Firebase Admin SDK already initialized.")
+
+                # Verify content is not empty
+                if not firebase_key_json_str:
+                    logger.critical("Firebase key is empty!")
+                    raise ValueError("Firebase service account key is empty")
+
+                # Parse JSON
+                try:
+                    firebase_credentials_dict = orjson.loads(firebase_key_json_str)
+                except JSONDecodeError as json_err:
+                    logger.critical(f"Invalid Firebase key format: {json_err}")
+                    raise ValueError(f"Invalid Firebase key format: {json_err}")
+
+                # Validate required fields in Firebase key
+                required_fields = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email']
+                missing_fields = [field for field in required_fields if field not in firebase_credentials_dict]
+
+                if missing_fields:
+                    logger.critical(f"Missing required fields in Firebase key: {', '.join(missing_fields)}")
+                    raise ValueError(f"Firebase key missing required fields: {', '.join(missing_fields)}")
+
+                # Additional check for service account type
+                if firebase_credentials_dict.get('type') != 'service_account':
+                    logger.critical("Invalid Firebase key type: expected 'service_account'")
+                    raise ValueError("Invalid Firebase key type: expected 'service_account'")
+
+                # Create and initialize
+                cred = credentials.Certificate(firebase_credentials_dict)
+                firebase_admin.initialize_app(cred)
+                logger.info("Firebase Admin SDK initialized successfully.")
+            else:
+                logger.info("Firebase Admin SDK already initialized.")
         except (JSONDecodeError, ValueError, FileNotFoundError, TypeError) as e:
             logger.critical(f"Critical error initializing Firebase Admin SDK: {e}", exc_info=True)
             raise SystemExit(f"Application startup failed: Could not initialize Firebase Admin SDK: {e}") from e
