@@ -1,0 +1,22 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check deployment configuration
+        run: |
+          echo "Repository checkout succeeded."
+          echo "GCP deployment target must be configured before a production deploy can be executed."
+          test -n "${{ secrets.GCP_PROJECT_ID }}" || { echo "Missing GCP_PROJECT_ID secret"; exit 1; }
+          test -n "${{ secrets.GCP_SA_KEY }}" || { echo "Missing GCP_SA_KEY secret"; exit 1; }
